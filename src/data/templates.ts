@@ -1,4 +1,4 @@
-export type LeadSource = 'email' | 'ads_meta' | 'ads_google' | 'referrals' | 'website' | 'other'
+export type LeadSource = 'email' | 'ads_meta' | 'ads_google' | 'referrals' | 'website' | 'dm' | 'other'
 export type TemplatePillar = 'pace' | 'presence' | 'personalization'
 
 export type TemplateConfig = {

@@ -3,19 +3,20 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type LeadSource = 'email' | 'ads_meta' | 'ads_google' | 'referrals' | 'website' | 'other'
+export type LeadSource = 'email' | 'ads_meta' | 'ads_google' | 'referrals' | 'website' | 'dm' | 'other'
 
 export type PerformanceAudit = {
   business_name:           string | null
   email:                   string | null
   email_captured:          boolean
   monthly_leads:           number
-  cost_per_lead:           number
+  ad_spend:                number        // total monthly ad spend (e.g. Google/Meta budget)
   current_conversion_rate: number        // 0–100
   revenue_per_client:      number
   lead_source:             LeadSource | null
   time_per_lead:           number        // hours per lead (qualify + follow-up), e.g. 0.5 = 30 min
   hourly_cost:             number        // $/hour for person managing leads
+  lead_source_count:       number        // number of active lead sources (1–5+)
 }
 
 export type SimulatorState = {
@@ -49,6 +50,7 @@ type FivePStore = {
   getTotalMonthlyBenefit:        () => number
   getTotalAnnualBenefit:         () => number
   isAuditComplete:               () => boolean
+  isGateComplete:                () => boolean
 }
 
 const defaultAudit = (): PerformanceAudit => ({
@@ -56,12 +58,13 @@ const defaultAudit = (): PerformanceAudit => ({
   email:                   null,
   email_captured:          false,
   monthly_leads:           0,
-  cost_per_lead:           0,
+  ad_spend:                0,
   current_conversion_rate: 10,
   revenue_per_client:      0,
   lead_source:             null,
   time_per_lead:           0.5,
   hourly_cost:             0,
+  lead_source_count:       1,
 })
 
 const defaultSimulator = (): SimulatorState => ({
@@ -159,6 +162,10 @@ export const useFivePStore = create<FivePStore>()(
           audit.revenue_per_client > 0 &&
           audit.lead_source
         )
+      },
+
+      isGateComplete: () => {
+        return get().audit.email_captured
       },
     }),
     {
