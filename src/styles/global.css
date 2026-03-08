@@ -2765,6 +2765,18 @@ pre {
   color: var(--color-accent-cyan);
   letter-spacing: 0.02em;
 }
+.gate-capture-error {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  background: rgba(230, 53, 107, 0.12);
+  border: 1px solid rgba(230, 53, 107, 0.45);
+  color: #f4869e;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
 
 /* =============================================
    RESULTS PAGE — revenue report

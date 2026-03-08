@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
 import type { LeadSource } from '@/store/useFivePStore'
@@ -110,23 +110,37 @@ export function AuditForm() {
   const savedAudit      = useFivePStore(s => s.audit)
   const isAuditComplete = useFivePStore(s => s.isAuditComplete)
 
-  // Restore step 3 if the user already completed the audit (e.g. navigating back from /gate)
-  const [step, setStep] = useState(() => isAuditComplete() ? 3 : 1)
+  // Start at 1 (SSR-safe), restore to 3 after mount if audit was already completed
+  const [step, setStep] = useState(1)
+  useEffect(() => { if (isAuditComplete()) setStep(3) }, [])
 
-  // Step 1: Revenue — seed from store if data exists
-  const [monthlyLeads,     setMonthlyLeads]     = useState(() => savedAudit.monthly_leads     > 0 ? String(savedAudit.monthly_leads)     : '')
-  const [revenuePerClient, setRevenuePerClient] = useState(() => savedAudit.revenue_per_client > 0 ? String(savedAudit.revenue_per_client) : '')
-  const [conversionRate,   setConversionRate]   = useState(() => savedAudit.current_conversion_rate ?? 5)
+  // Step 1: Revenue — seed from store after mount to avoid SSR mismatch
+  const [monthlyLeads,     setMonthlyLeads]     = useState('')
+  const [revenuePerClient, setRevenuePerClient] = useState('')
+  const [conversionRate,   setConversionRate]   = useState(5)
 
-  // Step 2: Costs — seed from store if data exists
-  const [adSpend,         setAdSpend]         = useState(() => savedAudit.ad_spend      > 0 ? String(savedAudit.ad_spend)      : '')
-  const [timePerLeadMins, setTimePerLeadMins] = useState(() => savedAudit.time_per_lead > 0 ? Math.round(savedAudit.time_per_lead * 60) : 30)
-  const [hourlyCost,      setHourlyCost]      = useState(() => savedAudit.hourly_cost   > 0 ? String(savedAudit.hourly_cost)   : '')
+  // Step 2: Costs
+  const [adSpend,         setAdSpend]         = useState('')
+  const [timePerLeadMins, setTimePerLeadMins] = useState(30)
+  const [hourlyCost,      setHourlyCost]      = useState('')
 
-  // Step 3: About — seed from store if data exists
-  const [leadSource,   setLeadSource]   = useState<LeadSource | ''>(() => savedAudit.lead_source ?? '')
-  const [businessName, setBusinessName] = useState(() => savedAudit.business_name ?? '')
-  const [leadSourceCount, setLeadSourceCount] = useState(() => savedAudit.lead_source_count > 0 ? savedAudit.lead_source_count : 1)
+  // Step 3: About
+  const [leadSource,      setLeadSource]      = useState<LeadSource | ''>('')
+  const [businessName,    setBusinessName]    = useState('')
+  const [leadSourceCount, setLeadSourceCount] = useState(1)
+
+  // Hydrate fields from persisted store after mount
+  useEffect(() => {
+    if (savedAudit.monthly_leads     > 0) setMonthlyLeads(String(savedAudit.monthly_leads))
+    if (savedAudit.revenue_per_client > 0) setRevenuePerClient(String(savedAudit.revenue_per_client))
+    if (savedAudit.current_conversion_rate) setConversionRate(savedAudit.current_conversion_rate)
+    if (savedAudit.ad_spend      > 0) setAdSpend(String(savedAudit.ad_spend))
+    if (savedAudit.time_per_lead > 0) setTimePerLeadMins(Math.round(savedAudit.time_per_lead * 60))
+    if (savedAudit.hourly_cost   > 0) setHourlyCost(String(savedAudit.hourly_cost))
+    if (savedAudit.lead_source)       setLeadSource(savedAudit.lead_source)
+    if (savedAudit.business_name)     setBusinessName(savedAudit.business_name)
+    if (savedAudit.lead_source_count > 0) setLeadSourceCount(savedAudit.lead_source_count)
+  }, [])
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 

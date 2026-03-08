@@ -24,6 +24,7 @@ export default function GatePage() {
   const [progressWidth, setProgressWidth] = useState(0)
   const [submitted,     setSubmitted]     = useState(false)
   const [countdown,     setCountdown]     = useState(5)
+  const [captureError,  setCaptureError]  = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -57,6 +58,44 @@ export default function GatePage() {
     captureEmail(email)
     setSubmitted(true)
     setProgressWidth(100)
+
+    // Compute revenue values for capture payload
+    const CONV_LIFT_PP       = 1.5
+    const improvedRateVal    = Math.min(audit.current_conversion_rate + CONV_LIFT_PP, 100)
+    const currentRevenue     = audit.monthly_leads * (audit.current_conversion_rate / 100) * audit.revenue_per_client
+    const improvedRevenue    = audit.monthly_leads * (improvedRateVal / 100) * audit.revenue_per_client
+    const monthlyConvGain    = improvedRevenue - currentRevenue
+    const lmCost             = audit.monthly_leads * audit.time_per_lead * audit.hourly_cost
+    const autoSavingsCapture = lmCost * 0.5
+    const totalMonthlyCapt   = monthlyConvGain + autoSavingsCapture
+    const annualGainCapt     = totalMonthlyCapt * 12
+
+    // Fire capture in parallel with countdown — do not block redirect
+    fetch('/api/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: firstName.trim(),
+        email,
+        monthly_leads:           audit.monthly_leads,
+        ad_spend:                audit.ad_spend,
+        conversion_rate:         audit.current_conversion_rate,
+        revenue_per_client:      audit.revenue_per_client,
+        lead_source:             audit.lead_source,
+        time_per_lead:           audit.time_per_lead,
+        hourly_cost:             audit.hourly_cost,
+        lead_source_count:       audit.lead_source_count,
+        current_monthly_revenue:  currentRevenue,
+        improved_monthly_revenue: improvedRevenue,
+        monthly_conv_gain:        monthlyConvGain,
+        lm_cost:                  lmCost,
+        auto_savings:             autoSavingsCapture,
+        total_monthly_benefit:    totalMonthlyCapt,
+        annual_gain:              annualGainCapt,
+      }),
+    }).then(res => { if (!res.ok) setCaptureError(true) })
+      .catch(() => setCaptureError(true))
+
     let remaining = 5
     const interval = setInterval(() => {
       remaining -= 1
@@ -220,6 +259,11 @@ export default function GatePage() {
             </div>
           ) : (
             <div className="gate-success">
+              {captureError && (
+                <div className="gate-capture-error">
+                  Lead capture failed — check logs
+                </div>
+              )}
               <div className="gate-success__icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3dcab1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
