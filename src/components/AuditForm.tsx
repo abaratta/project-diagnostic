@@ -110,9 +110,7 @@ export function AuditForm() {
   const savedAudit      = useFivePStore(s => s.audit)
   const isAuditComplete = useFivePStore(s => s.isAuditComplete)
 
-  // Start at 1 (SSR-safe), restore to 3 after mount if audit was already completed
   const [step, setStep] = useState(1)
-  useEffect(() => { if (isAuditComplete()) setStep(3) }, [])
 
   // Step 1: Revenue — seed from store after mount to avoid SSR mismatch
   const [monthlyLeads,     setMonthlyLeads]     = useState('')
