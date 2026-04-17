@@ -5,6 +5,7 @@ import { Header } from '@/components/Header'
 export const metadata: Metadata = {
   title: '5P System — Profit AI Lab',
   description: 'Discover how many leads you\'re leaving on the table and build your conversion system.',
+  icons: { icon: '/favicon.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
