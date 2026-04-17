@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 1. Insert into Supabase
-  const { error: dbError } = await supabase.from('leads').insert([body])
+  const { error: dbError } = await getSupabase().from('leads').insert([body])
   if (dbError) {
     console.error('[capture] Supabase insert failed:', dbError.message)
     return NextResponse.json({ ok: false, error: dbError.message }, { status: 500 })
