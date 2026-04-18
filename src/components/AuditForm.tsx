@@ -114,6 +114,10 @@ export function AuditForm() {
   const initialStep = Number(searchParams.get('step')) || 1
   const [step, setStep] = useState(initialStep)
 
+  useEffect(() => {
+    router.replace(`/?step=${step}`)
+  }, [step])
+
   // Step 1: Revenue — seed from store after mount to avoid SSR mismatch
   const [monthlyLeads,     setMonthlyLeads]     = useState('')
   const [revenuePerClient, setRevenuePerClient] = useState('')
