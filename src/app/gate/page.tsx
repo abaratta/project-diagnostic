@@ -270,7 +270,7 @@ export default function GatePage() {
           <button className="btn btn--ghost" onClick={() => router.push('/?step=3')}>
             ← Back
           </button>
-          <button className="btn btn--ghost" onClick={() => router.push('/results')}>
+          <button className="btn btn--ghost btn--glow" onClick={() => router.push('/results')}>
             See My Full Report →
           </button>
         </div>

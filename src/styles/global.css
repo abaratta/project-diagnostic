@@ -248,6 +248,28 @@ pre {
 .btn--full { width: 100%; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+@keyframes btn-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px 0px rgba(61,202,177,0.15), 0 0 0 1px rgba(61,202,177,0.25);
+    border-color: rgba(61,202,177,0.35);
+  }
+  50% {
+    box-shadow: 0 0 18px 5px rgba(61,202,177,0.3), 0 0 0 1px rgba(61,202,177,0.75);
+    border-color: rgba(61,202,177,0.9);
+  }
+}
+.btn--glow {
+  color: #3dcab1;
+  border-color: rgba(61,202,177,0.35);
+  animation: btn-glow-pulse 2.2s ease-in-out infinite;
+}
+.btn--glow:hover {
+  color: #3dcab1;
+  box-shadow: 0 0 24px 8px rgba(61,202,177,0.35);
+  border-color: #3dcab1;
+  animation-play-state: paused;
+}
+
 /* Forms */
 .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
 .form-label {
