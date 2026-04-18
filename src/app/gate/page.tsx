@@ -147,43 +147,43 @@ export default function GatePage() {
             <div style={{ position: 'absolute', top: 0, bottom: 0, left: '35%', width: '1px', background: 'rgba(243,246,250,0.1)', pointerEvents: 'none' }} />
 
             {/* REVENUE */}
-            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Revenue</div>
+            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>Revenue</div>
 
             {/* Current → right (grey) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
+                <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                 <div style={{ height: '8px', width: `${currentRevPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                   {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}` : '—'}
                 </span>
               </div>
             </div>
 
             {/* Potential → right (grey) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
+                <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                 <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                   {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}` : '—'}
                 </span>
               </div>
             </div>
 
-            {/* Benefit → right (white) */}
+            {/* Benefit → right (teal) */}
             {monthlyGain > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Benefit</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Benefit</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100), 100) * 0.55}%`, background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                  <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100), 100) * 0.55}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     +${Math.round(monthlyGain).toLocaleString()}
                   </span>
                 </div>
@@ -193,47 +193,47 @@ export default function GatePage() {
             <div className="audit-viz-divider" />
 
             {/* COSTS */}
-            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', margin: '0.5rem 0' }}>Costs</div>
+            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', margin: '0.75rem 0' }}>Costs</div>
 
             {/* Current cost ← left (grey) */}
             {totalCostSnapshot > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
                   <div style={{ height: '8px', width: `${costBarPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     −${totalCostSnapshot.toLocaleString()}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
                 </div>
               </div>
             )}
 
             {/* Potential cost ← left (grey, shorter) */}
             {autoSavings > 0 && potentialCostSnapshot > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
                   <div style={{ height: '8px', width: `${potCostPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     −${potentialCostSnapshot.toLocaleString()}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
                 </div>
               </div>
             )}
 
-            {/* Recoverable → right (white) */}
+            {/* Recoverable → right (teal) */}
             {autoSavings > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Recoverable</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Recoverable</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <div style={{ height: '8px', width: `${savingsBarPct * 0.55}%`, background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                  <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <div style={{ height: '8px', width: `${savingsBarPct * 0.55}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     +${Math.round(autoSavings).toLocaleString()}
                   </span>
                 </div>
@@ -242,8 +242,8 @@ export default function GatePage() {
 
             <div className="audit-viz-divider" />
 
-            {/* MONTHLY BENEFIT */}
-            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text)', margin: '0.5rem 0' }}>Monthly benefit with lead to revenue system</div>
+            {/* BENEFIT */}
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text)', margin: '0.75rem 0' }}>Benefit with lead to revenue system</div>
 
             {/* Opportunity → right (white) */}
             <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center' }}>

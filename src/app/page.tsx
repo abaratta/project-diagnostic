@@ -1,11 +1,12 @@
-'use client'
-
+import { Suspense } from 'react'
 import { AuditForm } from '@/components/AuditForm'
 
 export default function HomePage() {
   return (
     <main>
-      <AuditForm />
+      <Suspense>
+        <AuditForm />
+      </Suspense>
     </main>
   )
 }
