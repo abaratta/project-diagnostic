@@ -79,7 +79,7 @@ export default function ResultsPage() {
 
         {/* Header */}
         <div className="rr-header">
-          <div className="rr-eyebrow">
+          <div className="rr-eyebrow" style={{ fontSize: '0.875rem' }}>
             <span className="rr-dot" />
             Your Revenue Report
           </div>
@@ -92,14 +92,33 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        {/* Top CTA */}
-        <div className="rr-cta-row">
+        {/* Top CTA card */}
+        <div className="rr-book-section">
+          <div className="rr-book-eyebrow">Free Strategy Call</div>
+          <h2 className="rr-book-title">Book your Free Strategy Call</h2>
+          <p className="rr-book-sub">
+            We map your gaps and show you how you can recover this revenue in 30 days. No pitch, no pressure.
+          </p>
           <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn--pink btn--lg">
             Book My Free Strategy Call
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
+          <div className="rr-microcopy">
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Free
+            </span>
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              No obligation
+            </span>
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              30 min
+            </span>
+          </div>
         </div>
 
         {/* Top 3 fixes */}
@@ -191,7 +210,7 @@ export default function ResultsPage() {
               </tr>
               {lmCost > 0 && (
                 <tr>
-                  <td>Time cost / month</td>
+                  <td style={{ color: '#3dcab1' }}>Time cost / month</td>
                   <td>${Math.round(lmCost).toLocaleString()}</td>
                   <td className="rr-td-rapid">${Math.round(lmCost - autoSavings).toLocaleString()}</td>
                   <td className="rr-td-save">−${Math.round(autoSavings).toLocaleString()}</td>
@@ -209,31 +228,19 @@ export default function ResultsPage() {
 
         {/* Bottom CTA section */}
         <div className="rr-book-section">
-          <div className="rr-book-eyebrow">Free Strategy Call</div>
-          <h2 className="rr-book-title">Book your Free Strategy Call</h2>
-          <p className="rr-book-sub">
-            We map your gaps and show you how you can recover this revenue in 30 days. No pitch, no pressure.
-          </p>
           <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn--pink btn--lg">
             Book My Free Strategy Call
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
-          <div className="rr-microcopy">
-            <span>
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Free
-            </span>
-            <span>
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              No obligation
-            </span>
-            <span>
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              30 min
-            </span>
-          </div>
+        </div>
+
+        {/* Back */}
+        <div style={{ display: 'flex', justifyContent: 'flex-start', paddingBottom: '1rem' }}>
+          <button className="btn btn--ghost" onClick={() => router.push('/gate')}>
+            ← Back
+          </button>
         </div>
 
       </div>

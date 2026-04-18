@@ -1930,10 +1930,10 @@ pre {
     justify-content: center;
     text-align: center;
   }
-  .wizard-nav--dual {
+  .wizard-nav.wizard-nav--dual {
     flex-direction: row;
   }
-  .wizard-nav--dual .btn {
+  .wizard-nav.wizard-nav--dual .btn {
     width: auto;
     flex: 1;
   }

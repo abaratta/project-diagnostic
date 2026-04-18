@@ -468,7 +468,7 @@ export function AuditForm() {
                       <span style={{ color: 'var(--color-text-dim)', fontWeight: 400 }}>(optional)</span>
                     </label>
                     <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                      Add details to get the report by email with additional insight and ideas.
+                      Add your details to get the report by email + access to advanced tools
                     </span>
                     <input
                       id="businessName" type="email"
@@ -487,7 +487,7 @@ export function AuditForm() {
       })()}
 
       {/* Navigation */}
-      <div className="wizard-nav">
+      <div className={`wizard-nav${step > 1 ? ' wizard-nav--dual' : ''}`}>
         {step > 1 ? (
           <button type="button" className="btn btn--ghost" onClick={handleBack}>
             ← Back
