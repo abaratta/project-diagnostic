@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
-import { BookCallButton } from '@/components/BookCallButton'
+
+const BOOKING_URL = 'https://tidycal.com/andrea-baratta/lead-to-revenue-audit'
 
 function FixTooltip({ title, text }: { title: string; text: string }) {
   const [open, setOpen] = useState(false)
@@ -69,13 +70,12 @@ export default function ResultsPage() {
   const currentClients  = audit.monthly_leads * (audit.current_conversion_rate / 100)
   const improvedClients = audit.monthly_leads * (improvedRate / 100)
 
-  const name       = audit.business_name ? audit.business_name.split(' ')[0] : null
   const fix1Annual = Math.round(monthlyConvGain * 12)
   const fix2Annual = Math.round(autoSavings * 12)
 
   return (
     <>
-      <div className="rr-shell">
+      <div className="rr-shell rr-shell--single">
 
         {/* Header */}
         <div className="rr-header">
@@ -84,186 +84,158 @@ export default function ResultsPage() {
             Your Revenue Report
           </div>
           <h1 className="rr-headline">
-            {name ? <>{name}, you're leaving </> : "You're leaving "}
-            <span className="rr-loss">${Math.round(annualGain).toLocaleString()}/yr</span>
-            {' '}on the table.
+            Ready to recover{' '}
+            <span className="rr-loss">${Math.round(annualGain).toLocaleString()}/yr</span>?
           </h1>
           <p className="rr-sub">
-            That's <strong>${Math.round(totalMonthly).toLocaleString()} every month</strong> in lost revenue. Here's what's causing it — and how to fix it in 30 days.
+            Here's what's causing it — and how to fix it in 30 days.
           </p>
         </div>
 
-        {/* Body grid */}
-        <div className="rr-body-grid">
-
-          {/* LEFT */}
-          <div className="rr-left">
-
-            {/* Top 3 fixes */}
-            <div className="rr-panel">
-              <div className="rr-panel-label">Your top 3 highest-impact fixes</div>
-              <div className="rr-fixes">
-
-                <div className="rr-fix-card">
-                  <div className="rr-fix-rank rr-fix-rank--1">#1</div>
-                  <div className="rr-fix-body">
-                    <div className="rr-fix-title">
-                      Fix lead follow-up speed
-                      <FixTooltip title="Fix lead follow-up speed" text="Responding within 5 min vs 30 min increases conversion up to 21×. Your leads are going cold." />
-                    </div>
-                  </div>
-                  <div className="rr-fix-val">
-                    +${fix1Annual.toLocaleString()}
-                    <small>/yr</small>
-                  </div>
-                </div>
-
-                <div className="rr-fix-card">
-                  <div className="rr-fix-rank rr-fix-rank--2">#2</div>
-                  <div className="rr-fix-body">
-                    <div className="rr-fix-title">
-                      Automate lead qualification
-                      <FixTooltip title="Automate lead qualification" text={lmCost > 0
-                        ? `You spend ~$${Math.round(lmCost).toLocaleString()}/mo manually triaging enquiries. Automation cuts this by 50%.`
-                        : 'Automated qualification removes bottlenecks and responds instantly — 24/7 without added headcount.'} />
-                    </div>
-                  </div>
-                  {fix2Annual > 0 ? (
-                    <div className="rr-fix-val">+${fix2Annual.toLocaleString()}<small>/yr</small></div>
-                  ) : (
-                    <div className="rr-fix-val rr-fix-val--soft">High<small>impact</small></div>
-                  )}
-                </div>
-
-                <div className="rr-fix-card">
-                  <div className="rr-fix-rank rr-fix-rank--3">#3</div>
-                  <div className="rr-fix-body">
-                    <div className="rr-fix-title">
-                      Add a structured nurture sequence
-                      <FixTooltip title="Add a structured nurture sequence" text="Leads need 5–8 touches before converting. Without one, they quietly go to your competitors." />
-                    </div>
-                  </div>
-                  <div className="rr-fix-val rr-fix-val--soft">High<small>impact</small></div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Compare table */}
-            <div className="rr-panel">
-              <div className="rr-table-hdr">
-                <div className="rr-panel-label">Full breakdown</div>
-                <button type="button" className="rr-info-btn" onClick={() => setShowCalc(true)}>
-                  <span className="rr-info-icon">i</span>
-                  How we calculated this
-                </button>
-              </div>
-              <table className="rr-table">
-                <thead>
-                  <tr>
-                    <th>Metric</th>
-                    <th>Today</th>
-                    <th>With RAPID</th>
-                    <th className="rr-th-gain">Gain</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Conversion rate</td>
-                    <td>{audit.current_conversion_rate.toFixed(1)}%</td>
-                    <td className="rr-td-rapid">{improvedRate.toFixed(1)}%</td>
-                    <td className="rr-td-gain">+{CONV_LIFT_PP}pp</td>
-                  </tr>
-                  <tr>
-                    <td>Clients / month</td>
-                    <td>{currentClients.toFixed(1)}</td>
-                    <td className="rr-td-rapid">{improvedClients.toFixed(1)}</td>
-                    <td className="rr-td-gain">+{(improvedClients - currentClients).toFixed(1)}</td>
-                  </tr>
-                  <tr>
-                    <td>Monthly revenue</td>
-                    <td>${Math.round(currentRevenue).toLocaleString()}</td>
-                    <td className="rr-td-rapid">${Math.round(improvedRevenue).toLocaleString()}</td>
-                    <td className="rr-td-gain">+${Math.round(monthlyConvGain).toLocaleString()}</td>
-                  </tr>
-                  {lmCost > 0 && (
-                    <tr>
-                      <td>Time cost / month</td>
-                      <td>${Math.round(lmCost).toLocaleString()}</td>
-                      <td className="rr-td-rapid">${Math.round(lmCost - autoSavings).toLocaleString()}</td>
-                      <td className="rr-td-save">−${Math.round(autoSavings).toLocaleString()}</td>
-                    </tr>
-                  )}
-                  <tr>
-                    <td><strong>Total monthly benefit</strong></td>
-                    <td>—</td>
-                    <td>—</td>
-                    <td className="rr-td-total">${Math.round(totalMonthly).toLocaleString()}/mo</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-          </div>
-
-          {/* RIGHT: CTA panel */}
-          <div className="rr-cta-panel">
-
-            <div className="rr-cta-eyebrow">Ready to recover this?</div>
-            <div className="rr-cta-amount-wrap">
-              <span className="rr-cta-big">${Math.round(annualGain).toLocaleString()}</span>
-              <span className="rr-cta-period">/yr</span>
-            </div>
-            <div className="rr-cta-monthly">= <strong>${Math.round(totalMonthly).toLocaleString()} per month</strong> recoverable</div>
-
-            <hr className="rr-hr" />
-
-            <div className="rr-cta-heading">Book your free strategy call</div>
-            <p className="rr-cta-sub">We map your gaps and show you how you can recover this revenue in 30 days. No pitch, no pressure.</p>
-
-            <BookCallButton className="rr-cta-btn">
-              Book My Free Call
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </BookCallButton>
-
-            <div className="rr-microcopy">
-              <span>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Free
-              </span>
-              <span>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                No obligation
-              </span>
-              <span>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                30 min
-              </span>
-            </div>
-
-            <div className="rr-urgency">
-              Every month you wait costs you <strong>${Math.round(totalMonthly).toLocaleString()}</strong> in recoverable revenue.
-            </div>
-
-            <hr className="rr-hr" />
-
-            <div className="rr-social-proof">
-              <div className="rr-avatars">
-                <div className="rr-avatar rr-avatar--a">JR</div>
-                <div className="rr-avatar rr-avatar--b">SK</div>
-                <div className="rr-avatar rr-avatar--c">ML</div>
-                <div className="rr-avatar rr-avatar--d">+</div>
-              </div>
-              <div className="rr-proof-text">
-                <strong>100+ service businesses</strong> already using our system to recover this revenue
-              </div>
-            </div>
-
-          </div>
-
+        {/* Top CTA */}
+        <div className="rr-cta-row">
+          <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn--pink btn--lg">
+            Book My Free Strategy Call
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
         </div>
+
+        {/* Top 3 fixes */}
+        <div className="rr-panel">
+          <div className="rr-panel-label">Your top 3 highest-impact fixes</div>
+          <div className="rr-fixes">
+
+            <div className="rr-fix-card">
+              <div className="rr-fix-rank rr-fix-rank--1">#1</div>
+              <div className="rr-fix-body">
+                <div className="rr-fix-title">
+                  Fix lead follow-up speed
+                  <FixTooltip title="Fix lead follow-up speed" text="Responding within 5 min vs 30 min increases conversion up to 21×. Your leads are going cold." />
+                </div>
+              </div>
+              <div className="rr-fix-val">
+                +${fix1Annual.toLocaleString()}
+                <small>/yr</small>
+              </div>
+            </div>
+
+            <div className="rr-fix-card">
+              <div className="rr-fix-rank rr-fix-rank--2">#2</div>
+              <div className="rr-fix-body">
+                <div className="rr-fix-title">
+                  Automate lead qualification
+                  <FixTooltip title="Automate lead qualification" text={lmCost > 0
+                    ? `You spend ~$${Math.round(lmCost).toLocaleString()}/mo manually triaging enquiries. Automation cuts this by 50%.`
+                    : 'Automated qualification removes bottlenecks and responds instantly — 24/7 without added headcount.'} />
+                </div>
+              </div>
+              {fix2Annual > 0 ? (
+                <div className="rr-fix-val">+${fix2Annual.toLocaleString()}<small>/yr</small></div>
+              ) : (
+                <div className="rr-fix-val rr-fix-val--soft">High<small>impact</small></div>
+              )}
+            </div>
+
+            <div className="rr-fix-card">
+              <div className="rr-fix-rank rr-fix-rank--3">#3</div>
+              <div className="rr-fix-body">
+                <div className="rr-fix-title">
+                  Add a structured nurture sequence
+                  <FixTooltip title="Add a structured nurture sequence" text="Leads need 5–8 touches before converting. Without one, they quietly go to your competitors." />
+                </div>
+              </div>
+              <div className="rr-fix-val rr-fix-val--soft">High<small>impact</small></div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Full breakdown */}
+        <div className="rr-panel">
+          <div className="rr-table-hdr">
+            <div className="rr-panel-label">Full breakdown</div>
+            <button type="button" className="rr-info-btn" onClick={() => setShowCalc(true)}>
+              <span className="rr-info-icon">i</span>
+              How we calculated this
+            </button>
+          </div>
+          <table className="rr-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Today</th>
+                <th>With RAPID</th>
+                <th className="rr-th-gain">Gain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Conversion rate</td>
+                <td>{audit.current_conversion_rate.toFixed(1)}%</td>
+                <td className="rr-td-rapid">{improvedRate.toFixed(1)}%</td>
+                <td className="rr-td-gain">+{CONV_LIFT_PP}pp</td>
+              </tr>
+              <tr>
+                <td>Clients / month</td>
+                <td>{currentClients.toFixed(1)}</td>
+                <td className="rr-td-rapid">{improvedClients.toFixed(1)}</td>
+                <td className="rr-td-gain">+{(improvedClients - currentClients).toFixed(1)}</td>
+              </tr>
+              <tr>
+                <td>Monthly revenue</td>
+                <td>${Math.round(currentRevenue).toLocaleString()}</td>
+                <td className="rr-td-rapid">${Math.round(improvedRevenue).toLocaleString()}</td>
+                <td className="rr-td-gain">+${Math.round(monthlyConvGain).toLocaleString()}</td>
+              </tr>
+              {lmCost > 0 && (
+                <tr>
+                  <td>Time cost / month</td>
+                  <td>${Math.round(lmCost).toLocaleString()}</td>
+                  <td className="rr-td-rapid">${Math.round(lmCost - autoSavings).toLocaleString()}</td>
+                  <td className="rr-td-save">−${Math.round(autoSavings).toLocaleString()}</td>
+                </tr>
+              )}
+              <tr>
+                <td><strong>Total monthly benefit</strong></td>
+                <td>—</td>
+                <td>—</td>
+                <td className="rr-td-total">${Math.round(totalMonthly).toLocaleString()}/mo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bottom CTA section */}
+        <div className="rr-book-section">
+          <div className="rr-book-eyebrow">Free Strategy Call</div>
+          <h2 className="rr-book-title">Book your Free Strategy Call</h2>
+          <p className="rr-book-sub">
+            We map your gaps and show you how you can recover this revenue in 30 days. No pitch, no pressure.
+          </p>
+          <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn--pink btn--lg">
+            Book My Free Strategy Call
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <div className="rr-microcopy">
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Free
+            </span>
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              No obligation
+            </span>
+            <span>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              30 min
+            </span>
+          </div>
+        </div>
+
       </div>
 
       {/* How we calculated this — modal */}

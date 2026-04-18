@@ -1930,6 +1930,13 @@ pre {
     justify-content: center;
     text-align: center;
   }
+  .wizard-nav--dual {
+    flex-direction: row;
+  }
+  .wizard-nav--dual .btn {
+    width: auto;
+    flex: 1;
+  }
   .lead-count-pill {
     padding: 0.75rem 0;
     min-height: 44px;
@@ -2952,6 +2959,54 @@ pre {
   padding: 1.5rem 2rem 2rem;
   display: grid;
   gap: 0.875rem;
+}
+.rr-shell--single {
+  max-width: 680px;
+}
+.rr-cta-row {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 0.25rem;
+}
+.btn--pink {
+  background: #e6356b;
+  color: #fff;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn--pink:hover { background: #d02f60; box-shadow: 0 4px 20px rgba(230,53,107,0.35); }
+.rr-book-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.rr-book-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e6356b;
+}
+.rr-book-title {
+  font-size: clamp(1.25rem, 3vw, 1.625rem);
+  font-weight: 700;
+  margin: 0;
+}
+.rr-book-sub {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0;
 }
 
 /* Header */
