@@ -207,6 +207,7 @@ export function AuditForm() {
 
   function handleBack() {
     setErrors({})
+    if (step === 1) { router.push('/'); return }
     setStep(s => s - 1)
   }
 
@@ -487,14 +488,10 @@ export function AuditForm() {
       })()}
 
       {/* Navigation */}
-      <div className={`wizard-nav${step > 1 ? ' wizard-nav--dual' : ''}`}>
-        {step > 1 ? (
-          <button type="button" className="btn btn--ghost" onClick={handleBack}>
-            ← Back
-          </button>
-        ) : (
-          <span />
-        )}
+      <div className="wizard-nav wizard-nav--dual">
+        <button type="button" className="btn btn--ghost" onClick={handleBack}>
+          ← Back
+        </button>
 
         <button type="button" className="btn btn--ghost" onClick={handleNext}>
           Next →

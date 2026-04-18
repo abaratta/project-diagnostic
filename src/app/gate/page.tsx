@@ -69,6 +69,8 @@ export default function GatePage() {
 
   const [mounted,       setMounted]       = useState(false)
   const [progressWidth, setProgressWidth] = useState(0)
+  const [email,         setEmail]         = useState('')
+  const [submitting,    setSubmitting]    = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -101,6 +103,29 @@ export default function GatePage() {
   const savingsBarPct           = autoSavings > 0 ? Math.min(Math.round(autoSavings / snapRef * 100), 100) : 0
   const potentialCostSnapshot   = Math.max(0, totalCostSnapshot - Math.round(autoSavings))
   const potCostPct              = snapRef > 0 ? Math.min(Math.round(potentialCostSnapshot / snapRef * 100), 100) : 0
+
+  async function handleReport() {
+    setSubmitting(true)
+    try {
+      await fetch('https://hook.eu2.make.com/hrajl6irrzk7oudcwnn60cxrvaf6u47a', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:                    email.trim(),
+          leads_per_month:          audit.monthly_leads,
+          conversion_rate:          audit.current_conversion_rate,
+          avg_revenue_per_client:   audit.revenue_per_client,
+          monthly_ad_spend:         audit.ad_spend,
+          time_to_qualify_hours:    audit.time_per_lead,
+          avg_hourly_cost:          audit.hourly_cost,
+          primary_lead_source:      audit.lead_source,
+        }),
+      })
+    } catch (_) {
+      // fire-and-forget — don't block navigation on webhook failure
+    }
+    router.push('/results')
+  }
 
   if (!mounted) return null
 
@@ -265,14 +290,28 @@ export default function GatePage() {
 
         </div>
 
-        {/* CTA */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', gap: '1rem' }}>
-          <button className="btn btn--ghost" onClick={() => router.push('/?step=3')}>
-            ← Back
-          </button>
-          <button className="btn btn--ghost btn--glow" onClick={() => router.push('/results')}>
-            See My Full Report →
-          </button>
+        {/* Email capture + CTA */}
+        <div style={{ marginTop: '2rem' }}>
+          <input
+            className="gate-email-input"
+            type="email"
+            placeholder="Enter your email to unlock the report"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && email.trim()) handleReport() }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem', gap: '1rem' }}>
+            <button className="btn btn--ghost" onClick={() => router.push('/?step=3')}>
+              ← Back
+            </button>
+            <button
+              className="btn btn--ghost btn--glow"
+              onClick={handleReport}
+              disabled={submitting}
+            >
+              {submitting ? 'Loading…' : 'See My Full Report →'}
+            </button>
+          </div>
         </div>
 
       </div>
