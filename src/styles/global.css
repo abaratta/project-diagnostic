@@ -2610,20 +2610,6 @@ pre {
   padding: 1.75rem 1.5rem 2rem;
   text-align: center;
 }
-.gate-email-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: var(--radius-md);
-  color: var(--color-text);
-  font-size: 0.9375rem;
-  padding: 0.75rem 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.gate-email-input::placeholder { color: var(--color-text-muted); }
-.gate-email-input:focus { border-color: rgba(61,202,177,0.5); }
 
 /* ── Progress bar ── */
 .gate-progress {

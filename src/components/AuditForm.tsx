@@ -190,7 +190,7 @@ export function AuditForm() {
     if (step < TOTAL_STEPS) {
       setStep(s => s + 1)
     } else {
-      setAudit({
+      const auditData = {
         business_name:           businessName || null,
         monthly_leads:           Number(monthlyLeads),
         ad_spend:                Number(adSpend) || 0,
@@ -200,7 +200,24 @@ export function AuditForm() {
         time_per_lead:           timePerLeadMins / 60,
         hourly_cost:             Number(hourlyCost) || 0,
         lead_source_count:       leadSourceCount,
-      })
+      }
+      setAudit(auditData)
+      if (businessName.trim()) {
+        fetch('https://hook.eu2.make.com/hrajl6irrzk7oudcwnn60cxrvaf6u47a', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email:                  businessName.trim(),
+            leads_per_month:        auditData.monthly_leads,
+            conversion_rate:        auditData.current_conversion_rate,
+            avg_revenue_per_client: auditData.revenue_per_client,
+            monthly_ad_spend:       auditData.ad_spend,
+            time_to_qualify_hours:  auditData.time_per_lead,
+            avg_hourly_cost:        auditData.hourly_cost,
+            primary_lead_source:    auditData.lead_source,
+          }),
+        }).catch(() => {})
+      }
       router.push('/gate')
     }
   }
