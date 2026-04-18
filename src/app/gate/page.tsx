@@ -1,8 +1,66 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
+import type { LeadSource } from '@/store/useFivePStore'
+
+const LEAD_SOURCE_ICONS: Record<string, React.ReactElement> = {
+  email: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="m2 7 10 7 10-7"/>
+    </svg>
+  ),
+  ads_meta: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  ),
+  ads_google: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"/>
+      <path d="M12 12h6a6 6 0 1 1-1.76-4.24"/>
+    </svg>
+  ),
+  referrals: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  website: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M2 12h20"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  ),
+  dm: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/>
+      <rect x="2" y="9" width="4" height="12"/>
+      <circle cx="4" cy="4" r="2"/>
+    </svg>
+  ),
+  other: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  ),
+}
+
+const LEAD_SOURCE_SHORT: Record<string, string> = {
+  email:      'Email',
+  ads_meta:   'Meta Ads',
+  ads_google: 'Google Ads',
+  referrals:  'Referrals',
+  website:    'Organic',
+  dm:         'LinkedIn DM',
+  other:      'Other',
+}
 
 const CHECKLIST = [
   'Full revenue breakdown by channel',
@@ -38,13 +96,22 @@ export default function GatePage() {
     return () => clearTimeout(t)
   }, [mounted])
 
-  // Calculations
+  // Opportunity calculations
   const improvedRate      = Math.min(audit.current_conversion_rate + 1.5, 100)
   const additionalClients = audit.monthly_leads * (improvedRate - audit.current_conversion_rate) / 100
   const monthlyGain       = additionalClients * audit.revenue_per_client
   const autoSavings       = audit.monthly_leads * audit.time_per_lead * audit.hourly_cost * 0.5
   const totalMonthly      = monthlyGain + autoSavings
   const annualGain        = totalMonthly * 12
+
+  // Monthly snapshot (mirrors the audit form viz)
+  const revenueSnapshot   = Math.round(audit.monthly_leads * (audit.current_conversion_rate / 100) * audit.revenue_per_client)
+  const timeCostSnapshot  = audit.hourly_cost > 0 ? Math.round(audit.time_per_lead * audit.monthly_leads * audit.hourly_cost) : 0
+  const totalCostSnapshot = audit.ad_spend + timeCostSnapshot
+  const netSnapshot       = revenueSnapshot - totalCostSnapshot
+  const revPct            = revenueSnapshot > 0 ? 100 : 0
+  const costPct           = revenueSnapshot > 0 && totalCostSnapshot > 0 ? Math.min(Math.round(totalCostSnapshot / revenueSnapshot * 100), 100) : 0
+  const netPct            = revenueSnapshot > 0 && netSnapshot > 0 ? Math.min(Math.round(netSnapshot / revenueSnapshot * 100), 100) : 0
 
   const displayName = firstName.trim().split(' ')[0] || null
 
@@ -149,35 +216,65 @@ export default function GatePage() {
         {/* Main grid */}
         <div className="gate-card">
 
-          {/* LEFT: stats + line items */}
+          {/* LEFT: monthly snapshot */}
           <div className="gate-left-panel">
-            <div className="gate-stat-box gate-stat-box--cyan">
-              <div className="gate-stat-label">Monthly Revenue Opportunity</div>
-              <div className="gate-stat-value">${Math.round(totalMonthly).toLocaleString()}</div>
-              <div className="gate-stat-delta">↑ vs. current baseline</div>
-            </div>
-            <div className="gate-stat-box gate-stat-box--pink">
-              <div className="gate-stat-label">Annual Opportunity</div>
-              <div className="gate-stat-value">${Math.round(annualGain).toLocaleString()}</div>
-              <div className="gate-stat-delta gate-stat-delta--pink">Currently left on the table</div>
-            </div>
-            <div className="gate-line-items">
-              <div className="gate-line-item">
-                <span className="gate-line-label">Lead conversion uplift</span>
-                <span className="gate-line-value">+1.5pp</span>
+            <div className="audit-viz-panel audit-viz-panel--active">
+              <div className="audit-viz-eyebrow">Monthly snapshot</div>
+              <div className="audit-hbar">
+                <div className="audit-hbar__row">
+                  <div className="audit-hbar__meta">
+                    <span className="audit-hbar__label">Revenue</span>
+                    <span className="audit-hbar__value audit-hbar__value--rev">
+                      {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}` : '—'}
+                    </span>
+                  </div>
+                  <div className="audit-hbar__track">
+                    <div className="audit-hbar__fill audit-hbar__fill--rev" style={{ width: `${revPct}%` }} />
+                  </div>
+                </div>
+                <div className="audit-viz-divider" />
+                <div className="audit-hbar__row">
+                  <div className="audit-hbar__meta">
+                    <span className="audit-hbar__label">Costs</span>
+                    <span className="audit-hbar__value audit-hbar__value--cost">
+                      {totalCostSnapshot > 0 ? `−$${Math.round(totalCostSnapshot).toLocaleString()}` : '—'}
+                    </span>
+                  </div>
+                  <div className="audit-hbar__track">
+                    <div className="audit-hbar__fill audit-hbar__fill--cost" style={{ width: `${costPct}%` }} />
+                  </div>
+                </div>
+                <div className="audit-viz-divider" />
+                <div className="audit-hbar__row">
+                  <div className="audit-hbar__meta">
+                    <span className="audit-hbar__label">Net</span>
+                    <span className="audit-hbar__value audit-hbar__value--net">
+                      {netSnapshot > 0 ? `$${Math.round(netSnapshot).toLocaleString()}` : '—'}
+                    </span>
+                  </div>
+                  <div className="audit-hbar__track">
+                    <div className="audit-hbar__fill audit-hbar__fill--net" style={{ width: `${netPct}%` }} />
+                  </div>
+                </div>
+                <div className="audit-viz-divider" />
+                <div className="audit-hbar__row">
+                  <div className="audit-hbar__meta">
+                    <span className="audit-hbar__label">Lead sources</span>
+                    <span className="audit-hbar__value" style={{ color: 'var(--color-text-muted)' }}>
+                      {audit.lead_source_count === 5 ? '5+' : audit.lead_source_count}
+                    </span>
+                  </div>
+                  <div className="audit-battery">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className={`audit-battery__seg audit-battery__seg--${i}${i <= audit.lead_source_count ? ' audit-battery__seg--filled' : ''}`} />
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="gate-line-item">
-                <span className="gate-line-label">Additional clients / month</span>
-                <span className="gate-line-value gate-line-value--blur">+{additionalClients.toFixed(1)}</span>
-              </div>
-              <div className="gate-line-item">
-                <span className="gate-line-label">Monthly revenue gain</span>
-                <span className="gate-line-value gate-line-value--blur">+${Math.round(monthlyGain).toLocaleString()}</span>
-              </div>
-              {autoSavings > 0 && (
-                <div className="gate-line-item">
-                  <span className="gate-line-label">Time cost savings</span>
-                  <span className="gate-line-value gate-line-value--blur">${Math.round(autoSavings).toLocaleString()}/mo</span>
+              {audit.lead_source && LEAD_SOURCE_ICONS[audit.lead_source as LeadSource] && (
+                <div className="audit-source-badge">
+                  <div className="audit-source-badge__icon">{LEAD_SOURCE_ICONS[audit.lead_source]}</div>
+                  <span className="audit-source-badge__name">{LEAD_SOURCE_SHORT[audit.lead_source]}</span>
                 </div>
               )}
             </div>

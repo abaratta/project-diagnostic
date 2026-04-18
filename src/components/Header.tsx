@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { setVaultUnlocked } from '@/lib/vaultSession'
-import { BookCallButton } from '@/components/BookCallButton'
 
 const BACK_HREFS: Record<string, string> = {
   '/gate':      '/',
@@ -58,12 +57,6 @@ export function Header() {
             </Link>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {pathname === '/' && (
-              <span className="skip-audit-hint">
-                Skip Audit →
-              </span>
-            )}
-            <BookCallButton className="btn btn--primary header__cta">Book a Call</BookCallButton>
             <button className="vault-trigger" onClick={openVault} aria-label="Admin access">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4"/>

@@ -97,7 +97,7 @@ function Tick({ pct, label }: { pct: number; label: string }) {
       pointerEvents: 'none',
     }}>
       <div style={{ width: '1px', height: '5px', background: 'rgba(255,255,255,0.2)', borderRadius: '1px' }} />
-      <span style={{ fontSize: '0.575rem', fontWeight: 600, color: 'var(--color-text-dim)', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
         {label}
       </span>
     </div>
@@ -236,13 +236,16 @@ export function AuditForm() {
               <div>
                 <h2 style={{ marginBottom: '0.25rem' }}>Your revenue numbers</h2>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', margin: 0 }}>
-                  Tell us about your current lead flow — we'll calculate your exact opportunity.
+                  Tell us about your current lead flow — we'll calculate your opportunity.
                 </p>
               </div>
 
-              <div className="stack stack--md">
+              <div className="stack stack--lg">
                 <div className="form-group--sm">
-                  <label className="form-label" htmlFor="monthlyLeads">How many leads do you generate per month (on average)? *</label>
+                  <label className="form-label" htmlFor="monthlyLeads">1. How many leads do you generate per month (on average)?</label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    If you have multiple lead sources, add them all up
+                  </span>
                   <input
                     id="monthlyLeads" type="number" min="1"
                     className="form-input"
@@ -255,9 +258,12 @@ export function AuditForm() {
 
                 <div className="form-group--sm">
                   <label className="form-label">
-                    Current conversion rate (% of leads that become clients) —{' '}
+                    2. Current conversion rate (% of leads that become clients) —{' '}
                     <strong style={{ color: 'var(--color-accent-cyan)' }}>{conversionRate}%</strong>
                   </label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    Slide the bar to select the value (if unknown use average - 5%)
+                  </span>
                   <div style={{ position: 'relative', paddingBottom: '1.5rem' }}>
                     <input
                       type="range" min="0" max="100"
@@ -279,13 +285,16 @@ export function AuditForm() {
                       pointerEvents: 'none',
                     }} aria-hidden="true">
                       <div style={{ width: '2px', height: '5px', background: 'var(--color-accent-amber)', borderRadius: '1px' }} />
-                      <span style={{ fontSize: '0.575rem', fontWeight: 700, color: 'var(--color-accent-amber)', whiteSpace: 'nowrap' }}>Avg: 3–10%</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent-amber)', whiteSpace: 'nowrap' }}>Avg.</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="form-group--sm">
-                  <label className="form-label" htmlFor="revenuePerClient">Average revenue per client ($) *</label>
+                  <label className="form-label" htmlFor="revenuePerClient">3. Average revenue per client ($)</label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    What a typical client pays you for your product or service (lifetime value)
+                  </span>
                   <input
                     id="revenuePerClient" type="number" min="1"
                     className="form-input"
@@ -294,78 +303,8 @@ export function AuditForm() {
                     onChange={e => { setRevenuePerClient(e.target.value); setErrors(p => ({ ...p, revenuePerClient: '' })) }}
                   />
                   {errors.revenuePerClient && <span className="form-error">{errors.revenuePerClient}</span>}
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block', marginTop: '0.3rem' }}>
-                    What a typical client pays you — upfront fee, average package, or lifetime value. Use whichever best reflects your business.
-                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* RIGHT: horizontal bar chart */}
-          <div className="audit-step-viz">
-            <div className={`audit-viz-panel${revenuePreview > 0 ? ' audit-viz-panel--active' : ''}`}>
-              <div className="audit-viz-eyebrow">Monthly snapshot</div>
-              <div className="audit-hbar">
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Revenue</span>
-                    <span className="audit-hbar__value audit-hbar__value--rev">
-                      {revenuePreview > 0 ? `$${revenuePreview.toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--rev" style={{ width: `${revPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Costs</span>
-                    <span className="audit-hbar__value audit-hbar__value--cost">
-                      {totalCostPreview > 0 ? `−$${Math.round(totalCostPreview).toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--cost" style={{ width: `${costPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Net</span>
-                    <span className="audit-hbar__value audit-hbar__value--net">
-                      {netProfit > 0 ? `$${Math.round(netProfit).toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--net" style={{ width: `${netPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Lead sources</span>
-                    <span className="audit-hbar__value" style={{ color: 'var(--color-text-muted)' }}>
-                      {leadSourceCount === 5 ? '5+' : leadSourceCount}
-                    </span>
-                  </div>
-                  <div className="audit-battery">
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} className={`audit-battery__seg audit-battery__seg--${i}${i <= leadSourceCount ? ' audit-battery__seg--filled' : ''}`} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              {leadSource && LEAD_SOURCE_ICONS[leadSource] && (
-                <div className="audit-source-badge">
-                  <div className="audit-source-badge__icon">{LEAD_SOURCE_ICONS[leadSource]}</div>
-                  <span className="audit-source-badge__name">{LEAD_SOURCE_SHORT[leadSource]}</span>
-                </div>
-              )}
-              {!revenuePreview && (
-                <p className="audit-viz-number--dim">Fill in your leads &amp; revenue to see this</p>
-              )}
             </div>
           </div>
 
@@ -386,47 +325,72 @@ export function AuditForm() {
                 </p>
               </div>
 
-              <div className="stack stack--md">
+              <div className="stack stack--lg">
                 <div className="form-group--sm">
-                  <label className="form-label" htmlFor="adSpend">Monthly ad spend ($) *</label>
-                  <input
-                    id="adSpend" type="number" min="0"
-                    className="form-input"
-                    placeholder="0 if organic / referrals"
-                    value={adSpend}
-                    onChange={e => { setAdSpend(e.target.value); setErrors(p => ({ ...p, adSpend: '' })) }}
-                  />
+                  <label className="form-label" htmlFor="adSpend">1. Monthly ad spend ($)</label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    Enter the ad cost and the agency costs (if outsourced)
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                    <input
+                      id="adSpend" type="number" min="0"
+                      className="form-input"
+                      style={{ flex: 1 }}
+                      placeholder="e.g. 1,000"
+                      value={adSpend}
+                      onChange={e => { setAdSpend(e.target.value); setErrors(p => ({ ...p, adSpend: '' })) }}
+                    />
+                    {derivedCpl !== null && (
+                      <span style={{ fontSize: '0.875rem', color: 'var(--color-accent-cyan)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                        = ${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()} / lead
+                      </span>
+                    )}
+                  </div>
                   {errors.adSpend && <span className="form-error">{errors.adSpend}</span>}
-                  {derivedCpl !== null && (
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-accent-cyan)', fontWeight: 600, display: 'block', marginTop: '0.3rem' }}>
-                      = ${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()} cost per lead
-                    </span>
-                  )}
                 </div>
 
                 <div className="form-group--sm">
                   <label className="form-label">
-                    Time to qualify + follow up each lead —{' '}
+                    2. Time to qualify + follow up each lead —{' '}
                     <strong style={{ color: 'var(--color-accent-cyan)' }}>{formatMins(timePerLeadMins)}</strong>
                   </label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    Slide the bar to select the average time you spend (if unknown leave 30 min)
+                  </span>
                   <div style={{ position: 'relative', paddingBottom: '1.5rem' }}>
                     <input
                       type="range" min="0" max="240" step="15"
-                      className="slider-input"
+                      className="slider-input slider-input--layered"
                       value={timePerLeadMins}
                       onChange={e => setTimePerLeadMins(Number(e.target.value))}
                     />
+                    <div className="conv-track-layers" aria-hidden="true">
+                      <div className="conv-track-base" />
+                      <div className="time-track-avg-mark" />
+                    </div>
                     <Tick pct={0}   label="0 min" />
                     <Tick pct={50}  label="2 h" />
                     <Tick pct={100} label="4 h" />
+                    <div style={{
+                      position: 'absolute', bottom: 0,
+                      left: `calc(9.375 / 100 * (100% - 34px) + 17px)`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px',
+                      pointerEvents: 'none',
+                    }} aria-hidden="true">
+                      <div style={{ width: '2px', height: '5px', background: 'var(--color-accent-amber)', borderRadius: '1px' }} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent-amber)', whiteSpace: 'nowrap' }}>Avg.</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="form-group--sm">
                   <label className="form-label" htmlFor="hourlyCost">
-                    Average hourly cost for the business ($){' '}
+                    3. Average hourly cost for the business ($){' '}
                     <span style={{ color: 'var(--color-text-dim)', fontWeight: 400 }}>(optional)</span>
                   </label>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                    Enter the hourly rate of the person managing leads (or average value if multiple)
+                  </span>
                   <input
                     id="hourlyCost" type="number" min="0"
                     className="form-input"
@@ -434,78 +398,8 @@ export function AuditForm() {
                     value={hourlyCost}
                     onChange={e => setHourlyCost(e.target.value)}
                   />
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block', marginTop: '0.3rem' }}>
-                    Monthly costs = <strong>ad spend</strong> + <strong>time investment</strong> (leads × hours × hourly rate). Add your rate above to include the time cost estimate.
-                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* RIGHT: horizontal bar chart */}
-          <div className="audit-step-viz">
-            <div className={`audit-viz-panel${revenuePreview > 0 ? ' audit-viz-panel--active' : ''}`}>
-              <div className="audit-viz-eyebrow">Monthly snapshot</div>
-              <div className="audit-hbar">
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Revenue</span>
-                    <span className="audit-hbar__value audit-hbar__value--rev">
-                      {revenuePreview > 0 ? `$${revenuePreview.toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--rev" style={{ width: `${revPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Costs</span>
-                    <span className="audit-hbar__value audit-hbar__value--cost">
-                      {totalCostPreview > 0 ? `−$${Math.round(totalCostPreview).toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--cost" style={{ width: `${costPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Net</span>
-                    <span className="audit-hbar__value audit-hbar__value--net">
-                      {netProfit > 0 ? `$${Math.round(netProfit).toLocaleString()}` : '—'}
-                    </span>
-                  </div>
-                  <div className="audit-hbar__track">
-                    <div className="audit-hbar__fill audit-hbar__fill--net" style={{ width: `${netPct}%` }} />
-                  </div>
-                </div>
-                <div className="audit-viz-divider" />
-                <div className="audit-hbar__row">
-                  <div className="audit-hbar__meta">
-                    <span className="audit-hbar__label">Lead sources</span>
-                    <span className="audit-hbar__value" style={{ color: 'var(--color-text-muted)' }}>
-                      {leadSourceCount === 5 ? '5+' : leadSourceCount}
-                    </span>
-                  </div>
-                  <div className="audit-battery">
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} className={`audit-battery__seg audit-battery__seg--${i}${i <= leadSourceCount ? ' audit-battery__seg--filled' : ''}`} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              {leadSource && LEAD_SOURCE_ICONS[leadSource] && (
-                <div className="audit-source-badge">
-                  <div className="audit-source-badge__icon">{LEAD_SOURCE_ICONS[leadSource]}</div>
-                  <span className="audit-source-badge__name">{LEAD_SOURCE_SHORT[leadSource]}</span>
-                </div>
-              )}
-              {!revenuePreview && (
-                <p className="audit-viz-number--dim">Fill in your leads &amp; revenue to see this</p>
-              )}
             </div>
           </div>
 
@@ -527,9 +421,12 @@ export function AuditForm() {
                   </p>
                 </div>
 
-                <div className="stack stack--md">
+                <div className="stack stack--lg">
                   <div className="form-group--sm">
-                    <label className="form-label" htmlFor="leadSource">Where do most of your leads come from? *</label>
+                    <label className="form-label" htmlFor="leadSource">1. Where do most of your leads come from?</label>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                      Select your main lead generation source
+                    </span>
                     <select
                       id="leadSource"
                       className="form-select"
@@ -545,7 +442,10 @@ export function AuditForm() {
                   </div>
 
                   <div className="form-group--sm">
-                    <label className="form-label">How many lead sources do you actively use?</label>
+                    <label className="form-label">2. How many lead sources do you actively use?</label>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                      Select the number of lead sources
+                    </span>
                     <div className="lead-count-pills">
                       {[1, 2, 3, 4, 5].map(n => (
                         <button
@@ -562,88 +462,21 @@ export function AuditForm() {
 
                   <div className="form-group--sm">
                     <label className="form-label" htmlFor="businessName">
-                      Your first name{' '}
+                      3. Your email{' '}
                       <span style={{ color: 'var(--color-text-dim)', fontWeight: 400 }}>(optional)</span>
                     </label>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                      Add details to get the report by email with additional insight and ideas.
+                    </span>
                     <input
-                      id="businessName" type="text"
+                      id="businessName" type="email"
                       className="form-input"
-                      placeholder="e.g. Mike"
+                      placeholder="e.g. name@company.com"
                       value={businessName}
                       onChange={e => setBusinessName(e.target.value)}
                     />
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block', marginTop: '0.3rem' }}>
-                      We'll use this to personalise your revenue report so your recommendations feel specific to your business, not a generic template.
-                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* RIGHT: horizontal bar chart */}
-            <div className="audit-step-viz">
-              <div className={`audit-viz-panel${revenuePreview > 0 ? ' audit-viz-panel--active' : ''}`}>
-                <div className="audit-viz-eyebrow">Monthly snapshot</div>
-                <div className="audit-hbar">
-                  <div className="audit-hbar__row">
-                    <div className="audit-hbar__meta">
-                      <span className="audit-hbar__label">Revenue</span>
-                      <span className="audit-hbar__value audit-hbar__value--rev">
-                        {revenuePreview > 0 ? `$${revenuePreview.toLocaleString()}` : '—'}
-                      </span>
-                    </div>
-                    <div className="audit-hbar__track">
-                      <div className="audit-hbar__fill audit-hbar__fill--rev" style={{ width: `${revPct}%` }} />
-                    </div>
-                  </div>
-                  <div className="audit-viz-divider" />
-                  <div className="audit-hbar__row">
-                    <div className="audit-hbar__meta">
-                      <span className="audit-hbar__label">Costs</span>
-                      <span className="audit-hbar__value audit-hbar__value--cost">
-                        {totalCostPreview > 0 ? `−$${Math.round(totalCostPreview).toLocaleString()}` : '—'}
-                      </span>
-                    </div>
-                    <div className="audit-hbar__track">
-                      <div className="audit-hbar__fill audit-hbar__fill--cost" style={{ width: `${costPct}%` }} />
-                    </div>
-                  </div>
-                  <div className="audit-viz-divider" />
-                  <div className="audit-hbar__row">
-                    <div className="audit-hbar__meta">
-                      <span className="audit-hbar__label">Net</span>
-                      <span className="audit-hbar__value audit-hbar__value--net">
-                        {netProfit > 0 ? `$${Math.round(netProfit).toLocaleString()}` : '—'}
-                      </span>
-                    </div>
-                    <div className="audit-hbar__track">
-                      <div className="audit-hbar__fill audit-hbar__fill--net" style={{ width: `${netPct}%` }} />
-                    </div>
-                  </div>
-                  <div className="audit-viz-divider" />
-                  <div className="audit-hbar__row">
-                    <div className="audit-hbar__meta">
-                      <span className="audit-hbar__label">Lead sources</span>
-                      <span className="audit-hbar__value" style={{ color: 'var(--color-text-muted)' }}>
-                        {leadSourceCount === 5 ? '5+' : leadSourceCount}
-                      </span>
-                    </div>
-                    <div className="audit-battery">
-                      {[1,2,3,4,5].map(i => (
-                        <div key={i} className={`audit-battery__seg audit-battery__seg--${i}${i <= leadSourceCount ? ' audit-battery__seg--filled' : ''}`} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                {leadSource && LEAD_SOURCE_ICONS[leadSource] && (
-                  <div className="audit-source-badge">
-                    <div className="audit-source-badge__icon">{LEAD_SOURCE_ICONS[leadSource]}</div>
-                    <span className="audit-source-badge__name">{LEAD_SOURCE_SHORT[leadSource]}</span>
-                  </div>
-                )}
-                {!revenuePreview && (
-                  <p className="audit-viz-number--dim">Fill in your leads &amp; revenue to see this</p>
-                )}
               </div>
             </div>
 
