@@ -94,7 +94,6 @@ export default function ResultsPage() {
 
         {/* Top CTA card */}
         <div className="rr-book-section">
-          <div className="rr-book-eyebrow">Free Strategy Call</div>
           <h2 className="rr-book-title">Book your Free Strategy Call</h2>
           <p className="rr-book-sub">
             We map your gaps and show you how you can recover this revenue in 30 days. No pitch, no pressure.
@@ -161,8 +160,8 @@ export default function ResultsPage() {
               <div className="rr-fix-rank rr-fix-rank--3">#3</div>
               <div className="rr-fix-body">
                 <div className="rr-fix-title">
-                  Add a structured nurture sequence
-                  <FixTooltip title="Add a structured nurture sequence" text="Leads need 5–8 touches before converting. Without one, they quietly go to your competitors." />
+                  Add a nurture sequence
+                  <FixTooltip title="Add a nurture sequence" text="Leads need 5–8 touches before converting. Without one, they quietly go to your competitors." />
                 </div>
               </div>
               <div className="rr-fix-val rr-fix-val--soft">High<small>impact</small></div>
@@ -226,8 +225,65 @@ export default function ResultsPage() {
           </table>
         </div>
 
+        {/* How to convert more leads */}
+        <div className="rr-panel">
+          <div className="rr-panel-label">How to convert more leads</div>
+          <div className="rr-steps">
+
+            <div className="rr-step">
+              <div className="rr-step__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.29 6.29l.95-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </div>
+              <div className="rr-step__body">
+                <div className="rr-step__title">Capture</div>
+                <div className="rr-step__sub">Every enquiry is logged instantly — no lead slips through the cracks, 24/7.</div>
+              </div>
+            </div>
+
+            <div className="rr-step-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+              </svg>
+            </div>
+
+            <div className="rr-step">
+              <div className="rr-step__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <div className="rr-step__body">
+                <div className="rr-step__title">Connect</div>
+                <div className="rr-step__sub">Automated follow-up within minutes keeps leads warm and moves them to conversation.</div>
+              </div>
+            </div>
+
+            <div className="rr-step-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+              </svg>
+            </div>
+
+            <div className="rr-step">
+              <div className="rr-step__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                  <polyline points="16 7 22 7 22 13"/>
+                </svg>
+              </div>
+              <div className="rr-step__body">
+                <div className="rr-step__title">Convert</div>
+                <div className="rr-step__sub">A structured nurture sequence turns qualified leads into booked clients — on autopilot.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* Bottom CTA section */}
-        <div className="rr-book-section">
+        <div className="rr-book-section rr-book-section--bare">
           <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn--pink btn--lg">
             Book My Free Strategy Call
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -236,12 +292,6 @@ export default function ResultsPage() {
           </a>
         </div>
 
-        {/* Back */}
-        <div style={{ display: 'flex', justifyContent: 'flex-start', paddingBottom: '1rem' }}>
-          <button className="btn btn--ghost" onClick={() => router.push('/gate')}>
-            ← Back
-          </button>
-        </div>
 
       </div>
 
