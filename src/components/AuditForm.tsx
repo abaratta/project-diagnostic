@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
 import type { LeadSource } from '@/store/useFivePStore'
 
@@ -106,11 +106,13 @@ function Tick({ pct, label }: { pct: number; label: string }) {
 
 export function AuditForm() {
   const router          = useRouter()
+  const searchParams    = useSearchParams()
   const setAudit        = useFivePStore(s => s.setAudit)
   const savedAudit      = useFivePStore(s => s.audit)
   const isAuditComplete = useFivePStore(s => s.isAuditComplete)
 
-  const [step, setStep] = useState(1)
+  const initialStep = Number(searchParams.get('step')) || 1
+  const [step, setStep] = useState(initialStep)
 
   // Step 1: Revenue — seed from store after mount to avoid SSR mismatch
   const [monthlyLeads,     setMonthlyLeads]     = useState('')
@@ -494,7 +496,7 @@ export function AuditForm() {
           <span />
         )}
 
-        <button type="button" className="btn btn--primary btn--lg" onClick={handleNext}>
+        <button type="button" className="btn btn--ghost" onClick={handleNext}>
           Next →
         </button>
       </div>

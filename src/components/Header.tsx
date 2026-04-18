@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { setVaultUnlocked } from '@/lib/vaultSession'
 
 const BACK_HREFS: Record<string, string> = {
-  '/gate':      '/',
   '/results':   '/gate',
   '/booked':    '/results',
   '/simulator': '/results',

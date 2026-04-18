@@ -1756,11 +1756,11 @@ pre {
   border-color: var(--color-border);
 }
 .audit-viz-eyebrow {
-  font-size: 0.56rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-dim);
+  color: var(--color-text);
 }
 .audit-viz-number {
   font-family: var(--font-heading);
@@ -2447,6 +2447,20 @@ pre {
   text-transform: uppercase;
 }
 
+/* Snapshot card sections */
+.snapshot-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.snapshot-section-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-text-muted);
+}
+
 /* Time slider avg band: 15–30 min out of 240 */
 .time-track-avg-mark {
   position: absolute;
@@ -2465,7 +2479,7 @@ pre {
 /* ── GATE PAGE ── */
 
 .gate-wrapper {
-  max-width: 860px;
+  max-width: 540px;
   margin: 0 auto;
   padding: 1.75rem 1.5rem 2rem;
   text-align: center;
@@ -2690,7 +2704,6 @@ pre {
 .gate-form-row { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
 .gate-form-row .gate-input { flex: 1; }
 .gate-unlock-btn {
-  width: 100%;
   background: var(--color-accent-cyan);
   color: #002b43;
   border: none;
