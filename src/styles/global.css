@@ -3082,8 +3082,8 @@ pre {
   display: flex; flex-direction: column;
 }
 .rr-panel-label {
-  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.13em;
-  text-transform: uppercase; color: var(--color-text-muted);
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--color-text);
   margin-bottom: 0.6rem; flex-shrink: 0;
 }
 
@@ -3171,7 +3171,7 @@ pre {
 .rr-th-gain  { color: var(--color-accent-cyan) !important; }
 .rr-td-rapid { color: var(--color-text) !important; font-weight: 600; }
 .rr-td-gain  { color: var(--color-accent-cyan) !important; font-weight: 700; }
-.rr-td-save  { color: #e6356b !important; font-weight: 700; }
+.rr-td-save  { color: #3dcab1 !important; font-weight: 700; }
 .rr-td-total { font-family: var(--font-heading); font-size: 0.9rem !important; font-weight: 800 !important; color: var(--color-accent-cyan) !important; }
 
 /* CTA panel (right column) */
