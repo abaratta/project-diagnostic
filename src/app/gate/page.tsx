@@ -99,6 +99,8 @@ export default function GatePage() {
   const currentRevPct           = Math.min(Math.round(revenueSnapshot / snapRef * 100), 100)
   const costBarPct              = Math.min(Math.round(totalCostSnapshot / snapRef * 100), 100)
   const savingsBarPct           = autoSavings > 0 ? Math.min(Math.round(autoSavings / snapRef * 100), 100) : 0
+  const potentialCostSnapshot   = Math.max(0, totalCostSnapshot - Math.round(autoSavings))
+  const potCostPct              = snapRef > 0 ? Math.min(Math.round(potentialCostSnapshot / snapRef * 100), 100) : 0
 
   if (!mounted) return null
 
@@ -136,90 +138,127 @@ export default function GatePage() {
           </div>
         </div>
 
-        {/* Snapshot card */}
+        {/* Snapshot card — bidirectional bar chart, axis at 35% */}
         <div className="audit-viz-panel audit-viz-panel--active">
           <div className="audit-viz-eyebrow">Monthly snapshot</div>
 
-          {/* Revenue */}
-          <div className="snapshot-section">
-            <div className="snapshot-section-label">Revenue</div>
-            <div className="audit-hbar">
-              <div className="audit-hbar__row">
-                <div className="audit-hbar__meta">
-                  <span className="audit-hbar__label">Current</span>
-                  <span className="audit-hbar__value" style={{ color: 'rgba(243,246,250,0.45)' }}>
-                    {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}/mo` : '—'}
-                  </span>
-                </div>
-                <div className="audit-hbar__track">
-                  <div className="audit-hbar__fill" style={{ width: `${currentRevPct}%`, background: 'rgba(243,246,250,0.2)' }} />
-                </div>
+          <div style={{ position: 'relative' }}>
+            {/* Axis line */}
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: '35%', width: '1px', background: 'rgba(243,246,250,0.1)', pointerEvents: 'none' }} />
+
+            {/* REVENUE */}
+            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>Revenue</div>
+
+            {/* Current → right (grey) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
+                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
               </div>
-              <div className="audit-hbar__row">
-                <div className="audit-hbar__meta">
-                  <span className="audit-hbar__label">Potential</span>
-                  <span className="audit-hbar__value" style={{ color: '#f3f6fa' }}>
-                    {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}/mo` : '—'}
-                  </span>
-                </div>
-                <div className="audit-hbar__track">
-                  <div className="audit-hbar__fill" style={{ width: '100%', background: 'rgba(243,246,250,0.65)' }} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                <div style={{ height: '8px', width: `${currentRevPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}` : '—'}
+                </span>
               </div>
             </div>
-          </div>
 
-          <div className="audit-viz-divider" />
-
-          {/* Costs */}
-          <div className="snapshot-section">
-            <div className="snapshot-section-label">Costs</div>
-            <div className="audit-hbar">
-              <div className="audit-hbar__row">
-                <div className="audit-hbar__meta">
-                  <span className="audit-hbar__label">Current</span>
-                  <span className="audit-hbar__value" style={{ color: 'rgba(243,246,250,0.45)' }}>
-                    {totalCostSnapshot > 0 ? `−$${totalCostSnapshot.toLocaleString()}/mo` : '—'}
-                  </span>
-                </div>
-                <div className="audit-hbar__track">
-                  <div className="audit-hbar__fill" style={{ width: `${costBarPct}%`, background: 'rgba(243,246,250,0.2)' }} />
-                </div>
+            {/* Potential → right (grey) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
+                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
               </div>
-              <div className="audit-hbar__row">
-                <div className="audit-hbar__meta">
-                  <span className="audit-hbar__label">Recoverable</span>
-                  <span className="audit-hbar__value" style={{ color: '#f3f6fa' }}>
-                    {autoSavings > 0 ? `+$${Math.round(autoSavings).toLocaleString()}/mo` : '—'}
-                  </span>
-                </div>
-                <div className="audit-hbar__track">
-                  <div className="audit-hbar__fill" style={{ width: `${savingsBarPct}%`, background: 'rgba(243,246,250,0.65)' }} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}` : '—'}
+                </span>
               </div>
             </div>
-          </div>
 
-          <div className="audit-viz-divider" />
-
-          {/* Monthly benefit */}
-          <div className="snapshot-section">
-            <div className="snapshot-section-label" style={{ color: 'var(--color-text)', fontSize: '0.8125rem' }}>Monthly benefit with lead to revenue system</div>
-            <div className="audit-hbar">
-              <div className="audit-hbar__row">
-                <div className="audit-hbar__meta">
-                  <span className="audit-hbar__label">Opportunity</span>
-                  <span className="audit-hbar__value" style={{ color: '#f3f6fa', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.1rem' }}>
-                    {totalMonthly > 0 ? (
-                      <>
-                        <span>{`+$${Math.round(totalMonthly).toLocaleString()}/mo`}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(243,246,250,0.5)' }}>{`$${Math.round(annualGain).toLocaleString()}/year`}</span>
-                      </>
-                    ) : '—'}
+            {/* Benefit → right (white) */}
+            {monthlyGain > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Benefit</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                  <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100), 100) * 0.55}%`, background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    +${Math.round(monthlyGain).toLocaleString()}
                   </span>
                 </div>
-                <div className="audit-hbar__track">
-                  <div className="audit-hbar__fill" style={{ width: '100%', background: 'rgba(243,246,250,0.65)' }} />
+              </div>
+            )}
+
+            <div className="audit-viz-divider" />
+
+            {/* COSTS */}
+            <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', margin: '0.5rem 0' }}>Costs</div>
+
+            {/* Current cost ← left (grey) */}
+            {totalCostSnapshot > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
+                  <div style={{ height: '8px', width: `${costBarPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    −${totalCostSnapshot.toLocaleString()}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
+                </div>
+              </div>
+            )}
+
+            {/* Potential cost ← left (grey, shorter) */}
+            {autoSavings > 0 && potentialCostSnapshot > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
+                  <div style={{ height: '8px', width: `${potCostPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.75rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    −${potentialCostSnapshot.toLocaleString()}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
+                </div>
+              </div>
+            )}
+
+            {/* Recoverable → right (white) */}
+            {autoSavings > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Recoverable</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                  <div style={{ height: '8px', width: `${savingsBarPct * 0.55}%`, background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    +${Math.round(autoSavings).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="audit-viz-divider" />
+
+            {/* MONTHLY BENEFIT */}
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text)', margin: '0.5rem 0' }}>Monthly benefit with lead to revenue system</div>
+
+            {/* Opportunity → right (white) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
+                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Opportunity</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <div style={{ marginLeft: '8px', display: 'flex', flexDirection: 'column', gap: '0.1rem', flexShrink: 0 }}>
+                  {totalMonthly > 0 ? (
+                    <>
+                      <span style={{ fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap' }}>+${Math.round(totalMonthly).toLocaleString()}/mo</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.5)', whiteSpace: 'nowrap' }}>${Math.round(annualGain).toLocaleString()}/year</span>
+                    </>
+                  ) : '—'}
                 </div>
               </div>
             </div>
