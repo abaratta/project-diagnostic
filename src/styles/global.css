@@ -2520,7 +2520,7 @@ pre {
 .gate-progress-fill {
   height: 100%;
   width: 0;
-  background: linear-gradient(90deg, var(--color-accent-cyan), #5de8d0);
+  background: rgba(243,246,250,0.75);
   border-radius: 999px;
   transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }

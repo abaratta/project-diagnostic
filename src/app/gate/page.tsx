@@ -118,7 +118,7 @@ export default function GatePage() {
 
         {/* Headline */}
         <h1 style={{ fontSize: 'clamp(1.625rem, 4vw, 2.25rem)', marginBottom: '0.5rem' }}>
-          You're leaving <span style={{ color: '#e6356b' }}>${Math.round(annualGain).toLocaleString()}/year</span> on the table.
+          You're leaving <span style={{ color: '#3dcab1' }}>${Math.round(annualGain).toLocaleString()}/year</span> on the table.
         </h1>
         <p className="gate-sub-headline">
           We've analysed your business and found a significant untapped opportunity. Review full report below.
@@ -157,7 +157,7 @@ export default function GatePage() {
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                 <div style={{ height: '8px', width: `${currentRevPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
                 <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}` : '—'}
+                  {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}/mo` : '—'}
                 </span>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function GatePage() {
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                 <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
                 <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}` : '—'}
+                  {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}/mo` : '—'}
                 </span>
               </div>
             </div>
@@ -182,9 +182,9 @@ export default function GatePage() {
                   <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Benefit</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100), 100) * 0.55}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100) * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
                   <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    +${Math.round(monthlyGain).toLocaleString()}
+                    +${Math.round(monthlyGain).toLocaleString()}/mo
                   </span>
                 </div>
               </div>
@@ -201,7 +201,7 @@ export default function GatePage() {
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
                   <div style={{ height: '8px', width: `${costBarPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
                   <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    −${totalCostSnapshot.toLocaleString()}
+                    −${totalCostSnapshot.toLocaleString()}/mo
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
@@ -216,7 +216,7 @@ export default function GatePage() {
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
                   <div style={{ height: '8px', width: `${potCostPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
                   <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    −${potentialCostSnapshot.toLocaleString()}
+                    −${potentialCostSnapshot.toLocaleString()}/mo
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
@@ -232,9 +232,9 @@ export default function GatePage() {
                   <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Recoverable</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <div style={{ height: '8px', width: `${savingsBarPct * 0.55}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                  <div style={{ height: '8px', width: `${Math.min(savingsBarPct * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
                   <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    +${Math.round(autoSavings).toLocaleString()}
+                    +${Math.round(autoSavings).toLocaleString()}/mo
                   </span>
                 </div>
               </div>
@@ -242,22 +242,21 @@ export default function GatePage() {
 
             <div className="audit-viz-divider" />
 
-            {/* BENEFIT */}
-            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text)', margin: '0.75rem 0' }}>Benefit with lead to revenue system</div>
-
-            {/* Opportunity → right (white) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center' }}>
+            {/* Opportunity → right (teal, at scale) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginTop: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.4)' }}>Opportunity</span>
+                <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'rgba(243,246,250,0.6)' }}>Opportunity</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.65)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                <div style={{ marginLeft: '8px', display: 'flex', flexDirection: 'column', gap: '0.1rem', flexShrink: 0 }}>
+                <div style={{ height: '8px', width: `${Math.min(Math.round(totalMonthly / snapRef * 100) * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <div style={{ marginLeft: '8px', flexShrink: 0 }}>
                   {totalMonthly > 0 ? (
-                    <>
-                      <span style={{ fontSize: '0.75rem', color: '#f3f6fa', whiteSpace: 'nowrap' }}>+${Math.round(totalMonthly).toLocaleString()}/mo</span>
-                      <span style={{ fontSize: '0.6875rem', color: 'rgba(243,246,250,0.5)', whiteSpace: 'nowrap' }}>${Math.round(annualGain).toLocaleString()}/year</span>
-                    </>
+                    <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#3dcab1', whiteSpace: 'nowrap' }}>
+                      {`+$${Math.round(totalMonthly).toLocaleString()}/mo `}
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'rgba(243,246,250,0.5)' }}>
+                        {`($${Math.round(annualGain).toLocaleString()}/year)`}
+                      </span>
+                    </span>
                   ) : '—'}
                 </div>
               </div>
