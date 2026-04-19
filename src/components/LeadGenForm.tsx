@@ -296,18 +296,13 @@ export function LeadGenForm() {
                   {/* Invites */}
                   <div className="form-group--sm">
                     <label className="form-label" htmlFor="invites">Invites per month</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input
-                        id="invites" type="number" min="0"
-                        className="form-input"
-                        style={{ width: '7.8rem' }}
-                        value={invites}
-                        onChange={e => setInvites(e.target.value)}
-                      />
-                      <span style={{ color: 'var(--color-accent-cyan)', fontWeight: 700, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
-                        = {fmt2(invitesNum / 4)}/wk
-                      </span>
-                    </div>
+                    <input
+                      id="invites" type="number" min="0"
+                      className="form-input"
+                      style={{ width: '7.8rem' }}
+                      value={invites}
+                      onChange={e => setInvites(e.target.value)}
+                    />
                     {invitesNum > 1000 && (
                       <span style={{ fontSize: '0.75rem', color: 'var(--color-accent-amber)', display: 'block', marginTop: '0.375rem', lineHeight: 1.4 }}>
                         LinkedIn max connections per month reached (1,000)
@@ -328,7 +323,7 @@ export function LeadGenForm() {
                       />
                       <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>%</span>
                       <span style={{ color: 'var(--color-accent-cyan)', fontWeight: 700, fontSize: '0.875rem' }}>
-                        = {fmt2(connected)}
+                        = {fmt2(connected)}/mo
                       </span>
                     </div>
                   </div>
@@ -346,7 +341,7 @@ export function LeadGenForm() {
                       />
                       <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>%</span>
                       <span style={{ color: 'var(--color-accent-cyan)', fontWeight: 700, fontSize: '0.875rem' }}>
-                        = {fmt2(interested)}
+                        = {fmt2(interested)}/mo
                       </span>
                     </div>
                   </div>
@@ -379,6 +374,9 @@ export function LeadGenForm() {
 
                   <div className="form-group--sm">
                     <label className="form-label" htmlFor="clv">CLV ($)</label>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                      The average client's lifetime value
+                    </span>
                     <input
                       id="clv" type="number" min="0"
                       className="form-input"
@@ -390,6 +388,9 @@ export function LeadGenForm() {
 
                   <div className="form-group--sm">
                     <label className="form-label" htmlFor="mrr">MRR ($)</label>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
+                      The monthly recurring revenue per client
+                    </span>
                     <input
                       id="mrr" type="number" min="0"
                       className="form-input"
@@ -423,16 +424,16 @@ export function LeadGenForm() {
                   </div>
 
                   <div style={{
-                    background: 'rgba(61,202,177,0.07)',
-                    border: '1px solid var(--color-accent-cyan)',
-                    borderTop: '2px solid var(--color-accent-cyan)',
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
+                    borderTop: '2px solid rgba(61,202,177,0.5)',
                     borderRadius: 'var(--radius-card)',
                     padding: '1.125rem',
                   }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
                       ARR
                     </div>
-                    <div style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1 }}>
+                    <div style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--color-accent-cyan)', lineHeight: 1.1 }}>
                       {arr > 0 ? fmtMoney(arr) : '—'}
                     </div>
                     <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
@@ -440,6 +441,25 @@ export function LeadGenForm() {
                     </div>
                   </div>
 
+                </div>
+
+                {/* Total */}
+                <div style={{
+                  background: 'rgba(61,202,177,0.10)',
+                  border: '1.5px solid var(--color-accent-cyan)',
+                  borderRadius: 'var(--radius-card)',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                }}>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Total
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent-cyan)', lineHeight: 1 }}>
+                    {annualRevenue + arr > 0 ? fmtMoney(annualRevenue + arr) : '—'}
+                  </div>
                 </div>
 
               </div>

@@ -16,7 +16,7 @@ export function Header() {
   const router   = useRouter()
   const backHref = BACK_HREFS[pathname] ?? null
 
-  if (pathname === '/' || pathname === '/gate' || pathname === '/results') return null
+  if (pathname === '/' || pathname === '/gate' || pathname === '/results' || pathname === '/lead-gen') return null
 
   const [vaultOpen, setVaultOpen] = useState(false)
   const [name,      setName]      = useState('')
