@@ -107,6 +107,9 @@ export function LeadGenForm() {
   const [clv,            setClv]            = useState('')
   const [mrr,            setMrr]            = useState('')
 
+  // Step 3
+  const [email, setEmail] = useState('')
+
   // Funnel calculations
   const invitesNum      = Math.max(0, Number(invites) || 0)
   const connectionNum   = Math.min(100, Math.max(0, Number(connectionRate) || 0))
@@ -127,6 +130,13 @@ export function LeadGenForm() {
   function validate() {
     const errs: Record<string, string> = {}
     if (step === 1 && !leadGenOption) errs.leadGenOption = 'Select a preferred lead generation option'
+    if (step === 2) {
+      const hasClv = clv && Number(clv) > 0
+      const hasMrr = mrr && Number(mrr) > 0
+      if (!hasClv && !hasMrr) {
+        errs.clv = 'Enter at least one value to see your projection'
+      }
+    }
     return errs
   }
 
@@ -141,6 +151,26 @@ export function LeadGenForm() {
     setErrors({})
     if (step === 1) { router.push('/'); return }
     setStep(s => s - 1)
+  }
+
+  function handleSend() {
+    if (!email.trim()) {
+      setErrors(p => ({ ...p, email: 'Enter your email to receive the pack' }))
+      return
+    }
+    fetch('https://hook.eu2.make.com/4vw7wjkasej6wwbbm838r53k51q7oy1k', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:          email.trim(),
+        budget:         budget,
+        time:           hoursPerWeek,
+        lead_gen_option: leadGenOption,
+        clv:            clv,
+        mrr:            mrr,
+      }),
+    }).catch(() => {})
+    setErrors(p => ({ ...p, email: '', sent: 'Pack on its way — check your inbox!' }))
   }
 
   const isLinkedInDM      = leadGenOption === 'linkedin_dm'
@@ -184,7 +214,7 @@ export function LeadGenForm() {
                     <strong style={{ color: 'var(--color-accent-cyan)' }}>{formatBudget(budget)}/mo</strong>
                   </label>
                   <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                    Slide the bar to the amount that you are comfortable spending
+                    Slide the bar to the amount you're comfortable spending per month
                   </span>
                   <div style={{ position: 'relative', paddingBottom: '1.5rem' }}>
                     <input
@@ -206,7 +236,7 @@ export function LeadGenForm() {
                     <strong style={{ color: 'var(--color-accent-cyan)' }}>{formatHours(hoursPerWeek)}</strong>
                   </label>
                   <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                    Slide the bar to select the time you or your team have available for lead generation
+                    Use the slider to choose how much time you can dedicate to lead generation
                   </span>
                   <div style={{ position: 'relative', paddingBottom: '1.5rem' }}>
                     <input
@@ -330,7 +360,7 @@ export function LeadGenForm() {
 
                   {/* Lead interested */}
                   <div className="form-group--sm">
-                    <label className="form-label">Lead interested</label>
+                    <label className="form-label">Leads interested</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <input
                         type="number" min="0" max="100"
@@ -348,7 +378,7 @@ export function LeadGenForm() {
 
                   {/* Converted */}
                   <div className="form-group--sm">
-                    <label className="form-label">Converted</label>
+                    <label className="form-label">Conversion rate</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <input
                         type="number" min="0" max="100"
@@ -382,8 +412,9 @@ export function LeadGenForm() {
                       className="form-input"
                       placeholder="e.g. 3,000"
                       value={clv}
-                      onChange={e => setClv(e.target.value)}
+                      onChange={e => { setClv(e.target.value); setErrors(p => ({ ...p, clv: '' })) }}
                     />
+                    {errors.clv && <span className="form-error">{errors.clv}</span>}
                   </div>
 
                   <div className="form-group--sm">
@@ -396,7 +427,7 @@ export function LeadGenForm() {
                       className="form-input"
                       placeholder="e.g. 500"
                       value={mrr}
-                      onChange={e => setMrr(e.target.value)}
+                      onChange={e => { setMrr(e.target.value); setErrors(p => ({ ...p, clv: '' })) }}
                     />
                   </div>
 
@@ -468,12 +499,75 @@ export function LeadGenForm() {
         </div>
       )}
 
+      {/* ── Step 3 — Results + starter pack ── */}
+      {step === 3 && (
+        <div className="audit-step-layout">
+          <div className="audit-step-fields">
+            <div className="stack stack--lg">
+
+              {/* Revenue headline */}
+              <div style={{
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-border)',
+                borderLeft: '3px solid var(--color-accent-cyan)',
+                borderRadius: 'var(--radius-card)',
+                padding: '1.375rem 1.25rem',
+              }}>
+                <p style={{ margin: 0, fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text)' }}>
+                  You could generate an additional{' '}
+                  <strong style={{ color: 'var(--color-accent-cyan)', fontSize: '1.2em' }}>
+                    {annualRevenue + arr > 0 ? fmtMoney(annualRevenue + arr) : '—'}
+                  </strong>{' '}
+                  per year. Also account for secondary opportunities such as testimonials, referrals, case studies, and repeat or follow-on work these clients may bring.
+                </p>
+              </div>
+
+              {/* Starter pack + email */}
+              <div style={{
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-card)',
+                padding: '1.375rem 1.25rem',
+              }}>
+                <p style={{ margin: '0 0 1.25rem', fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text-muted)' }}>
+                  I've created a starter pack that shows you how to set up a system that runs DM campaigns 24/7 on LinkedIn, so that you can get clients on autopilot. Where should I send it?
+                </p>
+                <div className="form-group--sm">
+                  <label className="form-label" htmlFor="email">Your email</label>
+                  <div style={{ display: 'flex', gap: '0.625rem' }}>
+                    <input
+                      id="email" type="email"
+                      className="form-input"
+                      style={{ flex: 1 }}
+                      placeholder="e.g. name@company.com"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })) }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn--pink btn--sm"
+                      style={{ flexShrink: 0, width: '35%' }}
+                      onClick={handleSend}
+                    >
+                      Send
+                    </button>
+                  </div>
+                  {errors.email && <span className="form-error">{errors.email}</span>}
+                  {errors.sent  && <span style={{ fontSize: '0.8125rem', color: 'var(--color-accent-cyan)', display: 'block', marginTop: '0.375rem' }}>{errors.sent}</span>}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="wizard-nav wizard-nav--dual">
         <button type="button" className="btn btn--ghost" onClick={handleBack}>
           ← Back
         </button>
-        {(step === 1 || isLinkedInDM) && (
+        {(step === 1 || (step === 2 && isLinkedInDM)) && (
           <button type="button" className="btn btn--ghost" onClick={handleNext}>
             Next →
           </button>
