@@ -39,10 +39,27 @@ function HomeContent() {
       <div className="landing-wrapper">
 
         <div className="landing-eyebrow">Profit AI Lab</div>
-        <h1 className="landing-title">Choose your tool</h1>
-        <p className="landing-sub">Select a simulator to get started</p>
+        <h1 className="landing-title">Choose Your Simulation</h1>
+        <p className="landing-sub">Test multiple scenarios to identify the best strategy</p>
 
         <div className="landing-choices">
+
+          {/* Lead Gen Simulator */}
+          <button className="landing-choice" onClick={() => router.push('/lead-gen')}>
+            <div className="landing-choice__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div className="landing-choice__body">
+              <div className="landing-choice__title">Lead Gen Simulator</div>
+              <div className="landing-choice__sub">Model your lead generation strategy and forecast pipeline growth in minutes</div>
+            </div>
+            <div className="landing-choice__arrow">→</div>
+          </button>
 
           {/* Revenue Simulator */}
           <button className="landing-choice" onClick={() => router.push('/?step=1')}>
@@ -95,8 +112,8 @@ function HomeContent() {
             </div>
 
             <div className="vault-eyebrow">Restricted Access</div>
-            <h2 className="vault-title">Growth Simulator</h2>
-            <p className="vault-sub">Authorised personnel only. Enter your credentials to unlock.</p>
+            <h2 className="vault-title">Restricted Access</h2>
+            <p className="vault-sub">This tool is restricted to authorised personnel. Enter your credentials to unlock.</p>
 
             <form className="vault-form" onSubmit={handleSubmit}>
               <input

@@ -2428,6 +2428,41 @@ pre {
   color: var(--color-accent-cyan);
 }
 
+/* Lead gen option grid — 3×3 pill matrix */
+.lead-option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.lead-option-pill {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.lead-option-pill:hover {
+  border-color: var(--color-accent-cyan);
+  color: var(--color-text);
+}
+.lead-option-pill--active {
+  background: rgba(61,202,177,0.12);
+  border-color: var(--color-accent-cyan);
+  color: var(--color-accent-cyan);
+}
+.lead-option-pill--locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Conversion rate slider with industry avg highlight */
 .slider-input--layered {
   position: relative;
