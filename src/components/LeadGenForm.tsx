@@ -89,7 +89,7 @@ export function LeadGenForm() {
 
   // Step 1
   const [budget,        setBudget]        = useState(500)
-  const [hoursPerWeek,  setHoursPerWeek]  = useState(5)
+  const [hoursPerWeek,  setHoursPerWeek]  = useState(2)
   const [leadGenOption, setLeadGenOption] = useState('linkedin_dm')
   const [errors,        setErrors]        = useState<Record<string, string>>({})
 
@@ -108,7 +108,39 @@ export function LeadGenForm() {
   const [mrr,            setMrr]            = useState('')
 
   // Step 3
-  const [email, setEmail] = useState('')
+  const [email,   setEmail]   = useState('')
+  const [hasSent, setHasSent] = useState(false)
+
+  // Persist state to sessionStorage so it survives page navigation
+  const FORM_KEY = 'lgf_v1'
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(FORM_KEY)
+      if (!raw) return
+      const s = JSON.parse(raw)
+      if (s.budget      !== undefined) setBudget(s.budget)
+      if (s.hours       !== undefined) setHoursPerWeek(s.hours)
+      if (s.option)                    setLeadGenOption(s.option)
+      if (s.invites     !== undefined) setInvites(s.invites)
+      if (s.connRate    !== undefined) setConnectionRate(s.connRate)
+      if (s.intRate     !== undefined) setInterestedRate(s.intRate)
+      if (s.convRate    !== undefined) setConversionRate(s.convRate)
+      if (s.clv         !== undefined) setClv(s.clv)
+      if (s.mrr         !== undefined) setMrr(s.mrr)
+      if (s.step        !== undefined) setStep(s.step)
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(FORM_KEY, JSON.stringify({
+        budget, hours: hoursPerWeek, option: leadGenOption,
+        invites, connRate: connectionRate, intRate: interestedRate,
+        convRate: conversionRate, clv, mrr, step,
+      }))
+    } catch {}
+  }, [budget, hoursPerWeek, leadGenOption, invites, connectionRate, interestedRate, conversionRate, clv, mrr, step])
 
   // Funnel calculations
   const invitesNum      = Math.max(0, Number(invites) || 0)
@@ -171,6 +203,7 @@ export function LeadGenForm() {
       }),
     }).catch(() => {})
     setErrors(p => ({ ...p, email: '', sent: 'Pack on its way — check your inbox!' }))
+    setHasSent(true)
   }
 
   const isLinkedInDM      = leadGenOption === 'linkedin_dm'
@@ -570,6 +603,15 @@ export function LeadGenForm() {
         {(step === 1 || (step === 2 && isLinkedInDM)) && (
           <button type="button" className="btn btn--ghost" onClick={handleNext}>
             Next →
+          </button>
+        )}
+        {step === 3 && hasSent && hoursPerWeek <= 4 && (
+          <button
+            type="button"
+            className="btn btn--ghost btn--glow"
+            onClick={() => router.push(`/special-offer?total=${annualRevenue + arr}`)}
+          >
+            Your shortcut →
           </button>
         )}
       </div>
