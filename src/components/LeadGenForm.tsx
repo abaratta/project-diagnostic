@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const LEAD_GEN_OPTIONS = [
@@ -214,6 +215,12 @@ export function LeadGenForm() {
 
       {/* Progress dots */}
       <div className="wizard-progress">
+        <Link href="/" className="wizard-home-btn" aria-label="Home">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </Link>
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
           <div
             key={i}
@@ -294,6 +301,7 @@ export function LeadGenForm() {
                     {LEAD_GEN_OPTIONS.map(opt => {
                       const unlocked = getUnlocked(opt.value, budget, hoursPerWeek)
                       const active   = leadGenOption === opt.value
+                      const isLinkedIn = opt.value === 'linkedin_dm'
                       return (
                         <button
                           key={opt.value}
@@ -301,10 +309,15 @@ export function LeadGenForm() {
                           disabled={!unlocked}
                           className={[
                             'lead-option-pill',
-                            active    ? 'lead-option-pill--active' : '',
-                            !unlocked ? 'lead-option-pill--locked' : '',
+                            active      ? 'lead-option-pill--active' : '',
+                            !unlocked   ? 'lead-option-pill--locked' : '',
+                            !isLinkedIn && unlocked ? 'lead-option-pill--coming-soon' : '',
                           ].join(' ')}
-                          onClick={() => { setLeadGenOption(opt.value); setErrors(p => ({ ...p, leadGenOption: '' })) }}
+                          onClick={() => {
+                            if (!isLinkedIn) return
+                            setLeadGenOption(opt.value)
+                            setErrors(p => ({ ...p, leadGenOption: '' }))
+                          }}
                         >
                           {opt.label}
                         </button>

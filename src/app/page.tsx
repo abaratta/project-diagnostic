@@ -44,6 +44,22 @@ function HomeContent() {
 
         <div className="landing-choices">
 
+          {/* Lead to Revenue Simulator */}
+          <button className="landing-choice" onClick={() => router.push('/?step=1')}>
+            <div className="landing-choice__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
+              </svg>
+            </div>
+            <div className="landing-choice__body">
+              <div className="landing-choice__title">Lead to Revenue Simulator</div>
+              <div className="landing-choice__sub">Audit your lead pipeline and uncover your monthly revenue opportunity in 2 minutes</div>
+              <span className="landing-choice__pill">Free</span>
+            </div>
+            <div className="landing-choice__arrow">→</div>
+          </button>
+
           {/* Lead Gen Simulator */}
           <button className="landing-choice" onClick={() => router.push('/lead-gen')}>
             <div className="landing-choice__icon">
@@ -57,26 +73,12 @@ function HomeContent() {
             <div className="landing-choice__body">
               <div className="landing-choice__title">Lead Gen Simulator</div>
               <div className="landing-choice__sub">Model your lead generation strategy and forecast pipeline growth in minutes</div>
+              <span className="landing-choice__pill">Limited Access</span>
             </div>
             <div className="landing-choice__arrow">→</div>
           </button>
 
-          {/* Revenue Simulator */}
-          <button className="landing-choice" onClick={() => router.push('/?step=1')}>
-            <div className="landing-choice__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-                <polyline points="16 7 22 7 22 13"/>
-              </svg>
-            </div>
-            <div className="landing-choice__body">
-              <div className="landing-choice__title">Revenue Simulator</div>
-              <div className="landing-choice__sub">Audit your lead pipeline and uncover your monthly revenue opportunity in 2 minutes</div>
-            </div>
-            <div className="landing-choice__arrow">→</div>
-          </button>
-
-          {/* Growth Simulator */}
+          {/* Business Growth Simulator */}
           <button className="landing-choice landing-choice--locked" onClick={openVault}>
             <div className="landing-choice__icon landing-choice__icon--lock">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -85,13 +87,21 @@ function HomeContent() {
               </svg>
             </div>
             <div className="landing-choice__body">
-              <div className="landing-choice__title">Growth Simulator</div>
-              <div className="landing-choice__sub">Restricted access — authorised personnel only</div>
+              <div className="landing-choice__title">Business Growth Simulator</div>
+              <div className="landing-choice__sub">Map your full growth strategy across channels, offers, and conversion points</div>
+              <span className="landing-choice__pill landing-choice__pill--locked">Locked</span>
             </div>
             <div className="landing-choice__arrow">→</div>
           </button>
 
         </div>
+
+        <div className="landing-community">
+          <a href="https://profitailab.short.gy/2n8YEr" target="_blank" rel="noopener noreferrer" className="landing-community__link">
+            Join our free community to unlock more tools →
+          </a>
+        </div>
+
       </div>
 
       {/* Vault modal */}

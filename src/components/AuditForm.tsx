@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
 import type { LeadSource } from '@/store/useFivePStore'
@@ -237,6 +238,12 @@ export function AuditForm() {
 
       {/* Progress dots */}
       <div className="wizard-progress">
+        <Link href="/" className="wizard-home-btn" aria-label="Home">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </Link>
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
           <div
             key={i}

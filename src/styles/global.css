@@ -175,6 +175,24 @@ pre {
   background: rgba(255,255,255,0.04);
   text-decoration: none;
 }
+.header__home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-btn);
+  text-decoration: none;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+.header__home:hover {
+  color: var(--color-text);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+}
 
 .header__logo {
   font-family: var(--font-heading);
@@ -2462,6 +2480,13 @@ pre {
   cursor: not-allowed;
   pointer-events: none;
 }
+.lead-option-pill--coming-soon {
+  cursor: not-allowed;
+}
+.lead-option-pill--coming-soon:hover {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
 
 /* Conversion rate slider with industry avg highlight */
 .slider-input--layered {
@@ -2626,6 +2651,39 @@ pre {
   color: var(--color-text-muted);
   line-height: 1.45;
 }
+.landing-choice__pill {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #3dcab1;
+  background: rgba(61,202,177,0.12);
+  border: 1px solid rgba(61,202,177,0.3);
+  border-radius: 20px;
+  padding: 0.2em 0.75em;
+}
+.landing-choice__pill--locked {
+  color: var(--color-text-muted);
+  background: rgba(243,246,250,0.06);
+  border-color: rgba(243,246,250,0.15);
+}
+.landing-community {
+  margin-top: 1.75rem;
+  text-align: center;
+}
+.landing-community__link {
+  font-size: 0.8125rem;
+  color: #3dcab1;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+.landing-community__link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
 .landing-choice__arrow {
   flex-shrink: 0;
   font-size: 1.125rem;
@@ -2635,6 +2693,33 @@ pre {
 .landing-choice:hover .landing-choice__arrow {
   transform: translateX(3px);
   color: var(--color-text);
+}
+.wizard-home-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  margin-right: 0.25rem;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: none;
+}
+.wizard-home-btn:hover {
+  color: var(--color-text);
+  background: rgba(255,255,255,0.06);
+  text-decoration: none;
+}
+.rr-topnav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 /* ── GATE PAGE ── */
