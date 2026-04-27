@@ -80,9 +80,9 @@ function HomeContent() {
           {/* Business Growth Simulator */}
           <button className="landing-choice landing-choice--locked" onClick={openVault}>
             <div className="landing-choice__icon landing-choice__icon--lock">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
               </svg>
             </div>
             <div className="landing-choice__body">
