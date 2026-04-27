@@ -69,7 +69,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-text);
 }
 h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
-h2 { font-size: clamp(1.5rem, 3.5vw, 2.5rem); }
+h2 { font-size: clamp(1.875rem, 4.5vw, 3rem); }
 h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
 h4 { font-size: 1.25rem; }
 h5 { font-size: 1.1rem; }
@@ -285,6 +285,27 @@ pre {
   color: #3dcab1;
   box-shadow: 0 0 24px 8px rgba(61,202,177,0.35);
   border-color: #3dcab1;
+  animation-play-state: paused;
+}
+@keyframes btn-glow-white-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px 0px rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.25);
+  }
+  50% {
+    box-shadow: 0 0 18px 5px rgba(255,255,255,0.2), 0 0 0 1px rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.7);
+  }
+}
+.btn--glow-white {
+  color: var(--color-text);
+  border-color: rgba(255,255,255,0.25);
+  animation: btn-glow-white-pulse 2.2s ease-in-out infinite;
+}
+.btn--glow-white:hover {
+  color: var(--color-text);
+  box-shadow: 0 0 24px 8px rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.9);
   animation-play-state: paused;
 }
 
@@ -1718,7 +1739,7 @@ pre {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 .wizard-dot {
@@ -1960,7 +1981,7 @@ pre {
     min-height: 44px;
   }
   .wizard-progress {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 

@@ -44,6 +44,24 @@ function HomeContent() {
 
         <div className="landing-choices">
 
+          {/* LinkedIn Lead Gen Simulator */}
+          <button className="landing-choice" onClick={() => router.push('/lead-gen')}>
+            <div className="landing-choice__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="4" fill="currentColor" opacity="0.15"/>
+                <path d="M7.5 9.5H5V18.5H7.5V9.5Z"/>
+                <circle cx="6.25" cy="6.75" r="1.5"/>
+                <path d="M13 13.25C13 12 13.75 11.25 15 11.25C16.25 11.25 16.75 12 16.75 13.25V18.5H19.25V13C19.25 10.75 17.75 9.25 15.5 9.25C14.25 9.25 13.25 9.75 13 10.5V9.5H10.5V18.5H13V13.25Z"/>
+              </svg>
+            </div>
+            <div className="landing-choice__body">
+              <div className="landing-choice__title">LinkedIn Lead Gen Simulator</div>
+              <div className="landing-choice__sub">Model your lead generation strategy and forecast pipeline growth in minutes</div>
+              <span className="landing-choice__pill">Free</span>
+            </div>
+            <div className="landing-choice__arrow">→</div>
+          </button>
+
           {/* Lead to Revenue Simulator */}
           <button className="landing-choice" onClick={() => router.push('/?step=1')}>
             <div className="landing-choice__icon">
@@ -56,24 +74,6 @@ function HomeContent() {
               <div className="landing-choice__title">Lead to Revenue Simulator</div>
               <div className="landing-choice__sub">Audit your lead pipeline and uncover your monthly revenue opportunity in 2 minutes</div>
               <span className="landing-choice__pill">Free</span>
-            </div>
-            <div className="landing-choice__arrow">→</div>
-          </button>
-
-          {/* Lead Gen Simulator */}
-          <button className="landing-choice" onClick={() => router.push('/lead-gen')}>
-            <div className="landing-choice__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div className="landing-choice__body">
-              <div className="landing-choice__title">Lead Gen Simulator</div>
-              <div className="landing-choice__sub">Model your lead generation strategy and forecast pipeline growth in minutes</div>
-              <span className="landing-choice__pill">Limited Access</span>
             </div>
             <div className="landing-choice__arrow">→</div>
           </button>

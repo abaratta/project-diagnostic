@@ -4,29 +4,6 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-const LEAD_GEN_OPTIONS = [
-  { value: 'linkedin_dm',       label: 'LinkedIn DM' },
-  { value: 'cold_email',        label: 'Cold Email' },
-  { value: 'linkedin_ads',      label: 'LinkedIn Ads' },
-  { value: 'meta_ads',          label: 'Meta Ads' },
-  { value: 'google_ads',        label: 'Google Ads' },
-  { value: 'seo_geo',           label: 'SEO / GEO' },
-  { value: 'content_marketing', label: 'Content Marketing' },
-  { value: 'email_marketing',   label: 'Email Marketing' },
-  { value: 'online_webinar',    label: 'Online Webinar' },
-]
-
-const ADS_OPTIONS      = ['linkedin_ads', 'meta_ads', 'google_ads']
-const LOW_COST_OPTIONS = ['linkedin_dm', 'cold_email', 'seo_geo']
-
-function getUnlocked(value: string, budget: number, hours: number): boolean {
-  if (ADS_OPTIONS.includes(value))      return budget >= 1500
-  if (LOW_COST_OPTIONS.includes(value)) return budget >= 200 || hours >= 4
-  if (value === 'online_webinar')       return hours >= 4 || budget >= 200
-  if (value === 'email_marketing')      return hours >= 4 || budget >= 500
-  if (value === 'content_marketing')    return hours >= 4 || budget >= 1500
-  return true
-}
 
 function formatBudget(val: number) {
   if (val === 0) return '$0'
@@ -89,31 +66,31 @@ export function LeadGenForm() {
   }, [step])
 
   // Step 1
-  const [budget,        setBudget]        = useState(500)
-  const [hoursPerWeek,  setHoursPerWeek]  = useState(2)
-  const [leadGenOption, setLeadGenOption] = useState('linkedin_dm')
-  const [errors,        setErrors]        = useState<Record<string, string>>({})
-
-  useEffect(() => {
-    if (leadGenOption && !getUnlocked(leadGenOption, budget, hoursPerWeek)) {
-      setLeadGenOption('')
-    }
-  }, [budget, hoursPerWeek])
+  const [budget,       setBudget]       = useState(500)
+  const [hoursPerWeek, setHoursPerWeek] = useState(2)
+  const [clvStep1,     setClvStep1]     = useState('')
+  const [mrrStep1,     setMrrStep1]     = useState('')
+  const [errors,       setErrors]       = useState<Record<string, string>>({})
 
   // Step 2 — LinkedIn DM simulation
   const [invites,        setInvites]        = useState('1000')
   const [connectionRate, setConnectionRate] = useState('40')
-  const [interestedRate, setInterestedRate] = useState('8')
+  const [interestedRate, setInterestedRate] = useState('10')
   const [conversionRate, setConversionRate] = useState('3')
   const [clv,            setClv]            = useState('')
   const [mrr,            setMrr]            = useState('')
 
+  // Sync step 1 CLV/MRR into step 2 (including deletions)
+  useEffect(() => { setClv(clvStep1) }, [clvStep1])
+  useEffect(() => { setMrr(mrrStep1) }, [mrrStep1])
+
   // Step 3
+  const [name,    setName]    = useState('')
   const [email,   setEmail]   = useState('')
   const [hasSent, setHasSent] = useState(false)
 
   // Persist state to sessionStorage so it survives page navigation
-  const FORM_KEY = 'lgf_v1'
+  const FORM_KEY = 'lgf_v2'
 
   useEffect(() => {
     try {
@@ -122,7 +99,8 @@ export function LeadGenForm() {
       const s = JSON.parse(raw)
       if (s.budget      !== undefined) setBudget(s.budget)
       if (s.hours       !== undefined) setHoursPerWeek(s.hours)
-      if (s.option)                    setLeadGenOption(s.option)
+      if (s.clvStep1    !== undefined) setClvStep1(s.clvStep1)
+      if (s.mrrStep1    !== undefined) setMrrStep1(s.mrrStep1)
       if (s.invites     !== undefined) setInvites(s.invites)
       if (s.connRate    !== undefined) setConnectionRate(s.connRate)
       if (s.intRate     !== undefined) setInterestedRate(s.intRate)
@@ -136,12 +114,12 @@ export function LeadGenForm() {
   useEffect(() => {
     try {
       sessionStorage.setItem(FORM_KEY, JSON.stringify({
-        budget, hours: hoursPerWeek, option: leadGenOption,
+        budget, hours: hoursPerWeek, clvStep1, mrrStep1,
         invites, connRate: connectionRate, intRate: interestedRate,
         convRate: conversionRate, clv, mrr, step,
       }))
     } catch {}
-  }, [budget, hoursPerWeek, leadGenOption, invites, connectionRate, interestedRate, conversionRate, clv, mrr, step])
+  }, [budget, hoursPerWeek, clvStep1, mrrStep1, invites, connectionRate, interestedRate, conversionRate, clv, mrr, step])
 
   // Funnel calculations
   const invitesNum      = Math.max(0, Number(invites) || 0)
@@ -156,13 +134,19 @@ export function LeadGenForm() {
   // Annual Revenue: one-time model — CLV × clients/mo × 12 months
   const annualRevenue = clv && convertedCount > 0
     ? Math.round(Number(clv) * convertedCount * 12) : 0
-  // ARR: recurring model — each month adds one more MRR cohort
-  // Year total = MRR × (1+2+...+12) = MRR × 78
-  const arr = mrr ? Math.round(Number(mrr) * 78) : 0
+  // ARR: recurring model — each monthly cohort of clients pays MRR for remaining months
+  // Year total = MRR × clients/mo × (12+11+...+1) = MRR × clients/mo × 78
+  const arr = mrr && convertedCount > 0 ? Math.round(Number(mrr) * convertedCount * 78) : 0
 
   function validate() {
     const errs: Record<string, string> = {}
-    if (step === 1 && !leadGenOption) errs.leadGenOption = 'Select a preferred lead generation option'
+    if (step === 1) {
+      const hasClv = clvStep1 && Number(clvStep1) > 0
+      const hasMrr = mrrStep1 && Number(mrrStep1) > 0
+      if (!hasClv && !hasMrr) {
+        errs.product = 'Enter at least one value to continue'
+      }
+    }
     if (step === 2) {
       const hasClv = clv && Number(clv) > 0
       const hasMrr = mrr && Number(mrr) > 0
@@ -187,6 +171,10 @@ export function LeadGenForm() {
   }
 
   function handleSend() {
+    if (!name.trim()) {
+      setErrors(p => ({ ...p, name: 'Enter your name' }))
+      return
+    }
     if (!email.trim()) {
       setErrors(p => ({ ...p, email: 'Enter your email to receive the pack' }))
       return
@@ -195,20 +183,19 @@ export function LeadGenForm() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        name:           name.trim(),
         email:          email.trim(),
         budget:         budget,
         time:           hoursPerWeek,
-        lead_gen_option: leadGenOption,
         clv:            clv,
         mrr:            mrr,
+        annual_revenue: annualRevenue,
+        arr:            arr,
       }),
     }).catch(() => {})
     setErrors(p => ({ ...p, email: '', sent: 'Pack on its way — check your inbox!' }))
     setHasSent(true)
   }
-
-  const isLinkedInDM      = leadGenOption === 'linkedin_dm'
-  const selectedLabel     = LEAD_GEN_OPTIONS.find(o => o.value === leadGenOption)?.label ?? ''
 
   return (
     <div className="audit-wizard">
@@ -240,9 +227,9 @@ export function LeadGenForm() {
           <div className="audit-step-fields">
             <div className="stack stack--lg">
               <div>
-                <h2 style={{ marginBottom: '0.25rem' }}>Your lead generation setup</h2>
+                <h2 style={{ marginBottom: '0.25rem' }}>Your LinkedIn Lead Gen Opportunity</h2>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', margin: 0 }}>
-                  Tell us about your resources so we can model the best strategy for you.
+                  Tell us about your resources and offer so we can model your revenue opportunity.
                 </p>
               </div>
 
@@ -293,38 +280,43 @@ export function LeadGenForm() {
                 </div>
 
                 <div className="form-group--sm">
-                  <label className="form-label">3. Select the preferred lead generation option</label>
+                  <label className="form-label">3. Your Product or Service</label>
                   <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                    Options unlock based on your available budget and time
+                    Enter the price your clients pay — one-off, recurring, or both
                   </span>
-                  <div className="lead-option-grid">
-                    {LEAD_GEN_OPTIONS.map(opt => {
-                      const unlocked = getUnlocked(opt.value, budget, hoursPerWeek)
-                      const active   = leadGenOption === opt.value
-                      const isLinkedIn = opt.value === 'linkedin_dm'
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          disabled={!unlocked}
-                          className={[
-                            'lead-option-pill',
-                            active      ? 'lead-option-pill--active' : '',
-                            !unlocked   ? 'lead-option-pill--locked' : '',
-                            !isLinkedIn && unlocked ? 'lead-option-pill--coming-soon' : '',
-                          ].join(' ')}
-                          onClick={() => {
-                            if (!isLinkedIn) return
-                            setLeadGenOption(opt.value)
-                            setErrors(p => ({ ...p, leadGenOption: '' }))
-                          }}
-                        >
-                          {opt.label}
-                        </button>
-                      )
-                    })}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.75rem' }}>
+                    <div>
+                      <label className="form-label" htmlFor="clv-step1" style={{ fontSize: '0.8125rem' }}>
+                        CLV — Client Lifetime Value ($)
+                      </label>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.4, display: 'block', marginBottom: '0.375rem' }}>
+                        The one-off price paid by your client for the service
+                      </span>
+                      <input
+                        id="clv-step1" type="number" min="0"
+                        className="form-input"
+                        placeholder="e.g. 3,000"
+                        value={clvStep1}
+                        onChange={e => setClvStep1(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label" htmlFor="mrr-step1" style={{ fontSize: '0.8125rem' }}>
+                        MRR — Monthly Recurring Revenue ($)
+                      </label>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.4, display: 'block', marginBottom: '0.375rem' }}>
+                        The monthly amount paid by your client for your product or service
+                      </span>
+                      <input
+                        id="mrr-step1" type="number" min="0"
+                        className="form-input"
+                        placeholder="e.g. 500"
+                        value={mrrStep1}
+                        onChange={e => setMrrStep1(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  {errors.leadGenOption && <span className="form-error">{errors.leadGenOption}</span>}
+                  {errors.product && <span className="form-error" style={{ marginTop: '0.5rem', display: 'block' }}>{errors.product}</span>}
                 </div>
 
               </div>
@@ -333,34 +325,15 @@ export function LeadGenForm() {
         </div>
       )}
 
-      {/* ── Step 2 — Under construction ── */}
-      {step === 2 && !isLinkedInDM && (
-        <div className="audit-step-layout">
-          <div className="audit-step-fields">
-            <div style={{ padding: '2.5rem 0', textAlign: 'center' }}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-amber)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1.25rem' }}>
-                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <h2 style={{ marginBottom: '0.5rem' }}>{selectedLabel}</h2>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', maxWidth: '28rem', margin: '0 auto' }}>
-                This simulation is under construction. Check back soon — we're building it out now.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Step 2 — LinkedIn DM simulation ── */}
-      {step === 2 && isLinkedInDM && (
+      {step === 2 && (
         <div className="audit-step-layout">
           <div className="audit-step-fields">
             <div className="stack stack--lg">
               <div>
-                <h2 style={{ marginBottom: '0.25rem' }}>LinkedIn DM Simulation</h2>
+                <h2 style={{ marginBottom: '0.25rem' }}>DM Simulation</h2>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', margin: 0 }}>
-                  Adjust the funnel variables to model your expected performance.
+                  Adjust the funnel variables to model your expected performance. Fields pre-filled with typical values.
                 </p>
               </div>
 
@@ -388,7 +361,7 @@ export function LeadGenForm() {
 
                   {/* Connection rate */}
                   <div className="form-group--sm">
-                    <label className="form-label">Connection accepted</label>
+                    <label className="form-label">Connection accepted (%)</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <input
                         type="number" min="0" max="100"
@@ -406,7 +379,7 @@ export function LeadGenForm() {
 
                   {/* Lead interested */}
                   <div className="form-group--sm">
-                    <label className="form-label">Leads interested</label>
+                    <label className="form-label">Leads interested (%)</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <input
                         type="number" min="0" max="100"
@@ -424,7 +397,7 @@ export function LeadGenForm() {
 
                   {/* Converted */}
                   <div className="form-group--sm">
-                    <label className="form-label">Conversion rate</label>
+                    <label className="form-label">Conversion rate (%)</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <input
                         type="number" min="0" max="100"
@@ -445,36 +418,35 @@ export function LeadGenForm() {
                 {/* Divider */}
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '0.25rem' }} />
 
-                {/* CLV + MRR side by side */}
+                {/* CLV + MRR display */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 
-                  <div className="form-group--sm">
-                    <label className="form-label" htmlFor="clv">CLV ($)</label>
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                      The average client's lifetime value
+                  <div style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-card)',
+                    padding: '0.5rem 0.75rem',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    opacity: 0.6,
+                  }}>
+                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CLV</span>
+                    <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                      {clv && Number(clv) > 0 ? fmtMoney(Number(clv)) : '—'}
                     </span>
-                    <input
-                      id="clv" type="number" min="0"
-                      className="form-input"
-                      placeholder="e.g. 3,000"
-                      value={clv}
-                      onChange={e => { setClv(e.target.value); setErrors(p => ({ ...p, clv: '' })) }}
-                    />
-                    {errors.clv && <span className="form-error">{errors.clv}</span>}
                   </div>
 
-                  <div className="form-group--sm">
-                    <label className="form-label" htmlFor="mrr">MRR ($)</label>
-                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, display: 'block' }}>
-                      The monthly recurring revenue per client
+                  <div style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-card)',
+                    padding: '0.5rem 0.75rem',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    opacity: 0.6,
+                  }}>
+                    <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>MRR</span>
+                    <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                      {mrr && Number(mrr) > 0 ? `$${Math.round(Number(mrr)).toLocaleString()}` : '—'}
                     </span>
-                    <input
-                      id="mrr" type="number" min="0"
-                      className="form-input"
-                      placeholder="e.g. 500"
-                      value={mrr}
-                      onChange={e => { setMrr(e.target.value); setErrors(p => ({ ...p, clv: '' })) }}
-                    />
                   </div>
 
                 </div>
@@ -495,8 +467,8 @@ export function LeadGenForm() {
                     <div style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--color-accent-cyan)', lineHeight: 1.1 }}>
                       {annualRevenue > 0 ? fmtMoney(annualRevenue) : '—'}
                     </div>
-                    <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-dim)', marginTop: '0.375rem' }}>
-                      CLV × {fmt(convertedCount)} clients/mo × 12
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
+                      CLV × {fmt(convertedCount)} clients/mo × 12 months
                     </div>
                   </div>
 
@@ -514,7 +486,7 @@ export function LeadGenForm() {
                       {arr > 0 ? fmtMoney(arr) : '—'}
                     </div>
                     <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
-                      MRR × 78 (12-month compounding)
+                      MRR × {fmt(convertedCount)} clients/mo × 78 months
                     </div>
                   </div>
 
@@ -552,56 +524,73 @@ export function LeadGenForm() {
             <div className="stack stack--lg">
 
               {/* Revenue headline */}
-              <div style={{
-                background: 'var(--color-bg-secondary)',
-                border: '1px solid var(--color-border)',
-                borderLeft: '3px solid var(--color-accent-cyan)',
-                borderRadius: 'var(--radius-card)',
-                padding: '1.375rem 1.25rem',
-              }}>
-                <p style={{ margin: 0, fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text)' }}>
-                  You could generate an additional{' '}
-                  <strong style={{ color: 'var(--color-accent-cyan)', fontSize: '1.2em' }}>
+              <div>
+                <h2 style={{ marginBottom: '0.375rem' }}>
+                  Make{' '}
+                  <span style={{ color: 'var(--color-accent-cyan)' }}>
                     {annualRevenue + arr > 0 ? fmtMoney(annualRevenue + arr) : '—'}
-                  </strong>{' '}
-                  per year. Also account for secondary opportunities such as testimonials, referrals, case studies, and repeat or follow-on work these clients may bring.
+                  </span>
+                  {' '}per year.
+                </h2>
+                <p style={{ margin: 0, fontSize: '0.9375rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+                  Plus secondary opportunities such as testimonials, referrals, case studies, and repeat or follow-on work these clients may bring.
                 </p>
               </div>
 
               {/* Starter pack + email */}
+              <p style={{ margin: 0, fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text)' }}>
+                I've created a{' '}
+                <strong style={{ color: 'var(--color-accent-cyan)' }}>free</strong>
+                {' '}training pack with a video and step-by-step tutorial that shows you how to set up this exact system. I use this every day with my clients to run 24/7 DM campaigns on LinkedIn, so that you can grow your business on autopilot.
+              </p>
               <div style={{
                 background: 'var(--color-bg-secondary)',
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-card)',
-                padding: '1.375rem 1.25rem',
+                padding: '1rem',
               }}>
-                <p style={{ margin: '0 0 1.25rem', fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text-muted)' }}>
-                  I've created a starter pack that shows you how to set up a system that runs DM campaigns 24/7 on LinkedIn, so that you can get clients on autopilot. Where should I send it?
-                </p>
-                <div className="form-group--sm">
-                  <label className="form-label" htmlFor="email">Your email</label>
-                  <div style={{ display: 'flex', gap: '0.625rem' }}>
-                    <input
-                      id="email" type="email"
-                      className="form-input"
-                      style={{ flex: 1 }}
-                      placeholder="e.g. name@company.com"
-                      value={email}
-                      onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })) }}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn--pink btn--sm"
-                      style={{ flexShrink: 0, width: '35%' }}
-                      onClick={handleSend}
-                    >
-                      Send
-                    </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
+                    <div>
+                      <label className="form-label" htmlFor="name" style={{ fontSize: '0.8125rem' }}>Name <span style={{ color: 'var(--color-accent-cyan)' }}>*</span></label>
+                      <input
+                        id="name" type="text"
+                        className="form-input"
+                        placeholder="Jane Smith"
+                        required
+                        value={name}
+                        onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: '' })) }}
+                      />
+                      {errors.name && <span className="form-error">{errors.name}</span>}
+                    </div>
+                    <div>
+                      <label className="form-label" htmlFor="email" style={{ fontSize: '0.8125rem' }}>Email <span style={{ color: 'var(--color-accent-cyan)' }}>*</span></label>
+                      <input
+                        id="email" type="email"
+                        className="form-input"
+                        placeholder="name@company.com"
+                        required
+                        value={email}
+                        onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })) }}
+                      />
+                      {errors.email && <span className="form-error">{errors.email}</span>}
+                    </div>
                   </div>
-                  {errors.email && <span className="form-error">{errors.email}</span>}
-                  {errors.sent  && <span style={{ fontSize: '0.8125rem', color: 'var(--color-accent-cyan)', display: 'block', marginTop: '0.375rem' }}>{errors.sent}</span>}
+                  {errors.sent && <span style={{ fontSize: '0.8125rem', color: 'var(--color-accent-cyan)' }}>{errors.sent}</span>}
+                  <button
+                    type="button"
+                    className="btn btn--pink"
+                    style={{ width: '100%' }}
+                    onClick={handleSend}
+                  >
+                    Send
+                  </button>
                 </div>
               </div>
+
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                If you believe the training provides value, please leave a testimonial.
+              </p>
 
             </div>
           </div>
@@ -613,9 +602,9 @@ export function LeadGenForm() {
         <button type="button" className="btn btn--ghost" onClick={handleBack}>
           ← Back
         </button>
-        {(step === 1 || (step === 2 && isLinkedInDM)) && (
-          <button type="button" className="btn btn--ghost" onClick={handleNext}>
-            Next →
+        {(step === 1 || step === 2) && (
+          <button type="button" className="btn btn--ghost btn--glow-white" onClick={handleNext}>
+            {step === 2 ? 'Show Me How →' : 'Next →'}
           </button>
         )}
         {step === 3 && hasSent && hoursPerWeek <= 4 && (
@@ -624,7 +613,7 @@ export function LeadGenForm() {
             className="btn btn--ghost btn--glow"
             onClick={() => router.push(`/special-offer?total=${annualRevenue + arr}`)}
           >
-            Your shortcut →
+            No Time for Training? →
           </button>
         )}
       </div>
