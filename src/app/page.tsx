@@ -38,7 +38,7 @@ function HomeContent() {
     <main>
       <div className="landing-wrapper">
 
-        <div className="landing-eyebrow">Profit AI Lab</div>
+        <div className="landing-eyebrow"><a href="https://profitailab.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Profit AI Lab</a></div>
         <h1 className="landing-title">Choose Your Simulation</h1>
         <p className="landing-sub">Test multiple scenarios to identify the best strategy</p>
 
@@ -66,8 +66,7 @@ function HomeContent() {
           <button className="landing-choice" onClick={() => router.push('/lead-to-revenue')}>
             <div className="landing-choice__icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-                <polyline points="16 7 22 7 22 13"/>
+                <path d="M3 3h18l-7 10v6l-4-2v-4L3 3z"/>
               </svg>
             </div>
             <div className="landing-choice__body">
