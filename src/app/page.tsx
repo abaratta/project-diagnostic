@@ -63,7 +63,7 @@ function HomeContent() {
           </button>
 
           {/* Lead to Revenue Simulator */}
-          <button className="landing-choice" onClick={() => router.push('/?step=1')}>
+          <button className="landing-choice" onClick={() => router.push('/lead-to-revenue')}>
             <div className="landing-choice__icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
