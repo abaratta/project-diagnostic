@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
 import type { LeadSource } from '@/store/useFivePStore'
 
@@ -108,6 +108,7 @@ function Tick({ pct, label }: { pct: number; label: string }) {
 export function AuditForm() {
   const router          = useRouter()
   const searchParams    = useSearchParams()
+  const pathname        = usePathname()
   const setAudit        = useFivePStore(s => s.setAudit)
   const savedAudit      = useFivePStore(s => s.audit)
   const isAuditComplete = useFivePStore(s => s.isAuditComplete)
@@ -116,7 +117,7 @@ export function AuditForm() {
   const [step, setStep] = useState(initialStep)
 
   useEffect(() => {
-    router.replace(`/?step=${step}`)
+    router.replace(`${pathname}?step=${step}`)
   }, [step])
 
   // Step 1: Revenue — seed from store after mount to avoid SSR mismatch
