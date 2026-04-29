@@ -75,8 +75,8 @@ export function LeadGenForm() {
   // Step 2 — LinkedIn DM simulation
   const [invites,        setInvites]        = useState('1000')
   const [connectionRate, setConnectionRate] = useState('40')
-  const [interestedRate, setInterestedRate] = useState('10')
-  const [conversionRate, setConversionRate] = useState('3')
+  const [interestedRate, setInterestedRate] = useState('12')
+  const [conversionRate, setConversionRate] = useState('8')
   const [clv,            setClv]            = useState('')
   const [mrr,            setMrr]            = useState('')
 
@@ -90,7 +90,7 @@ export function LeadGenForm() {
   const [hasSent, setHasSent] = useState(false)
 
   // Persist state to sessionStorage so it survives page navigation
-  const FORM_KEY = 'lgf_v2'
+  const FORM_KEY = 'lgf_v3'
 
   useEffect(() => {
     try {
@@ -333,7 +333,7 @@ export function LeadGenForm() {
               <div>
                 <h2 style={{ marginBottom: '0.25rem' }}>DM Simulation</h2>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', margin: 0 }}>
-                  Adjust the funnel variables to model your expected performance. Fields pre-filled with typical values.
+                  Adjust the funnel variables to model your expected performance. If unsure use the average numbers provided (based on industry standards).
                 </p>
               </div>
 
