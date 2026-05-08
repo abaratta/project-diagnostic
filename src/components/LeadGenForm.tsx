@@ -540,8 +540,8 @@ export function LeadGenForm() {
               {/* Starter pack + email */}
               <p style={{ margin: 0, fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--color-text)' }}>
                 I've created a{' '}
-                <strong style={{ color: 'var(--color-accent-cyan)' }}>free</strong>
-                {' '}training pack with a video and step-by-step tutorial that shows you how to set up this exact system. I use this every day with my clients to run 24/7 DM campaigns on LinkedIn, so that you can grow your business on autopilot.
+                <strong style={{ color: 'var(--color-accent-cyan)' }}>free training</strong>
+                {' '}with a step-by-step tutorial that shows you how to set up this exact system. I use this every day with my clients to run 24/7 DM campaigns on LinkedIn, so that you can grow your business on autopilot.
               </p>
               <div style={{
                 background: 'var(--color-bg-secondary)',
@@ -583,7 +583,7 @@ export function LeadGenForm() {
                     style={{ width: '100%' }}
                     onClick={handleSend}
                   >
-                    Send
+                    Access the Free Training
                   </button>
                 </div>
               </div>
