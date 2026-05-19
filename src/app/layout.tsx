@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@/styles/global.css'
 import { Header } from '@/components/Header'
+import { ThemeProvider } from '@/components/theme-provider'
 
 export const metadata: Metadata = {
   title: '5P System — Profit AI Lab',
@@ -10,12 +11,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <Header />
-        <div className="page-wrapper">
-          {children}
-        </div>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <Header />
+          <div className="page-wrapper">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   )

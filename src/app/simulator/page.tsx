@@ -4,10 +4,72 @@ import { useCallback, useEffect, useRef, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { isVaultUnlocked } from '@/lib/vaultSession'
 import { toJpeg } from 'html-to-image'
+import { BookCallButton } from '@/components/BookCallButton'
 
 /* ─── Constants ──────────────────────────────────────────────────── */
 const PACE_MAX_PP   = 2.0
 const PERSON_MAX_PP = 1.5
+
+const PRESETS = [
+  {
+    id: 'founder',
+    label: 'Founder',
+    helper: 'Owner-led business',
+    values: { leads: '30', conversion: '8', revenue: '2500', time: '0.5', hourly: '40', adSpend: '700' },
+  },
+  {
+    id: 'agency',
+    label: 'Agency',
+    helper: 'Lead-gen dependent team',
+    values: { leads: '120', conversion: '10', revenue: '7500', time: '0.75', hourly: '95', adSpend: '5200' },
+  },
+  {
+    id: 'professional-service',
+    label: 'Professional Service',
+    helper: 'Consulting or advisory',
+    values: { leads: '90', conversion: '8', revenue: '7000', time: '0.65', hourly: '85', adSpend: '3200' },
+  },
+  {
+    id: 'small-business',
+    label: 'Small Business',
+    helper: 'Growing service team',
+    values: { leads: '50', conversion: '10', revenue: '4000', time: '0.45', hourly: '45', adSpend: '1600' },
+  },
+] as const
+
+type PresetId = typeof PRESETS[number]['id'] | 'custom'
+type SetupMode = 'setup' | 'simulator'
+type TourTarget = 'upside' | 'levers' | 'charts' | 'actions'
+
+const SETUP_STEPS = [
+  { eyebrow: 'Step 1 of 4', title: 'Choose your profile', copy: 'Pick the profile that feels closest to how your business works. We will create starter numbers you can adjust next.' },
+  { eyebrow: 'Step 2 of 4', title: 'Confirm your numbers', copy: 'These three numbers estimate what your leads are worth today.' },
+  { eyebrow: 'Step 3 of 4', title: 'Add your current costs', copy: 'This helps the simulator show where time and ad spend are being used.' },
+  { eyebrow: 'Step 4 of 4', title: 'Now experiment with growth', copy: 'Move the three levers to model faster follow-up, better outreach, and less admin.' },
+] as const
+
+const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
+  {
+    target: 'upside',
+    title: 'This is your estimated upside.',
+    copy: 'The big number estimates extra annual revenue from the improvements you test here. The monthly line shows the same gain in a shorter time frame.',
+  },
+  {
+    target: 'levers',
+    title: 'Move the levers to test improvements.',
+    copy: 'Try one lever at a time, then combine them. The estimate updates immediately as you model faster follow-up, better outreach, and less admin.',
+  },
+  {
+    target: 'charts',
+    title: 'Use the graphs as proof, not homework.',
+    copy: 'The charts show what changed: more clients, more monthly revenue, and how time or ad spend is being used.',
+  },
+  {
+    target: 'actions',
+    title: 'Decide what to do next.',
+    copy: 'If the upside feels meaningful, save the report or book a strategy call to work through what would create that gain.',
+  },
+]
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 function fmt(n: number)                  { return Math.round(n).toLocaleString() }
@@ -70,7 +132,7 @@ function drawBarChart(
   const nowH  = (nowVal  / maxVal) * maxBarH
   const rapH  = (rapidVal / maxVal) * maxBarH
 
-  // Today bar
+  // Without conversion system bar
   ctx.fillStyle = '#1c2e3e'
   barPath(ctx, startX, baseY - nowH, barW, nowH, 4)
   ctx.fill()
@@ -78,7 +140,7 @@ function drawBarChart(
   barPath(ctx, startX, baseY - nowH, barW, nowH, 4)
   ctx.fill()
 
-  // RAPID bar
+  // With conversion system bar
   const grd = ctx.createLinearGradient(0, baseY - rapH, 0, baseY)
   grd.addColorStop(0, '#3dcab1')
   grd.addColorStop(1, 'rgba(61,202,177,0.55)')
@@ -96,19 +158,19 @@ function drawBarChart(
   if (rapH > 0) ctx.fillText(fv(rapidVal), startX + barW + gap + barW / 2, baseY - rapH - 5)
 
   // Legend row
-  const legY = H - 10
+  const legY = H - 22
   const items = [
-    { color: 'rgba(255,255,255,0.22)', label: nowLegend,   x: startX + barW / 2 - 26 },
-    { color: '#3dcab1',                label: rapidLegend, x: startX + barW + gap + barW / 2 - 32 },
+    { color: 'rgba(255,255,255,0.22)', label: nowLegend,   x: startX + barW / 2 },
+    { color: '#3dcab1',                label: rapidLegend, x: startX + barW + gap + barW / 2 },
   ]
   for (const item of items) {
     ctx.fillStyle = item.color
-    ctx.fillRect(item.x, legY - 6, 7, 7)
+    ctx.fillRect(item.x - 4, legY - 4, 7, 7)
     ctx.fillStyle = item.color === '#3dcab1' ? '#3dcab1' : 'rgba(255,255,255,0.45)'
     ctx.font = '500 9px Inter, sans-serif'
-    ctx.textAlign = 'left'
+    ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(item.label, item.x + 10, legY - 2)
+    ctx.fillText(item.label, item.x, legY + 9)
   }
 }
 
@@ -124,7 +186,7 @@ function drawDonut(
   const [ctx, W, H] = setup
   ctx.clearRect(0, 0, W, H)
 
-  const COLORS = { time: '#2a4060', saved: '#3dcab1', ad: '#e83e8c' }
+  const COLORS = { leadManagement: '#2a6f97', savings: '#e83e8c', leadGeneration: '#17364f' }
   const total = remainTimeCost + timeSaved + adSpend
 
   const cx = W * 0.38
@@ -150,9 +212,9 @@ function drawDonut(
 
   // Draw arc segments
   const segments = [
-    { value: remainTimeCost, color: COLORS.time  },
-    { value: adSpend,        color: COLORS.ad    },
-    { value: timeSaved,      color: COLORS.saved },
+    { value: adSpend,        color: COLORS.leadGeneration },
+    { value: remainTimeCost, color: COLORS.leadManagement },
+    { value: timeSaved,      color: COLORS.savings },
   ]
   const mid = (outerR + innerR) / 2
   ctx.lineWidth = lineW
@@ -171,7 +233,7 @@ function drawDonut(
   // Center text
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillStyle    = '#e83e8c'
+  ctx.fillStyle    = '#ffffff'
   const fontSize = Math.round(Math.min(outerR * 0.38, 18))
   ctx.font = `800 ${fontSize}px Inter, sans-serif`
   ctx.fillText('$' + fmt(centerCost), cx, cy - 8)
@@ -182,9 +244,9 @@ function drawDonut(
   // Right-side legend
   const legX    = cx + outerR + 16
   const legItems = [
-    { color: COLORS.time,  name: 'Time RAPID', val: '$' + fmt(remainTimeCost) },
-    { color: COLORS.saved, name: 'Time saved',  val: '$' + fmt(timeSaved)     },
-    { color: COLORS.ad,    name: 'Ad spend',    val: '$' + fmt(adSpend)       },
+    { color: COLORS.leadGeneration, name: 'Lead generation cost', val: '$' + fmt(adSpend)       },
+    { color: COLORS.leadManagement, name: 'Lead management cost', val: '$' + fmt(remainTimeCost) },
+    { color: COLORS.savings,        name: 'Cost savings',         val: '$' + fmt(timeSaved)     },
   ]
   const legH = 22
   const legStartY = cy - (legItems.length * legH) / 2
@@ -207,9 +269,9 @@ function drawDonut(
   // Bottom legend
   const botY  = H - 11
   const bots  = [
-    { color: COLORS.time,  label: 'Time cost' },
-    { color: COLORS.ad,    label: 'Ad spend'  },
-    { color: COLORS.saved, label: 'Saved'      },
+    { color: COLORS.leadGeneration, label: 'Lead gen cost' },
+    { color: COLORS.leadManagement, label: 'Lead mgmt cost' },
+    { color: COLORS.savings,        label: 'Savings'       },
   ]
   ctx.textBaseline = 'middle'
   let bx = 10
@@ -225,13 +287,18 @@ function drawDonut(
 }
 
 /* ─── SimInput ───────────────────────────────────────────────────── */
-function SimInput({ label, value, onChange, prefix, suffix, half }: {
+function SimInput({ label, value, onChange, prefix, suffix, half, helperText }: {
   label: string; value: string; onChange: (v: string) => void
-  prefix?: string; suffix?: string; half?: boolean
+  prefix?: string; suffix?: string; half?: boolean; helperText?: string
 }) {
   return (
     <div className={`si2${half ? ' si2--half' : ''}`}>
-      <label className="si2__label">{label}</label>
+      <div className="si2__label-row">
+        <label className="si2__label">{label}</label>
+        {helperText && (
+          <span className="si2__info" title={helperText} aria-label={helperText}>i</span>
+        )}
+      </div>
       <div className="si2__wrap">
         {prefix && <span className="si2__affix">{prefix}</span>}
         <input
@@ -241,14 +308,15 @@ function SimInput({ label, value, onChange, prefix, suffix, half }: {
         />
         {suffix && <span className="si2__affix si2__affix--r">{suffix}</span>}
       </div>
+      {helperText && <p className="si2__helper">{helperText}</p>}
     </div>
   )
 }
 
 /* ─── SimLever ───────────────────────────────────────────────────── */
-function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel }: {
+function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel, impactLabel }: {
   label: string; desc: string; value: number; onChange: (v: number) => void
-  avgPct: number; ticks: string[]; statusLabel: string
+  avgPct: number; ticks: string[]; statusLabel: string; impactLabel?: string
 }) {
   return (
     <div className="sl2">
@@ -257,6 +325,10 @@ function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel }: 
         <span className="sl2__status">{statusLabel}</span>
       </div>
       <p className="sl2__desc">{desc}</p>
+      <div className="sl2__endpoints" aria-hidden="true">
+        <span>Current</span>
+        <span>Improved</span>
+      </div>
       <div className="sl2__track-wrap">
         <input
           type="range" className="slider-input"
@@ -269,6 +341,7 @@ function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel }: 
       <div className="sl2__ticks">
         {ticks.map((t, i) => <span key={i}>{t}</span>)}
       </div>
+      {impactLabel && <p className="sl2__impact">{impactLabel}</p>}
     </div>
   )
 }
@@ -302,18 +375,23 @@ function SimulatorInner() {
   }, [router, searchParams])
 
   // Meta
-  const [company,  setCompany]  = useState('')
-  const [date,     setDate]     = useState(() => new Date().toISOString().slice(0, 10))
-  const [saveOpen, setSaveOpen] = useState(false)
+  const date = new Date().toISOString().slice(0, 10)
   const [toast,    setToast]    = useState('')
+  const [setupMode, setSetupMode] = useState<SetupMode>('setup')
+  const [setupStep, setSetupStep] = useState(0)
+  const [baselineDrawerOpen, setBaselineDrawerOpen] = useState(false)
+  const [tourOpen, setTourOpen] = useState(false)
+  const [tourStep, setTourStep] = useState(0)
+  const [tourDismissed, setTourDismissed] = useState(false)
 
   // Inputs
-  const [leadsStr, setLeadsStr] = useState('25')
-  const [convStr,  setConvStr]  = useState('3')
-  const [revStr,   setRevStr]   = useState('2000')
+  const [leadsStr, setLeadsStr] = useState('30')
+  const [convStr,  setConvStr]  = useState('8')
+  const [revStr,   setRevStr]   = useState('2500')
   const [timeStr,  setTimeStr]  = useState('0.5')
-  const [hourStr,  setHourStr]  = useState('35')
-  const [adSpendStr, setAdSpendStr] = useState('500')
+  const [hourStr,  setHourStr]  = useState('40')
+  const [adSpendStr, setAdSpendStr] = useState('700')
+  const [selectedPreset, setSelectedPreset] = useState<PresetId>('founder')
 
   // Sliders
   const [paceVal,   setPaceVal]   = useState(0)
@@ -324,7 +402,7 @@ function SimulatorInner() {
   const clientsCanvasRef = useRef<HTMLCanvasElement>(null)
   const revenueCanvasRef = useRef<HTMLCanvasElement>(null)
   const donutCanvasRef   = useRef<HTMLCanvasElement>(null)
-  const rightPanelRef    = useRef<HTMLDivElement>(null)
+  const rightPanelRef    = useRef<HTMLElement>(null)
 
   // Animated DOM refs
   const annualRef    = useRef<HTMLSpanElement>(null)
@@ -369,21 +447,59 @@ function SimulatorInner() {
   const annualGain  = monthlyGain * 12
   const roi         = adSpend > 0 ? annualGain / (adSpend * 12) : 0
 
+  const paceMonthlyImpact = leads * (pLift / 100) * revenue
+  const personMonthlyImpact = leads * (perLift / 100) * revenue
+
+  const applyPreset = (preset: typeof PRESETS[number]) => {
+    setLeadsStr(preset.values.leads)
+    setConvStr(preset.values.conversion)
+    setRevStr(preset.values.revenue)
+    setTimeStr(preset.values.time)
+    setHourStr(preset.values.hourly)
+    setAdSpendStr(preset.values.adSpend)
+    setSelectedPreset(preset.id)
+  }
+
+  const setCustom = (setter: (v: string) => void) => (value: string) => {
+    setter(value)
+    setSelectedPreset('custom')
+  }
+
+  const setupMeta = SETUP_STEPS[setupStep]
+  const setupProgress = ((setupStep + 1) / SETUP_STEPS.length) * 100
+  const baselineSummary = `${fmt(leads)} leads/mo · ${fmtD(conv, conv % 1 === 0 ? 0 : 1)}% convert · $${fmt(revenue)} value`
+  const activeTour = TOUR_STEPS[tourStep]
+  const activeTourTarget = tourOpen ? activeTour.target : null
+  const tourTargetClass = (target: TourTarget) => activeTourTarget === target ? ' sim2-tour-target--active' : ''
+
+  const closeTour = () => {
+    setTourOpen(false)
+    setTourDismissed(true)
+  }
+
+  const goToSimulator = () => {
+    setSetupMode('simulator')
+    setBaselineDrawerOpen(false)
+    setTourStep(0)
+    setTourDismissed(false)
+    setTourOpen(true)
+  }
+
   // Lever labels
   function paceLabel(v: number) {
-    if (v === 0) return 'No change'
-    if (v < 34) return 'Same day'
-    if (v < 67) return '~1 hr response'
-    return '<5 min response'
+    if (v === 0) return 'Current follow-up'
+    if (v < 34) return 'Same day follow-up'
+    if (v < 67) return 'Within 1 hour'
+    return 'Under 5 minutes'
   }
   function personLabel(v: number) {
-    if (v === 0) return 'No change'
-    if (v < 34) return 'Some personalisation'
-    if (v < 67) return 'Tailored'
-    return 'Hyper-personalised'
+    if (v === 0) return 'Generic outreach'
+    if (v < 34) return 'Lightly tailored'
+    if (v < 67) return 'Tailored outreach'
+    return 'One-to-one message'
   }
   function autoLabel(v: number) {
-    return v === 0 ? 'No change' : `${v}% time saved`
+    return v === 0 ? 'Manual admin' : `${v}% admin saved`
   }
 
   // Anim
@@ -441,8 +557,8 @@ function SimulatorInner() {
       if (dBadgeRef.current) dBadgeRef.current.textContent = '$' + fmt(a.autoSave) + ' saved'
 
       // Canvas
-      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Today', 'RAPID')
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Today', 'With RAPID')
+      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Without conversion system', 'With conversion system')
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Without conversion system', 'With conversion system')
       if (donutCanvasRef.current)   drawDonut(donutCanvasRef.current, a.remTimeCost, a.autoSave, a.adSpend, a.remCost)
 
       rafId = requestAnimationFrame(loop)
@@ -452,14 +568,13 @@ function SimulatorInner() {
   }, [])
 
   const handleSave = useCallback(async (format: 'jpeg' | 'pdf') => {
-    setSaveOpen(false)
     const el = rightPanelRef.current
     if (!el) return
     try {
       const dataUrl = await toJpeg(el, { quality: 0.93, backgroundColor: '#0e1117', cacheBust: true })
       if (format === 'jpeg') {
         const a = document.createElement('a')
-        a.href = dataUrl; a.download = `${company || 'rapid-simulator'}-${date}.jpg`; a.click()
+        a.href = dataUrl; a.download = `rapid-simulator-${date}.jpg`; a.click()
         setToast('Saved as JPEG')
       } else {
         const { default: jsPDF } = await import('jspdf')
@@ -467,186 +582,375 @@ function SimulatorInner() {
         await new Promise<void>(r => { img.onload = () => r() })
         const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [img.width, img.height] })
         pdf.addImage(dataUrl, 'JPEG', 0, 0, img.width, img.height)
-        pdf.save(`${company || 'rapid-simulator'}-${date}.pdf`)
+        pdf.save(`rapid-simulator-${date}.pdf`)
         setToast('Saved as PDF')
       }
     } catch { setToast('Export failed — try again') }
-  }, [company, date])
+  }, [date])
 
   return (
-    <div className="sim2-shell" onClick={() => saveOpen && setSaveOpen(false)}>
+    <div
+      className={`sim2-shell ${setupMode === 'setup' ? 'sim2-shell--setup' : 'sim2-shell--workspace'}`}
+    >
       {toast && <Toast msg={toast} onDone={() => setToast('')} />}
 
-      {/* ── LEFT ── */}
-      <div className="sim2-left">
-        <div className="sim2-section-hd">Client inputs</div>
+      {setupMode === 'setup' ? (
+        <main className="sim2-setup">
+          <section className="sim2-setup-card">
+            <div className="sim2-setup-progress" aria-label={setupMeta.eyebrow}>
+              <span style={{ width: `${setupProgress}%` }} />
+            </div>
+            <div className="sim2-setup__eyebrow">{setupMeta.eyebrow}</div>
+            <h1 className="sim2-setup__title">{setupMeta.title}</h1>
+            <p className="sim2-setup__copy">{setupMeta.copy}</p>
 
-        <div className="si2-row">
-          <SimInput label="Monthly leads"    value={leadsStr} onChange={setLeadsStr} half />
-          <SimInput label="Conversion rate"  value={convStr}  onChange={setConvStr}  half suffix="%" />
-        </div>
-        <SimInput label="Revenue per client" value={revStr}   onChange={setRevStr}   prefix="$" />
-        <div className="si2-row">
-          <SimInput label="Time per lead"    value={timeStr}  onChange={setTimeStr}  half suffix="hrs" />
-          <SimInput label="Hourly cost"      value={hourStr}  onChange={setHourStr}  half prefix="$" suffix="/hr" />
-        </div>
-        <div className="si2-row">
-          <SimInput label="Monthly ad spend" value={adSpendStr} onChange={setAdSpendStr} prefix="$" half />
-          <div className="si2 si2--half si2--derived">
-            <span className="si2__label">Cost per lead</span>
-            <span className="si2__derived-val">
-              {leads > 0 && adSpendInput > 0
-                ? `$${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()}`
-                : '—'}
-            </span>
-          </div>
-        </div>
-
-        <div className="sim2-section-hd sim2-section-hd--mt">Improvement levers</div>
-
-        <SimLever
-          label="Follow-up speed"
-          desc="How quickly leads are contacted after enquiring"
-          value={paceVal} onChange={setPaceVal} avgPct={30}
-          ticks={['Days', 'Same day', '1hr', '<5 min']}
-          statusLabel={paceLabel(paceVal)}
-        />
-        <SimLever
-          label="Personalisation"
-          desc="Relevance and quality of outreach messages"
-          value={personVal} onChange={setPersonVal} avgPct={25}
-          ticks={['Generic', 'Some', 'Tailored', 'Hyper']}
-          statusLabel={personLabel(personVal)}
-        />
-        <SimLever
-          label="Process automation"
-          desc="Proportion of lead handling that is automated"
-          value={autoVal} onChange={setAutoVal} avgPct={20}
-          ticks={['Manual', 'Partial', 'Mostly', 'Full']}
-          statusLabel={autoLabel(autoVal)}
-        />
-
-        <div className="sim2-avg-legend">
-          <span className="sim2-avg-dot" />
-          <span>Industry average</span>
-        </div>
-
-        <p className="sim2-disclaimer">
-          Results are indicative. Based on published industry benchmarks — individual outcomes may differ.
-        </p>
-      </div>
-
-      {/* ── RIGHT ── */}
-      <div className="sim2-right" ref={rightPanelRef}>
-
-        {/* Top bar */}
-        <div className="sim2-topbar">
-          <div className="sim2-tb-company">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-            <input
-              type="text" placeholder="Company name..."
-              value={company} onChange={e => setCompany(e.target.value)}
-            />
-          </div>
-          <div className="sim2-tb-date">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
-          </div>
-          <div className="sim2-save-wrap" onClick={e => e.stopPropagation()}>
-            <button className="sim2-save-btn" onClick={() => setSaveOpen(v => !v)}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Save
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </button>
-            {saveOpen && (
-              <div className="sim2-save-dropdown">
-                <button onClick={() => handleSave('jpeg')}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <polyline points="21 15 16 10 5 21"/>
-                  </svg>
-                  Save as JPEG
-                </button>
-                <button onClick={() => handleSave('pdf')}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                  </svg>
-                  Save as PDF
-                </button>
+            {setupStep === 0 && (
+              <div className="sim2-preset-grid" aria-label="Starting profiles">
+                {PRESETS.map(preset => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`sim2-preset-card${selectedPreset === preset.id ? ' sim2-preset-card--active' : ''}`}
+                    onClick={() => applyPreset(preset)}
+                  >
+                    <span>{preset.label}</span>
+                    <small>{preset.helper}</small>
+                  </button>
+                ))}
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Reveal banner */}
-        <div className="sim2-reveal">
-          <div className="sim2-reveal__left">
-            <div className="sim2-reveal__eyebrow">Annual revenue opportunity</div>
-            <span className="sim2-reveal__big" ref={annualRef}>+$0/yr</span>
-            <div className="sim2-reveal__sub">
-              <span ref={subMonthRef}>= +$0/mo additional</span>
-              <span ref={subRoiRef} />
-            </div>
-          </div>
-          <div className="sim2-reveal__stats">
-            <div className="sim2-reveal__stat">
-              <span className="sim2-reveal__stat-label">Conv. rate</span>
-              <span className="sim2-reveal__stat-val" ref={convValRef}>0.0%</span>
-              <span className="sim2-reveal__stat-delta" ref={convDeltRef}>+0.0pp</span>
-            </div>
-            <div className="sim2-reveal__stat">
-              <span className="sim2-reveal__stat-label">Clients/mo</span>
-              <span className="sim2-reveal__stat-val" ref={cliValRef}>0</span>
-              <span className="sim2-reveal__stat-delta" ref={cliDeltRef}>+0.0</span>
-            </div>
-            <div className="sim2-reveal__stat">
-              <span className="sim2-reveal__stat-label">Time saved</span>
-              <span className="sim2-reveal__stat-val" ref={timeValRef}>$0</span>
-              <span className="sim2-reveal__stat-delta">/mo</span>
-            </div>
-          </div>
-        </div>
+            {setupStep === 1 && (
+              <div className="sim2-setup-fields">
+                <div className="si2-row">
+                  <SimInput label="How many leads do you get each month?" value={leadsStr} onChange={setCustom(setLeadsStr)} half />
+                  <SimInput
+                    label="The percentage of leads that turn into paying clients"
+                    value={convStr}
+                    onChange={setCustom(setConvStr)}
+                    half
+                    suffix="%"
+                  />
+                </div>
+                <SimInput label="Average client lifetime value" value={revStr} onChange={setCustom(setRevStr)} prefix="$" />
+              </div>
+            )}
 
-        {/* Charts */}
-        <div className="sim2-charts-grid">
-          <div className="sim2-chart-panel">
-            <div className="sim2-chart-hdr">
-              <span className="sim2-chart-hdr__label">Clients / Month</span>
-              <span className="sim2-badge sim2-badge--cyan" ref={cBadgeRef}>+0.0 clients</span>
-            </div>
-            <canvas ref={clientsCanvasRef} className="sim2-canvas" />
-          </div>
-          <div className="sim2-chart-panel">
-            <div className="sim2-chart-hdr">
-              <span className="sim2-chart-hdr__label">Monthly Revenue</span>
-              <span className="sim2-badge sim2-badge--cyan" ref={rBadgeRef}>+$0/mo</span>
-            </div>
-            <canvas ref={revenueCanvasRef} className="sim2-canvas" />
-          </div>
-          <div className="sim2-chart-panel">
-            <div className="sim2-chart-hdr">
-              <span className="sim2-chart-hdr__label">Cost Breakdown</span>
-              <span className="sim2-badge sim2-badge--pink" ref={dBadgeRef}>$0 saved</span>
-            </div>
-            <canvas ref={donutCanvasRef} className="sim2-canvas" />
-          </div>
-        </div>
+            {setupStep === 2 && (
+              <div className="sim2-setup-fields">
+                <div className="si2-row">
+                  <SimInput
+                    label="Manual time spent on each lead"
+                    value={timeStr}
+                    onChange={setCustom(setTimeStr)}
+                    half
+                    suffix="hrs"
+                    helperText="How long your team spends replying, qualifying, and updating records for each lead."
+                  />
+                  <SimInput
+                    label="Hourly cost for the business"
+                    value={hourStr}
+                    onChange={setCustom(setHourStr)}
+                    half
+                    prefix="$"
+                    suffix="/hr"
+                    helperText="Use the loaded hourly cost of the person handling leads."
+                  />
+                </div>
+                <div className="si2-row">
+                  <SimInput label="Monthly spend on lead generation (e.g. ads, SEO, etc.)" value={adSpendStr} onChange={setCustom(setAdSpendStr)} prefix="$" half />
+                  <div className="si2 si2--half si2--derived">
+                    <div className="si2__label-row">
+                      <span className="si2__label">Cost per lead</span>
+                      <span className="si2__info" title="Monthly lead generation spend divided by monthly leads." aria-label="Monthly lead generation spend divided by monthly leads.">i</span>
+                    </div>
+                    <span className="si2__derived-val">
+                      {leads > 0 && adSpendInput > 0
+                        ? `$${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()}`
+                        : '-'}
+                    </span>
+                    <p className="si2__helper">Lead generation spend divided by lead volume.</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-      </div>
+            {setupStep === 3 && (
+              <div className="sim2-ready-panel">
+                <div>
+                  <span className="sim2-ready-panel__label">Your baseline</span>
+                  <strong>{baselineSummary}</strong>
+                </div>
+                <p>Use the levers next. The headline updates as soon as you move them.</p>
+              </div>
+            )}
+
+            <div className="sim2-setup-actions">
+              <button
+                type="button"
+                className="sim2-secondary-cta"
+                onClick={() => setSetupStep(step => Math.max(0, step - 1))}
+                disabled={setupStep === 0}
+              >
+                Back
+              </button>
+              {setupStep < SETUP_STEPS.length - 1 ? (
+                <button
+                  type="button"
+                  className="sim2-primary-cta"
+                  onClick={() => setSetupStep(step => Math.min(SETUP_STEPS.length - 1, step + 1))}
+                >
+                  Continue
+                </button>
+              ) : (
+                <button type="button" className="sim2-primary-cta" onClick={goToSimulator}>
+                  Start experimenting
+                </button>
+              )}
+            </div>
+          </section>
+        </main>
+      ) : (
+        <main className={`sim2-workspace${tourDismissed ? ' sim2-workspace--tour-dismissed' : ''}`} ref={rightPanelRef}>
+          <div className="sim2-topbar sim2-topbar--compact">
+            <button
+              type="button"
+              className="sim2-tour-launch"
+              onClick={() => { setTourStep(0); setTourOpen(true); setTourDismissed(false) }}
+            >
+              Show me how it works
+            </button>
+          </div>
+
+          <section className="sim2-main-grid">
+            <div className={`sim2-reveal${tourTargetClass('upside')}`}>
+              <div className="sim2-reveal__top">
+                <div className="sim2-reveal__left">
+                  <div className="sim2-reveal__eyebrow">Estimated annual upside</div>
+                  <span className="sim2-reveal__big" ref={annualRef}>+$0/yr</span>
+                  <div className="sim2-reveal__sub">
+                    <span ref={subMonthRef}>= +$0/mo additional</span>
+                    <span ref={subRoiRef} />
+                  </div>
+                  <p className="sim2-reveal__plain">This estimates the extra revenue you could unlock if these improvements were in place.</p>
+                </div>
+                <div className={`sim2-actions${tourTargetClass('actions')}`}>
+                  <BookCallButton className="sim2-primary-cta">Book a Growth Strategy Call</BookCallButton>
+                  <button type="button" className="sim2-secondary-cta" onClick={() => handleSave('pdf')}>Save report</button>
+                </div>
+              </div>
+              <div className="sim2-reveal__stats">
+                <div className="sim2-reveal__stat">
+                  <span className="sim2-reveal__stat-label">Conv. rate</span>
+                  <span className="sim2-reveal__stat-val" ref={convValRef}>0.0%</span>
+                  <span className="sim2-reveal__stat-delta" ref={convDeltRef}>+0.0pp</span>
+                </div>
+                <div className="sim2-reveal__stat">
+                  <span className="sim2-reveal__stat-label">Clients/mo</span>
+                  <span className="sim2-reveal__stat-val" ref={cliValRef}>0</span>
+                  <span className="sim2-reveal__stat-delta" ref={cliDeltRef}>+0.0</span>
+                </div>
+                <div className="sim2-reveal__stat">
+                  <span className="sim2-reveal__stat-label">Time saved</span>
+                  <span className="sim2-reveal__stat-val" ref={timeValRef}>$0</span>
+                  <span className="sim2-reveal__stat-delta">/mo</span>
+                </div>
+              </div>
+              <div className={`sim2-reveal__charts${tourTargetClass('charts')}`}>
+                <div className="sim2-chart-panel">
+                  <div className="sim2-chart-hdr">
+                    <span className="sim2-chart-hdr__label">Additional clients per month</span>
+                    <span className="sim2-badge sim2-badge--cyan" ref={cBadgeRef}>+0.0 clients</span>
+                  </div>
+                  <canvas ref={clientsCanvasRef} className="sim2-canvas" />
+                </div>
+                <div className="sim2-chart-panel">
+                  <div className="sim2-chart-hdr">
+                    <span className="sim2-chart-hdr__label">Additional revenue per month</span>
+                    <span className="sim2-badge sim2-badge--cyan" ref={rBadgeRef}>+$0/mo</span>
+                  </div>
+                  <canvas ref={revenueCanvasRef} className="sim2-canvas" />
+                </div>
+                <div className="sim2-chart-panel">
+                  <div className="sim2-chart-hdr">
+                    <span className="sim2-chart-hdr__label">Cost saving per month</span>
+                    <span className="sim2-badge sim2-badge--pink" ref={dBadgeRef}>$0 saved</span>
+                  </div>
+                  <canvas ref={donutCanvasRef} className="sim2-canvas" />
+                </div>
+              </div>
+            </div>
+
+            <div className={`sim2-levers-panel${tourTargetClass('levers')}`}>
+              <div className="sim2-section-hd">Growth improvements</div>
+              <div className="sim2-workspace-prompt">
+                <span>Move the three levers to see what changes.</span>
+                <strong>{baselineSummary}</strong>
+              </div>
+              <p className="sim2-levers-help">Try one lever at a time, then combine them to see the full upside.</p>
+              <SimLever
+                label="Follow-up speed"
+                desc="How quickly leads are contacted after enquiring"
+                value={paceVal} onChange={setPaceVal} avgPct={30}
+                ticks={['Days', 'Same day', '1 hr', '<5 min']}
+                statusLabel={paceLabel(paceVal)}
+                impactLabel={`Adds about +$${fmt(paceMonthlyImpact)}/mo.`}
+              />
+              <SimLever
+                label="Personalisation"
+                desc="How relevant and specific each outreach message feels"
+                value={personVal} onChange={setPersonVal} avgPct={25}
+                ticks={['Generic', 'Some', 'Tailored', '1:1']}
+                statusLabel={personLabel(personVal)}
+                impactLabel={`Adds about +$${fmt(personMonthlyImpact)}/mo.`}
+              />
+              <SimLever
+                label="Process automation"
+                desc="How much lead handling and admin is automated"
+                value={autoVal} onChange={setAutoVal} avgPct={20}
+                ticks={['Manual', 'Partial', 'Mostly', 'Full']}
+                statusLabel={autoLabel(autoVal)}
+                impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
+              />
+              <div className="sim2-avg-legend">
+                <span className="sim2-avg-dot" />
+                <span>Industry average</span>
+              </div>
+              <button
+                type="button"
+                className="sim2-edit-baseline sim2-edit-baseline--panel"
+                onClick={() => setBaselineDrawerOpen(true)}
+              >
+                Edit baseline
+              </button>
+            </div>
+          </section>
+
+          <p className="sim2-disclaimer">
+            Results are indicative. Based on published industry benchmarks; individual outcomes may differ.
+          </p>
+
+          {tourOpen && (
+            <>
+              <div className="sim2-tour-scrim" />
+              <section className="sim2-tour-card" aria-live="polite" aria-label="Simulator tour">
+                <div className="sim2-tour-card__step">Step {tourStep + 1} of {TOUR_STEPS.length}</div>
+                <h2>{activeTour.title}</h2>
+                <p>{activeTour.copy}</p>
+                <div className="sim2-tour-card__actions">
+                  <button type="button" className="sim2-tour-skip" onClick={closeTour}>Skip</button>
+                  <button
+                    type="button"
+                    className="sim2-secondary-cta"
+                    onClick={() => setTourStep(step => Math.max(0, step - 1))}
+                    disabled={tourStep === 0}
+                  >
+                    Back
+                  </button>
+                  {tourStep < TOUR_STEPS.length - 1 ? (
+                    <button
+                      type="button"
+                      className="sim2-primary-cta"
+                      onClick={() => setTourStep(step => Math.min(TOUR_STEPS.length - 1, step + 1))}
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button type="button" className="sim2-primary-cta" onClick={closeTour}>
+                      Start estimating
+                    </button>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
+
+          {baselineDrawerOpen && (
+            <div className="sim2-drawer-backdrop" onClick={() => setBaselineDrawerOpen(false)}>
+              <aside className="sim2-baseline-drawer" onClick={e => e.stopPropagation()} aria-label="Edit baseline">
+                <div className="sim2-drawer-head">
+                  <div>
+                    <span className="sim2-section-hd">Baseline</span>
+                    <h2>Edit your current numbers</h2>
+                  </div>
+                  <button type="button" className="sim2-drawer-close" onClick={() => setBaselineDrawerOpen(false)} aria-label="Close baseline editor">Close</button>
+                </div>
+
+                <div className="sim2-presets" aria-label="Starting profiles">
+                  {PRESETS.map(preset => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      className={`sim2-preset${selectedPreset === preset.id ? ' sim2-preset--active' : ''}`}
+                      onClick={() => applyPreset(preset)}
+                    >
+                      <span>{preset.label}</span>
+                      <small>{preset.helper}</small>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="sim2-input-group">
+                  <div className="sim2-section-hd">Your current business</div>
+                  <div className="si2-row">
+                    <SimInput label="How many leads do you get each month?" value={leadsStr} onChange={setCustom(setLeadsStr)} half />
+                    <SimInput
+                      label="The percentage of leads that turn into paying clients"
+                      value={convStr}
+                      onChange={setCustom(setConvStr)}
+                      half
+                      suffix="%"
+                    />
+                  </div>
+                  <SimInput label="Average client lifetime value" value={revStr} onChange={setCustom(setRevStr)} prefix="$" />
+                </div>
+
+                <div className="sim2-input-group">
+                  <div className="sim2-section-hd">Your costs</div>
+                  <div className="si2-row">
+                    <SimInput
+                      label="Manual time spent on each lead"
+                      value={timeStr}
+                      onChange={setCustom(setTimeStr)}
+                      half
+                      suffix="hrs"
+                      helperText="How long your team spends replying, qualifying, and updating records for each lead."
+                    />
+                    <SimInput
+                      label="Hourly cost for the business"
+                      value={hourStr}
+                      onChange={setCustom(setHourStr)}
+                      half
+                      prefix="$"
+                      suffix="/hr"
+                      helperText="Use the loaded hourly cost of the person handling leads."
+                    />
+                  </div>
+                  <div className="si2-row">
+                    <SimInput label="Monthly spend on lead generation (e.g. ads, SEO, etc.)" value={adSpendStr} onChange={setCustom(setAdSpendStr)} prefix="$" half />
+                    <div className="si2 si2--half si2--derived">
+                      <div className="si2__label-row">
+                        <span className="si2__label">Cost per lead</span>
+                        <span className="si2__info" title="Monthly lead generation spend divided by monthly leads." aria-label="Monthly lead generation spend divided by monthly leads.">i</span>
+                      </div>
+                      <span className="si2__derived-val">
+                        {leads > 0 && adSpendInput > 0
+                          ? `$${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()}`
+                          : '-'}
+                      </span>
+                      <p className="si2__helper">Lead generation spend divided by lead volume.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" className="sim2-primary-cta sim2-drawer-done" onClick={() => setBaselineDrawerOpen(false)}>
+                  Done
+                </button>
+              </aside>
+            </div>
+          )}
+        </main>
+      )}
     </div>
   )
 }
