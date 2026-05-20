@@ -42,11 +42,39 @@ type SetupMode = 'setup' | 'simulator'
 type TourTarget = 'guide' | 'upside' | 'levers' | 'baseline' | 'charts' | 'actions'
 
 const SETUP_STEPS = [
-  { eyebrow: 'Step 1 of 4', title: 'Choose your profile', copy: 'Pick the profile that feels closest to how your business works. We will create starter numbers you can adjust next.' },
-  { eyebrow: 'Step 2 of 4', title: 'Confirm your numbers', copy: 'These three numbers estimate what your leads are worth today.' },
-  { eyebrow: 'Step 3 of 4', title: 'Add your current costs', copy: 'This helps the simulator show where time and ad spend are being used.' },
-  { eyebrow: 'Step 4 of 4', title: 'Now experiment with growth', copy: 'Move the three levers to model faster follow-up, better outreach, and less admin.' },
+  { eyebrow: 'Step 1 of 5', title: 'Choose your profile', copy: 'Pick the profile that feels closest to how your business works. We will create starter numbers you can adjust next.' },
+  { eyebrow: 'Step 2 of 5', title: 'Confirm your numbers', copy: 'These three numbers estimate what your leads are worth today.' },
+  { eyebrow: 'Step 3 of 5', title: 'Add your current costs', copy: 'This helps the simulator show where time and ad spend are being used.' },
+  { eyebrow: 'Step 4 of 5', title: 'How does your lead handling work today?', copy: 'Set your current response, personalisation, and automation level so the simulator only shows upside beyond where you already are.' },
+  { eyebrow: 'Step 5 of 5', title: 'Now experiment with growth', copy: 'Move the three levers above your current baseline to model faster follow-up, better outreach, and less admin.' },
 ] as const
+
+const MATURITY_OPTIONS = [
+  { value: 0, label: 'Days', helper: 'Slow or inconsistent' },
+  { value: 33, label: 'Same day', helper: 'Usually same day' },
+  { value: 66, label: 'Within 1 hour', helper: 'Fast team response' },
+  { value: 100, label: 'Under 5 minutes', helper: 'Near-instant response' },
+] as const
+
+const PERSONALISATION_OPTIONS = [
+  { value: 0, label: 'Generic', helper: 'Same message for most leads' },
+  { value: 33, label: 'Lightly tailored', helper: 'Some context included' },
+  { value: 66, label: 'Tailored', helper: 'Relevant to the enquiry' },
+  { value: 100, label: 'One-to-one', helper: 'Specific and personal' },
+] as const
+
+const AUTOMATION_OPTIONS = [
+  { value: 0, label: 'Manual', helper: 'Mostly handled by people' },
+  { value: 33, label: 'Partly automated', helper: 'Some steps automated' },
+  { value: 66, label: 'Mostly automated', helper: 'Most admin is automated' },
+  { value: 100, label: 'Fully automated', helper: 'Highly systemised' },
+] as const
+
+const INFRA_TARGETS = {
+  pace: 95,
+  personalisation: 85,
+  automation: 90,
+} as const
 
 const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
   {
@@ -62,12 +90,12 @@ const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
   {
     target: 'levers',
     title: 'Move the levers to test improvements.',
-    copy: 'Try one lever at a time, then combine them. The estimate updates immediately as you model faster follow-up, better outreach, and less admin.',
+    copy: 'The levers start at your current setup. Move them above baseline to estimate extra revenue from faster response, more personal follow-up, and automation. The pink marker shows where a strong conversion infrastructure would aim to be.',
   },
   {
     target: 'baseline',
     title: 'Change the baseline values.',
-    copy: 'Use Edit baseline whenever the starting numbers need to change. Updating leads, conversion rate, client value, time cost, or lead generation spend recalculates the upside immediately.',
+    copy: 'Use Edit baseline whenever the starting numbers need to change. Updating your business numbers or current system maturity recalculates the upside immediately.',
   },
   {
     target: 'charts',
@@ -85,6 +113,9 @@ const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
 function fmt(n: number)                  { return Math.round(n).toLocaleString() }
 function fmtD(n: number, d = 1)          { return n.toFixed(d) }
 function sign(n: number, pfx = '')       { return (n >= 0 ? '+' : '') + pfx + fmt(Math.abs(Math.round(n))) }
+function optionLabel(options: readonly { value: number; label: string }[], value: number) {
+  return options.find(option => option.value === value)?.label ?? ''
+}
 
 /* ─── Canvas helpers ─────────────────────────────────────────────── */
 function setupCanvas(canvas: HTMLCanvasElement): [CanvasRenderingContext2D, number, number] | null {
@@ -323,10 +354,36 @@ function SimInput({ label, value, onChange, prefix, suffix, half, helperText }: 
   )
 }
 
+function MaturityChoiceGroup({ label, value, options, onChange }: {
+  label: string
+  value: number
+  options: readonly { value: number; label: string; helper: string }[]
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="sim2-maturity-group">
+      <div className="sim2-maturity-group__label">{label}</div>
+      <div className="sim2-maturity-options">
+        {options.map(option => (
+          <button
+            key={option.value}
+            type="button"
+            className={`sim2-maturity-option${value === option.value ? ' sim2-maturity-option--active' : ''}`}
+            onClick={() => onChange(option.value)}
+          >
+            <span>{option.label}</span>
+            <small>{option.helper}</small>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ─── SimLever ───────────────────────────────────────────────────── */
-function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel, impactLabel }: {
+function SimLever({ label, desc, value, onChange, avgPct, baselinePct, infrastructurePct, ticks, statusLabel, impactLabel }: {
   label: string; desc: string; value: number; onChange: (v: number) => void
-  avgPct: number; ticks: string[]; statusLabel: string; impactLabel?: string
+  avgPct: number; baselinePct: number; infrastructurePct: number; ticks: string[]; statusLabel: string; impactLabel?: string
 }) {
   return (
     <div className="sl2">
@@ -336,8 +393,8 @@ function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel, im
       </div>
       <p className="sl2__desc">{desc}</p>
       <div className="sl2__endpoints" aria-hidden="true">
-        <span>Current</span>
-        <span>Improved</span>
+        <span>Baseline</span>
+        <span>Target</span>
       </div>
       <div className="sl2__track-wrap">
         <input
@@ -346,7 +403,9 @@ function SimLever({ label, desc, value, onChange, avgPct, ticks, statusLabel, im
           value={value}
           onChange={e => onChange(Number(e.target.value))}
         />
-        <div className="sl2__avg" style={{ left: `calc(${avgPct / 100} * (100% - 22px) + 11px)` }} />
+        <div className="sl2__marker sl2__marker--baseline" style={{ left: `calc(${baselinePct / 100} * (100% - 22px) + 11px)` }} />
+        <div className="sl2__marker sl2__marker--avg" style={{ left: `calc(${avgPct / 100} * (100% - 22px) + 11px)` }} />
+        <div className="sl2__marker sl2__marker--infra" style={{ left: `calc(${infrastructurePct / 100} * (100% - 22px) + 11px)` }} />
       </div>
       <div className="sl2__ticks">
         {ticks.map((t, i) => <span key={i}>{t}</span>)}
@@ -402,6 +461,9 @@ function SimulatorInner() {
   const [hourStr,  setHourStr]  = useState('40')
   const [adSpendStr, setAdSpendStr] = useState('700')
   const [selectedPreset, setSelectedPreset] = useState<PresetId>('founder')
+  const [baselinePaceVal, setBaselinePaceVal] = useState(0)
+  const [baselinePersonVal, setBaselinePersonVal] = useState(0)
+  const [baselineAutoVal, setBaselineAutoVal] = useState(0)
 
   // Sliders
   const [paceVal,   setPaceVal]   = useState(0)
@@ -436,8 +498,11 @@ function SimulatorInner() {
   const adSpendInput = Math.max(0, parseFloat(adSpendStr) || 0)
 
   // Calc
-  const pLift  = (paceVal   / 100) * PACE_MAX_PP
-  const perLift = (personVal / 100) * PERSON_MAX_PP
+  const paceDelta = Math.max(0, paceVal - baselinePaceVal)
+  const personDelta = Math.max(0, personVal - baselinePersonVal)
+  const autoDelta = Math.max(0, autoVal - baselineAutoVal)
+  const pLift  = (paceDelta / 100) * PACE_MAX_PP
+  const perLift = (personDelta / 100) * PERSON_MAX_PP
   const impConv = Math.min(conv + pLift + perLift, 100)
   const convDelta = impConv - conv
 
@@ -449,7 +514,7 @@ function SimulatorInner() {
   const timeCost    = leads * timeLead * hourly
   const adSpend     = adSpendInput
   const derivedCpl  = leads > 0 ? adSpend / leads : 0
-  const autoSave    = (autoVal / 100) * timeCost
+  const autoSave    = (autoDelta / 100) * timeCost
   const remTimeCost = timeCost - autoSave
   const remCost     = remTimeCost + adSpend
 
@@ -478,6 +543,7 @@ function SimulatorInner() {
   const setupMeta = SETUP_STEPS[setupStep]
   const setupProgress = ((setupStep + 1) / SETUP_STEPS.length) * 100
   const baselineSummary = `${fmt(leads)} leads/mo · ${fmtD(conv, conv % 1 === 0 ? 0 : 1)}% convert · $${fmt(revenue)} value`
+  const systemBaselineSummary = `${optionLabel(MATURITY_OPTIONS, baselinePaceVal)} · ${optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal)} · ${optionLabel(AUTOMATION_OPTIONS, baselineAutoVal)}`
   const activeTour = TOUR_STEPS[tourStep]
   const activeTourTarget = tourOpen ? activeTour.target : null
   const tourTargetClass = (target: TourTarget) => activeTourTarget === target ? ' sim2-tour-target--active' : ''
@@ -490,9 +556,28 @@ function SimulatorInner() {
   const goToSimulator = () => {
     setSetupMode('simulator')
     setBaselineDrawerOpen(false)
+    setPaceVal(baselinePaceVal)
+    setPersonVal(baselinePersonVal)
+    setAutoVal(baselineAutoVal)
     setTourStep(0)
     setTourDismissed(false)
     setTourOpen(true)
+  }
+
+  const setPaceTarget = (value: number) => setPaceVal(Math.max(baselinePaceVal, value))
+  const setPersonTarget = (value: number) => setPersonVal(Math.max(baselinePersonVal, value))
+  const setAutoTarget = (value: number) => setAutoVal(Math.max(baselineAutoVal, value))
+  const updateBaselinePace = (value: number) => {
+    setBaselinePaceVal(value)
+    setPaceVal(current => Math.max(value, current))
+  }
+  const updateBaselinePerson = (value: number) => {
+    setBaselinePersonVal(value)
+    setPersonVal(current => Math.max(value, current))
+  }
+  const updateBaselineAuto = (value: number) => {
+    setBaselineAutoVal(value)
+    setAutoVal(current => Math.max(value, current))
   }
 
   // Lever labels
@@ -567,8 +652,8 @@ function SimulatorInner() {
       if (dBadgeRef.current) dBadgeRef.current.textContent = '$' + fmt(a.autoSave) + ' saved'
 
       // Canvas
-      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Without conversion system', 'With conversion system')
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Without conversion system', 'With conversion system')
+      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Current baseline', 'With target')
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current baseline', 'With target')
       if (donutCanvasRef.current)   drawDonut(donutCanvasRef.current, a.remTimeCost, a.autoSave, a.adSpend, a.remCost)
 
       rafId = requestAnimationFrame(loop)
@@ -686,12 +771,36 @@ function SimulatorInner() {
             )}
 
             {setupStep === 3 && (
+              <div className="sim2-maturity-panel">
+                <MaturityChoiceGroup
+                  label="How quickly do you normally respond?"
+                  value={baselinePaceVal}
+                  options={MATURITY_OPTIONS}
+                  onChange={updateBaselinePace}
+                />
+                <MaturityChoiceGroup
+                  label="How personalised is your first response?"
+                  value={baselinePersonVal}
+                  options={PERSONALISATION_OPTIONS}
+                  onChange={updateBaselinePerson}
+                />
+                <MaturityChoiceGroup
+                  label="Is the process currently automated?"
+                  value={baselineAutoVal}
+                  options={AUTOMATION_OPTIONS}
+                  onChange={updateBaselineAuto}
+                />
+              </div>
+            )}
+
+            {setupStep === 4 && (
               <div className="sim2-ready-panel">
                 <div>
                   <span className="sim2-ready-panel__label">Your baseline</span>
                   <strong>{baselineSummary}</strong>
+                  <small>{systemBaselineSummary}</small>
                 </div>
-                <p>Use the levers next. The headline updates as soon as you move them.</p>
+                <p>The levers will start from this current setup, so the headline shows only the extra upside above your baseline.</p>
               </div>
             )}
 
@@ -793,15 +902,25 @@ function SimulatorInner() {
 
             <div className={`sim2-levers-panel${tourTargetClass('levers')}`}>
               <div className="sim2-section-hd">Growth improvements</div>
-              <div className="sim2-workspace-prompt">
-                <span>Move the three levers to see what changes.</span>
-                <strong>Current baseline: {baselineSummary}</strong>
+              <div className="sim2-baseline-summary">
+                <div>
+                  <span>Current baseline</span>
+                  <strong>{baselineSummary}</strong>
+                  <small>{systemBaselineSummary}</small>
+                </div>
+                <button
+                  type="button"
+                  className={`sim2-edit-baseline${tourTargetClass('baseline')}`}
+                  onClick={() => setBaselineDrawerOpen(true)}
+                >
+                  Edit
+                </button>
               </div>
-              <p className="sim2-levers-help">Try one lever at a time, then combine them to see the full upside.</p>
+              <p className="sim2-levers-help">Move the three levers to see what changes. Faster response and more relevant follow-up can increase conversion; automation reduces handling cost.</p>
               <SimLever
                 label="Follow-up speed"
                 desc="How quickly leads are contacted after enquiring"
-                value={paceVal} onChange={setPaceVal} avgPct={30}
+                value={paceVal} onChange={setPaceTarget} avgPct={30} baselinePct={baselinePaceVal} infrastructurePct={INFRA_TARGETS.pace}
                 ticks={['Days', 'Same day', '1 hr', '<5 min']}
                 statusLabel={paceLabel(paceVal)}
                 impactLabel={`Adds about +$${fmt(paceMonthlyImpact)}/mo.`}
@@ -809,7 +928,7 @@ function SimulatorInner() {
               <SimLever
                 label="Personalisation"
                 desc="How relevant and specific each outreach message feels"
-                value={personVal} onChange={setPersonVal} avgPct={25}
+                value={personVal} onChange={setPersonTarget} avgPct={25} baselinePct={baselinePersonVal} infrastructurePct={INFRA_TARGETS.personalisation}
                 ticks={['Generic', 'Some', 'Tailored', '1:1']}
                 statusLabel={personLabel(personVal)}
                 impactLabel={`Adds about +$${fmt(personMonthlyImpact)}/mo.`}
@@ -817,22 +936,16 @@ function SimulatorInner() {
               <SimLever
                 label="Process automation"
                 desc="How much lead handling and admin is automated"
-                value={autoVal} onChange={setAutoVal} avgPct={20}
+                value={autoVal} onChange={setAutoTarget} avgPct={20} baselinePct={baselineAutoVal} infrastructurePct={INFRA_TARGETS.automation}
                 ticks={['Manual', 'Partial', 'Mostly', 'Full']}
                 statusLabel={autoLabel(autoVal)}
                 impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
               />
               <div className="sim2-avg-legend">
-                <span className="sim2-avg-dot" />
-                <span>Industry average</span>
+                <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>
+                <span><i className="sim2-avg-dot" />Industry average</span>
+                <span><i className="sim2-avg-dot sim2-avg-dot--infra" />Conversion infrastructure</span>
               </div>
-              <button
-                type="button"
-                className={`sim2-edit-baseline sim2-edit-baseline--panel${tourTargetClass('baseline')}`}
-                onClick={() => setBaselineDrawerOpen(true)}
-              >
-                Edit baseline
-              </button>
             </div>
           </section>
 
@@ -950,6 +1063,30 @@ function SimulatorInner() {
                       </span>
                       <p className="si2__helper">Lead generation spend divided by lead volume.</p>
                     </div>
+                  </div>
+                </div>
+
+                <div className="sim2-input-group">
+                  <div className="sim2-section-hd">Your current system</div>
+                  <div className="sim2-maturity-panel sim2-maturity-panel--drawer">
+                    <MaturityChoiceGroup
+                      label="How quickly do you normally respond?"
+                      value={baselinePaceVal}
+                      options={MATURITY_OPTIONS}
+                      onChange={updateBaselinePace}
+                    />
+                    <MaturityChoiceGroup
+                      label="How personalised is your first response?"
+                      value={baselinePersonVal}
+                      options={PERSONALISATION_OPTIONS}
+                      onChange={updateBaselinePerson}
+                    />
+                    <MaturityChoiceGroup
+                      label="Is the process currently automated?"
+                      value={baselineAutoVal}
+                      options={AUTOMATION_OPTIONS}
+                      onChange={updateBaselineAuto}
+                    />
                   </div>
                 </div>
 
