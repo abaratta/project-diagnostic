@@ -4,8 +4,8 @@ import { Header } from '@/components/Header'
 import { ThemeProvider } from '@/components/theme-provider'
 
 export const metadata: Metadata = {
-  title: '5P System — Profit AI Lab',
-  description: 'Discover how many leads you\'re leaving on the table and build your conversion system.',
+  title: 'Revenue Conversion Diagnostic - Profit AI Lab',
+  description: 'Estimate annual revenue growth from improving lead response, personalisation, and automation.',
   icons: { icon: '/favicon.png' },
 }
 
