@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/
 const SIMULATOR_REPORT_WEBHOOK_URL = 'https://hook.eu2.make.com/tx46i7hvzsj1vk66wo55li7hpetpkz1a'
 
 export async function POST(req: NextRequest) {
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ ok: false, error: 'Enter a valid email address' }, { status: 400 })
   }
-  if (!image.startsWith('data:image/') && !image.trim().startsWith('<')) {
+  if (!BASE64_RE.test(image)) {
     return NextResponse.json({ ok: false, error: 'Missing report image' }, { status: 400 })
   }
   if (!baseline) {

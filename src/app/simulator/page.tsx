@@ -113,6 +113,7 @@ const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
 function fmt(n: number)                  { return Math.round(n).toLocaleString() }
 function fmtD(n: number, d = 1)          { return n.toFixed(d) }
 function sign(n: number, pfx = '')       { return (n >= 0 ? '+' : '') + pfx + fmt(Math.abs(Math.round(n))) }
+function dataUrlToBase64(dataUrl: string) { return dataUrl.split(',')[1] ?? dataUrl }
 function optionLabel(options: readonly { value: number; label: string }[], value: number) {
   return options.find(option => option.value === value)?.label ?? ''
 }
@@ -709,7 +710,7 @@ function SimulatorInner() {
     setReportError('')
 
     try {
-      const image = await captureReportImage()
+      const image = dataUrlToBase64(await captureReportImage())
       const payload = {
         name,
         email,
