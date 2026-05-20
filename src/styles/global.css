@@ -4167,10 +4167,18 @@ pre {
   transition: transform 0.2s, opacity 0.2s, border-color 0.2s;
 }
 .sim2-primary-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 1rem;
   border: none;
   background: var(--color-accent-cyan);
   color: #07131f;
+}
+.sim2-primary-cta--pink {
+  background: var(--color-accent-amber);
+  color: #fff;
+  box-shadow: 0 12px 34px rgba(230,53,107,0.22);
 }
 .sim2-secondary-cta {
   padding: 0 0.9rem;
@@ -4898,6 +4906,106 @@ pre {
 .sim2-drawer-done {
   width: 100%;
   margin-top: 0.35rem;
+}
+.sim2-report-overlay {
+  position: fixed;
+  inset: var(--header-height) 0 0;
+  z-index: 190;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.58);
+  backdrop-filter: blur(2px);
+}
+.sim2-report-modal {
+  width: min(480px, 100%);
+  padding: 1.15rem;
+  border: 1px solid rgba(230,53,107,0.24);
+  border-radius: var(--radius-card);
+  background: #101722;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.52), 0 0 34px rgba(230,53,107,0.12);
+}
+.sim2-report-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sim2-report-modal h2 {
+  margin: 0.2rem 0 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  line-height: 1.12;
+}
+.sim2-report-copy {
+  margin: 0.85rem 0 1rem;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.sim2-report-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.sim2-report-field + .sim2-report-field {
+  margin-top: 0.75rem;
+}
+.sim2-report-field span {
+  color: rgba(255,255,255,0.78);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.sim2-report-field input {
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-input);
+  background: rgba(255,255,255,0.055);
+  color: var(--color-text);
+  font: inherit;
+}
+.sim2-report-field input:focus {
+  outline: none;
+  border-color: rgba(230,53,107,0.58);
+  background: rgba(230,53,107,0.07);
+}
+.sim2-report-error {
+  margin: 0.65rem 0 0;
+  color: #ff8bad;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.sim2-report-submit {
+  width: 100%;
+  margin-top: 1rem;
+}
+.sim2-report-submit:disabled,
+.sim2-report-modal button:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+}
+.sim2-report-success {
+  margin-top: 1rem;
+  padding: 0.95rem;
+  border: 1px solid rgba(61,202,177,0.2);
+  border-radius: var(--radius-input);
+  background: rgba(61,202,177,0.075);
+}
+.sim2-report-success strong {
+  display: block;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+}
+.sim2-report-success p {
+  margin: 0.35rem 0 0.9rem;
+  color: rgba(255,255,255,0.68);
+  line-height: 1.45;
 }
 
 @media (max-height: 820px) and (min-width: 1025px) {

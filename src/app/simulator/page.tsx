@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, Suspense } from 'react'
+import { useCallback, useEffect, useRef, useState, Suspense, type FormEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { isVaultUnlocked } from '@/lib/vaultSession'
 import { toJpeg } from 'html-to-image'
@@ -452,6 +452,11 @@ function SimulatorInner() {
   const [tourOpen, setTourOpen] = useState(false)
   const [tourStep, setTourStep] = useState(0)
   const [tourDismissed, setTourDismissed] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportName, setReportName] = useState('')
+  const [reportEmail, setReportEmail] = useState('')
+  const [reportStatus, setReportStatus] = useState<'idle' | 'submitting' | 'sent'>('idle')
+  const [reportError, setReportError] = useState('')
 
   // Inputs
   const [leadsStr, setLeadsStr] = useState('30')
@@ -544,6 +549,9 @@ function SimulatorInner() {
   const setupProgress = ((setupStep + 1) / SETUP_STEPS.length) * 100
   const baselineSummary = `${fmt(leads)} leads/mo · ${fmtD(conv, conv % 1 === 0 ? 0 : 1)}% convert · $${fmt(revenue)} value`
   const systemBaselineSummary = `${optionLabel(MATURITY_OPTIONS, baselinePaceVal)} · ${optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal)} · ${optionLabel(AUTOMATION_OPTIONS, baselineAutoVal)}`
+  const businessType = selectedPreset === 'custom'
+    ? 'Custom'
+    : PRESETS.find(preset => preset.id === selectedPreset)?.label ?? 'Custom'
   const activeTour = TOUR_STEPS[tourStep]
   const activeTourTarget = tourOpen ? activeTour.target : null
   const tourTargetClass = (target: TourTarget) => activeTourTarget === target ? ' sim2-tour-target--active' : ''
@@ -662,26 +670,102 @@ function SimulatorInner() {
     return () => cancelAnimationFrame(rafId)
   }, [])
 
-  const handleSave = useCallback(async (format: 'jpeg' | 'pdf') => {
+  const captureReportImage = useCallback(async () => {
     const el = rightPanelRef.current
-    if (!el) return
+    if (!el) throw new Error('Report area is not available')
+    return toJpeg(el, {
+      quality: 0.93,
+      backgroundColor: '#0e1117',
+      cacheBust: true,
+      filter: node => !(node instanceof HTMLElement && node.classList.contains('sim2-report-overlay')),
+    })
+  }, [])
+
+  const openReportModal = () => {
+    setReportOpen(true)
+    setReportStatus('idle')
+    setReportError('')
+  }
+
+  const closeReportModal = () => {
+    if (reportStatus === 'submitting') return
+    setReportOpen(false)
+  }
+
+  const handleReportSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const name = reportName.trim()
+    const email = reportEmail.trim()
+    if (!name) {
+      setReportError('Enter your name.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setReportError('Enter a valid email address.')
+      return
+    }
+
+    setReportStatus('submitting')
+    setReportError('')
+
     try {
-      const dataUrl = await toJpeg(el, { quality: 0.93, backgroundColor: '#0e1117', cacheBust: true })
-      if (format === 'jpeg') {
-        const a = document.createElement('a')
-        a.href = dataUrl; a.download = `rapid-simulator-${date}.jpg`; a.click()
-        setToast('Saved as JPEG')
-      } else {
-        const { default: jsPDF } = await import('jspdf')
-        const img = new Image(); img.src = dataUrl
-        await new Promise<void>(r => { img.onload = () => r() })
-        const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [img.width, img.height] })
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, img.width, img.height)
-        pdf.save(`rapid-simulator-${date}.pdf`)
-        setToast('Saved as PDF')
+      const image = await captureReportImage()
+      const payload = {
+        name,
+        email,
+        date,
+        image,
+        businessType,
+        baseline: {
+          summary: baselineSummary,
+          leads,
+          conversionRate: conv,
+          revenuePerClient: revenue,
+          timePerLeadHours: timeLead,
+          hourlyCost: hourly,
+          monthlyLeadGenerationSpend: adSpend,
+          costPerLead: derivedCpl,
+          followUpSpeed: optionLabel(MATURITY_OPTIONS, baselinePaceVal),
+          followUpSpeedValue: baselinePaceVal,
+          personalisation: optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal),
+          personalisationValue: baselinePersonVal,
+          automation: optionLabel(AUTOMATION_OPTIONS, baselineAutoVal),
+          automationValue: baselineAutoVal,
+        },
       }
-    } catch { setToast('Export failed — try again') }
-  }, [date])
+
+      const res = await fetch('/api/simulator-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(typeof json.error === 'string' ? json.error : 'Report delivery failed')
+
+      setReportStatus('sent')
+      setToast('Report sent')
+    } catch (err) {
+      setReportStatus('idle')
+      setReportError(err instanceof Error ? err.message : 'Report delivery failed. Try again.')
+    }
+  }, [
+    adSpend,
+    baselineAutoVal,
+    baselinePaceVal,
+    baselinePersonVal,
+    baselineSummary,
+    businessType,
+    captureReportImage,
+    conv,
+    date,
+    derivedCpl,
+    hourly,
+    leads,
+    reportEmail,
+    reportName,
+    revenue,
+    timeLead,
+  ])
 
   return (
     <div
@@ -854,8 +938,8 @@ function SimulatorInner() {
                   <p className="sim2-reveal__plain">This estimates the extra revenue you could unlock if these improvements were in place.</p>
                 </div>
                 <div className={`sim2-actions${tourTargetClass('actions')}`}>
-                  <BookCallButton className="sim2-primary-cta">Book a Growth Strategy Call</BookCallButton>
-                  <button type="button" className="sim2-secondary-cta" onClick={() => handleSave('pdf')}>Save report</button>
+                  <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Growth Strategy Call</BookCallButton>
+                  <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get report by email</button>
                 </div>
               </div>
               <div className="sim2-reveal__stats">
@@ -986,6 +1070,73 @@ function SimulatorInner() {
                 </div>
               </section>
             </>
+          )}
+
+          {reportOpen && (
+            <div className="sim2-report-overlay" onClick={closeReportModal}>
+              <form className="sim2-report-modal" onSubmit={handleReportSubmit} onClick={e => e.stopPropagation()}>
+                <div className="sim2-report-modal__head">
+                  <div>
+                    <span className="sim2-section-hd">Email report</span>
+                    <h2>Get your diagnostic and next steps</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className="sim2-drawer-close"
+                    onClick={closeReportModal}
+                    aria-label="Close report form"
+                    disabled={reportStatus === 'submitting'}
+                  >
+                    Close
+                  </button>
+                </div>
+                {reportStatus === 'sent' ? (
+                  <div className="sim2-report-success">
+                    <strong>Report sent.</strong>
+                    <p>Check your inbox for the diagnostic and recommended next steps.</p>
+                    <button type="button" className="sim2-primary-cta sim2-primary-cta--pink" onClick={closeReportModal}>
+                      Done
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="sim2-report-copy">
+                      We will send your diagnostic image and baseline values to your inbox.
+                    </p>
+                    <label className="sim2-report-field">
+                      <span>Name</span>
+                      <input
+                        type="text"
+                        value={reportName}
+                        onChange={e => setReportName(e.target.value)}
+                        placeholder="Your name"
+                        autoComplete="name"
+                        required
+                      />
+                    </label>
+                    <label className="sim2-report-field">
+                      <span>Email address</span>
+                      <input
+                        type="email"
+                        value={reportEmail}
+                        onChange={e => setReportEmail(e.target.value)}
+                        placeholder="you@company.com"
+                        autoComplete="email"
+                        required
+                      />
+                    </label>
+                    {reportError && <p className="sim2-report-error">{reportError}</p>}
+                    <button
+                      type="submit"
+                      className="sim2-primary-cta sim2-primary-cta--pink sim2-report-submit"
+                      disabled={reportStatus === 'submitting'}
+                    >
+                      {reportStatus === 'submitting' ? 'Sending report...' : 'Send my report'}
+                    </button>
+                  </>
+                )}
+              </form>
+            </div>
           )}
 
           {baselineDrawerOpen && (
