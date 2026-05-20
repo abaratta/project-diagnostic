@@ -4573,7 +4573,8 @@ pre {
 }
 .sim2-tour-card {
   position: fixed;
-  right: 1.25rem;
+  left: 1.25rem;
+  right: auto;
   bottom: 1.25rem;
   z-index: 180;
   width: min(390px, calc(100vw - 2rem));

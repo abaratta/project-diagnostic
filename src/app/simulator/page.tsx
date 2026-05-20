@@ -39,7 +39,7 @@ const PRESETS = [
 
 type PresetId = typeof PRESETS[number]['id'] | 'custom'
 type SetupMode = 'setup' | 'simulator'
-type TourTarget = 'upside' | 'levers' | 'charts' | 'actions'
+type TourTarget = 'guide' | 'upside' | 'levers' | 'baseline' | 'charts' | 'actions'
 
 const SETUP_STEPS = [
   { eyebrow: 'Step 1 of 4', title: 'Choose your profile', copy: 'Pick the profile that feels closest to how your business works. We will create starter numbers you can adjust next.' },
@@ -50,6 +50,11 @@ const SETUP_STEPS = [
 
 const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
   {
+    target: 'guide',
+    title: 'How to use the diagnostic',
+    copy: 'We show the annual upside to your baseline by improving the conversion systems that drive response, personalisation, and automation.',
+  },
+  {
     target: 'upside',
     title: 'This is your estimated upside.',
     copy: 'The big number estimates extra annual revenue from the improvements you test here. The monthly line shows the same gain in a shorter time frame.',
@@ -58,6 +63,11 @@ const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
     target: 'levers',
     title: 'Move the levers to test improvements.',
     copy: 'Try one lever at a time, then combine them. The estimate updates immediately as you model faster follow-up, better outreach, and less admin.',
+  },
+  {
+    target: 'baseline',
+    title: 'Change the baseline values.',
+    copy: 'Use Edit baseline whenever the starting numbers need to change. Updating leads, conversion rate, client value, time cost, or lead generation spend recalculates the upside immediately.',
   },
   {
     target: 'charts',
@@ -648,7 +658,7 @@ function SimulatorInner() {
                     helperText="How long your team spends replying, qualifying, and updating records for each lead."
                   />
                   <SimInput
-                    label="Hourly cost for the business"
+                    label="Average hourly cost for the business"
                     value={hourStr}
                     onChange={setCustom(setHourStr)}
                     half
@@ -715,7 +725,7 @@ function SimulatorInner() {
           <div className="sim2-topbar sim2-topbar--compact">
             <button
               type="button"
-              className="sim2-tour-launch"
+              className={`sim2-tour-launch${tourTargetClass('guide')}`}
               onClick={() => { setTourStep(0); setTourOpen(true); setTourDismissed(false) }}
             >
               Show me how it works
@@ -785,7 +795,7 @@ function SimulatorInner() {
               <div className="sim2-section-hd">Growth improvements</div>
               <div className="sim2-workspace-prompt">
                 <span>Move the three levers to see what changes.</span>
-                <strong>{baselineSummary}</strong>
+                <strong>Current baseline: {baselineSummary}</strong>
               </div>
               <p className="sim2-levers-help">Try one lever at a time, then combine them to see the full upside.</p>
               <SimLever
@@ -818,7 +828,7 @@ function SimulatorInner() {
               </div>
               <button
                 type="button"
-                className="sim2-edit-baseline sim2-edit-baseline--panel"
+                className={`sim2-edit-baseline sim2-edit-baseline--panel${tourTargetClass('baseline')}`}
                 onClick={() => setBaselineDrawerOpen(true)}
               >
                 Edit baseline
@@ -917,7 +927,7 @@ function SimulatorInner() {
                       helperText="How long your team spends replying, qualifying, and updating records for each lead."
                     />
                     <SimInput
-                      label="Hourly cost for the business"
+                      label="Average hourly cost for the business"
                       value={hourStr}
                       onChange={setCustom(setHourStr)}
                       half
