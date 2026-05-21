@@ -20,8 +20,8 @@ function HomeContent() {
       <div className="landing-wrapper">
 
         <div className="landing-eyebrow"><a href="https://profitailab.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Profit AI Lab Diagnostic</a></div>
-        <h1 className="landing-title">See the revenue upside hiding in your lead conversion</h1>
-        <p className="landing-sub">Estimate how much annual revenue you could add by improving response speed, personalisation, and automation against your current baseline.</p>
+        <h1 className="landing-title">Find out what losing control of your pipeline is costing you</h1>
+        <p className="landing-sub">Move three levers. See the number. Decide if it&apos;s worth fixing.</p>
 
         <div className="landing-measures" aria-label="What this diagnostic measures">
           <span>Response speed</span>
