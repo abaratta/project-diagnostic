@@ -1,4 +1,4 @@
-const CAL_URL = 'https://tidycal.com/andrea-baratta/growth-strategy'
+const CAL_URL = 'https://tidycal.com/andrea-baratta/lead-conversion-review'
 
 export function BookCallButton({ className, children }: {
   className?: string

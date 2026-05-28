@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-const BOOKING_URL = 'https://tidycal.com/andrea-baratta/linkedin-dm-campaign'
+const BOOKING_URL = 'https://tidycal.com/andrea-baratta/lead-conversion-review'
 
 const DELIVERABLES = [
   'Create your DM campaign account',

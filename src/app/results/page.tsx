@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFivePStore } from '@/store/useFivePStore'
 
-const BOOKING_URL = 'https://tidycal.com/andrea-baratta/lead-to-revenue-audit'
+const BOOKING_URL = 'https://tidycal.com/andrea-baratta/lead-conversion-review'
 
 function FixTooltip({ title, text }: { title: string; text: string }) {
   const [open, setOpen] = useState(false)
