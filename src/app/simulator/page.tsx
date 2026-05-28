@@ -472,9 +472,9 @@ function SimulatorInner() {
   const [baselineAutoVal, setBaselineAutoVal] = useState(0)
 
   // Sliders
-  const [paceVal,   setPaceVal]   = useState(INFRA_TARGETS.pace)
-  const [personVal, setPersonVal] = useState(INFRA_TARGETS.personalisation)
-  const [autoVal,   setAutoVal]   = useState(INFRA_TARGETS.automation)
+  const [paceVal,   setPaceVal]   = useState<number>(INFRA_TARGETS.pace)
+  const [personVal, setPersonVal] = useState<number>(INFRA_TARGETS.personalisation)
+  const [autoVal,   setAutoVal]   = useState<number>(INFRA_TARGETS.automation)
 
   // Canvas refs
   const clientsCanvasRef = useRef<HTMLCanvasElement>(null)
