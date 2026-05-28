@@ -2618,13 +2618,13 @@ pre {
   font-weight: 800;
   line-height: 0.96;
   letter-spacing: 0;
-  margin-bottom: 0.85rem;
+  margin-bottom: 4rem;
   text-shadow: 0 18px 48px rgba(0,0,0,0.5);
 }
 .landing-sub {
   max-width: 660px;
-  margin: 0 auto 1.35rem;
-  font-size: 1.0625rem;
+  margin: 0 auto 6rem;
+  font-size: 1.5rem;
   color: rgba(224,230,240,0.76);
   line-height: 1.55;
 }
@@ -2653,10 +2653,71 @@ pre {
 .landing-choices {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   max-width: 580px;
   margin: 0 auto;
 }
+.landing-glass-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  background:
+    linear-gradient(135deg, rgba(61,202,177,0.18), rgba(61,202,177,0.04) 36%, rgba(0,22,41,0.92)),
+    rgba(0,31,50,0.92);
+  border: 1px solid rgba(61,202,177,0.55);
+  border-radius: 999px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.34), 0 0 0 1px rgba(255,255,255,0.045) inset, 0 0 18px 3px rgba(61,202,177,0.35), 0 0 40px 8px rgba(61,202,177,0.15);
+  cursor: pointer;
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  overflow: hidden;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+}
+.landing-glass-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+  border-radius: inherit;
+}
+.landing-glass-btn:hover {
+  border-color: rgba(61,202,177,0.85);
+  box-shadow: 0 28px 80px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.055) inset, 0 0 26px 5px rgba(61,202,177,0.5), 0 0 55px 12px rgba(61,202,177,0.22);
+  transform: translateY(-2px);
+}
+.landing-glass-btn__label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  padding: 0.65rem 0.9rem 0.65rem 1.1rem;
+}
+.landing-glass-btn__divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(61,202,177,0.28);
+  flex-shrink: 0;
+}
+.landing-glass-btn__sub {
+  font-size: 0.95rem;
+  color: rgba(224,230,240,0.68);
+  padding: 0.65rem 0.75rem 0.65rem 0.75rem;
+}
+.landing-glass-btn__arrow {
+  flex-shrink: 0;
+  margin-right: 0.9rem;
+  color: #3dcab1;
+  transition: transform 0.15s;
+}
+.landing-glass-btn:hover .landing-glass-btn__arrow {
+  transform: translateX(3px);
+}
+
 .landing-choice {
   position: relative;
   isolation: isolate;
@@ -4304,7 +4365,10 @@ pre {
   display: flex;
   flex-direction: column;
   gap: 0.08rem;
-  margin-bottom: -0.18rem;
+  margin-bottom: -0.3rem;
+  margin-top: 0.6rem;
+  position: relative;
+  z-index: 2;
 }
 .sim2-story-intro__eyebrow {
   font-size: 0.68rem;
@@ -4323,14 +4387,19 @@ pre {
 .sim2-story-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.85rem;
+  margin-top: 0;
+  position: relative;
+  z-index: 2;
 }
 .sim2-story-card {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 0.28rem;
   min-width: 0;
-  padding: 0.36rem 0.82rem 0.2rem;
+  max-height: 120px;
+  overflow: hidden;
+  padding: 0.72rem 0.82rem 0.44rem;
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: calc(var(--radius-card) - 6px);
   background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
@@ -4340,7 +4409,7 @@ pre {
 .sim2-story-card::before {
   content: "";
   position: absolute;
-  top: 0.32rem;
+  top: 0.4rem;
   left: 0.82rem;
   width: 1.15rem;
   height: 1px;
@@ -4372,7 +4441,7 @@ pre {
   display: flex;
   flex-direction: column;
   gap: 0.72rem;
-  padding: 1rem 1.05rem 1.08rem;
+  padding: 1rem 1.05rem 0;
   width: 100%;
   max-width: none;
   justify-self: stretch;
@@ -4397,7 +4466,40 @@ pre {
 .sim2-proof-card__intro {
   display: flex;
   flex-direction: column;
-  gap: 0.22rem;
+  gap: 0.3rem;
+}
+.sim2-proof-card__intro-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.sim2-proof-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.3rem 0.72rem;
+  background: rgba(61,202,177,0.12);
+  border: 1px solid rgba(61,202,177,0.3);
+  border-radius: 15%;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sim2-proof-pill__label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(61,202,177,0.7);
+}
+.sim2-proof-pill__value {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #3dcab1;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 .sim2-proof-card__copy {
   margin: 0;
@@ -4406,11 +4508,14 @@ pre {
   font-size: 0.78rem;
   line-height: 1.45;
 }
+.sim2-proof-card__highlight {
+  color: #3dcab1;
+  font-weight: 700;
+}
 .sim2-proof-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 160px;
-  gap: 0.9rem;
-  align-items: start;
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 .sim2-proof-glass {
   display: flex;
@@ -4463,9 +4568,9 @@ pre {
   line-height: 1.4;
 }
 .sim2-proof-card .sim2-canvas--proof {
-  height: 178px;
-  min-height: 178px;
-  max-height: 178px;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: none;
   align-self: start;
 }
 .sim2-chart-summary {
@@ -4847,10 +4952,11 @@ pre {
 .sim2-workspace {
   height: 100%;
   overflow-y: auto;
-  padding: 0.9rem 1.15rem 1.2rem;
+  padding: 0.9rem 1.15rem 3.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: relative;
 }
 .sim2-topbar--compact {
   height: 40px;
@@ -4958,10 +5064,17 @@ pre {
 .sim2-main-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.55fr);
+  grid-template-rows: 1fr auto;
   gap: 0.9rem;
   align-items: stretch;
   flex: 1 1 auto;
   min-height: 0;
+}
+.sim2-disclaimer--grid {
+  grid-column: 1 / -1;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.68rem;
+  margin-top: -0.6rem;
 }
 .sim2-main-grid .sim2-reveal {
   min-height: 0;
@@ -4979,14 +5092,14 @@ pre {
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 .sim2-reveal__top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 1rem;
+  padding-bottom: 0.25rem;
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 .sim2-reveal__top .sim2-actions {
@@ -5019,10 +5132,11 @@ pre {
 .sim2-reveal__charts {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.44rem;
+  grid-template-rows: auto auto 1fr;
+  gap: 2.12rem;
   min-height: 0;
   flex: 1 1 auto;
-  margin-top: 0.5rem;
+  margin-top: 0.1rem;
 }
 .sim2-reveal__charts .sim2-chart-panel {
   min-height: 0;
@@ -5390,7 +5504,7 @@ pre {
   }
   .sim2-reveal__charts {
     gap: 0.38rem;
-    margin-top: 0.42rem;
+    margin-top: 0.1rem;
   }
   .sim2-reveal__charts .sim2-canvas {
     min-height: 118px;
@@ -5400,9 +5514,9 @@ pre {
     align-items: start;
   }
   .sim2-proof-card .sim2-canvas--proof {
-    height: 136px;
-    min-height: 136px;
-    max-height: 136px;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
   }
   .sim2-proof-card {
     gap: 0.56rem;
@@ -5519,9 +5633,9 @@ pre {
     flex-direction: column;
   }
   .sim2-proof-card .sim2-canvas--proof {
-    height: 150px;
-    min-height: 150px;
-    max-height: 150px;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
   }
   .sim2-proof-glass {
     max-width: none;

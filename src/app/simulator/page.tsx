@@ -15,25 +15,25 @@ const PRESETS = [
     id: 'founder',
     label: 'Founder',
     helper: 'Owner-led business',
-    values: { leads: '30', conversion: '8', revenue: '2500', time: '0.5', hourly: '40', adSpend: '700' },
+    values: { leads: '30', conversion: '3', revenue: '2500', time: '0.5', hourly: '40', adSpend: '700' },
   },
   {
     id: 'agency',
     label: 'Agency',
     helper: 'Lead-gen dependent team',
-    values: { leads: '120', conversion: '10', revenue: '7500', time: '0.75', hourly: '95', adSpend: '5200' },
+    values: { leads: '120', conversion: '4', revenue: '7500', time: '0.75', hourly: '95', adSpend: '5200' },
   },
   {
     id: 'professional-service',
     label: 'Professional Service',
     helper: 'Consulting or advisory',
-    values: { leads: '90', conversion: '8', revenue: '7000', time: '0.65', hourly: '85', adSpend: '3200' },
+    values: { leads: '90', conversion: '4', revenue: '7000', time: '0.65', hourly: '85', adSpend: '3200' },
   },
   {
     id: 'small-business',
     label: 'Small Business',
     helper: 'Growing service team',
-    values: { leads: '50', conversion: '10', revenue: '4000', time: '0.45', hourly: '45', adSpend: '1600' },
+    values: { leads: '50', conversion: '5', revenue: '4000', time: '0.45', hourly: '45', adSpend: '1600' },
   },
 ] as const
 
@@ -79,33 +79,33 @@ const INFRA_TARGETS = {
 const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
   {
     target: 'guide',
-    title: 'How to use the diagnostic',
-    copy: 'We show the annual upside to your baseline by improving the conversion systems that drive response, personalisation, and automation.',
+    title: 'How to use the tool',
+    copy: 'We show you the annual revenue your current system is likely leaving on the table — across three conversion levers: response speed, personalisation, and automation.',
   },
   {
     target: 'upside',
-    title: 'This is your estimated upside.',
-    copy: 'The big number estimates extra annual revenue from the improvements you test here. The monthly line shows the same gain in a shorter time frame.',
+    title: 'This is your estimated revenue leak.',
+    copy: 'The big number shows the annual revenue your current system is leaving on the table. The monthly line breaks that down into what slow response is costing you every month.',
   },
   {
     target: 'levers',
-    title: 'Move the levers to test improvements.',
-    copy: 'The levers start at your current setup. Move them above baseline to estimate extra revenue from faster response, more personal follow-up, and automation. The pink marker shows where a strong conversion infrastructure would aim to be.',
+    title: 'Move the levers to see what slow response is costing you.',
+    copy: 'The levers start at your current setup. Move them to see how much revenue each gap is costing you — across response speed, follow-up relevance, and automation. The pink marker shows where a strong conversion infrastructure operates.',
   },
   {
     target: 'baseline',
     title: 'Change the baseline values.',
-    copy: 'Use Edit baseline whenever the starting numbers need to change. Updating your business numbers or current system maturity recalculates the upside immediately.',
+    copy: 'Use Edit baseline whenever the starting numbers need to change. Updating your leads, conversion rate, or client value recalculates your revenue leak immediately.',
   },
   {
     target: 'charts',
     title: 'Use the graphs as proof, not homework.',
-    copy: 'The charts show what changed: more clients, more monthly revenue, and how time or ad spend is being used.',
+    copy: 'The charts show what changes when the gaps close: clients recovered, monthly revenue recovered, and how your current spend is being used.',
   },
   {
     target: 'actions',
     title: 'Decide what to do next.',
-    copy: 'If the upside feels meaningful, save the report or book a strategy call to work through what would create that gain.',
+    copy: 'If the revenue leak feels worth fixing, save the report or book a call to work through what\'s causing it and whether the Lead-to-Revenue System™ is the right fit.',
   },
 ]
 
@@ -155,6 +155,8 @@ function drawBarChart(
   isMoney: boolean,
   nowLegend: string,
   rapidLegend: string,
+  nowConv?: number,
+  rapidConv?: number,
 ) {
   const setup = setupCanvas(canvas)
   if (!setup) return
@@ -164,12 +166,12 @@ function drawBarChart(
   function fv(v: number) { return isMoney ? '$' + fmt(v) + '/mo' : fmtD(v, 1) }
 
   const maxVal  = Math.max(nowVal, rapidVal, 0.001)
-  const barW    = W * 0.26
+  const barW    = W * 0.21
   const gap     = W * 0.12
   const totalBW = barW * 2 + gap
   const startX  = (W - totalBW) / 2
-  const maxBarH = H * 0.60
-  const baseY   = H * 0.76
+  const maxBarH = H * 0.74
+  const baseY   = H * 0.90
 
   const nowH  = (nowVal  / maxVal) * maxBarH
   const rapH  = (rapidVal / maxVal) * maxBarH
@@ -190,20 +192,37 @@ function drawBarChart(
   barPath(ctx, startX + barW + gap, baseY - rapH, barW, rapH, 4)
   ctx.fill()
 
+  // Conversion rates inside bars
+  if (nowConv != null || rapidConv != null) {
+    ctx.textAlign    = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font         = '700 10px Inter, sans-serif'
+    if (nowConv != null && nowH > 20) {
+      ctx.fillStyle = 'rgba(255,255,255,0.55)'
+      ctx.fillText(fmtD(nowConv, 1) + '%', startX + barW / 2, baseY - nowH / 2)
+    }
+    if (rapidConv != null && rapH > 20) {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'
+      ctx.fillText(fmtD(rapidConv, 1) + '%', startX + barW + gap + barW / 2, baseY - rapH / 2)
+    }
+  }
+
   // Values above bars
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'bottom'
-  ctx.font         = '700 9px Inter, sans-serif'
-  ctx.fillStyle    = 'rgba(255,255,255,0.45)'
-  if (nowH > 0) ctx.fillText(nowLegend, startX + barW / 2, baseY - nowH - 18)
-  ctx.fillStyle = '#7ee1d0'
-  if (rapH > 0) ctx.fillText(rapidLegend, startX + barW + gap + barW / 2, baseY - rapH - 18)
-
-  ctx.font      = isMoney ? '800 12px Inter, sans-serif' : '800 11px Inter, sans-serif'
+  ctx.font      = isMoney ? '800 15px Inter, sans-serif' : '800 14px Inter, sans-serif'
   ctx.fillStyle = 'rgba(255,255,255,0.78)'
   if (nowH > 0) ctx.fillText(fv(nowVal),   startX + barW / 2,                   baseY - nowH - 4)
   ctx.fillStyle = '#3dcab1'
   if (rapH > 0) ctx.fillText(fv(rapidVal), startX + barW + gap + barW / 2, baseY - rapH - 4)
+
+  // Labels below bars
+  ctx.textBaseline = 'top'
+  ctx.font         = '700 9px Inter, sans-serif'
+  ctx.fillStyle    = 'rgba(255,255,255,0.45)'
+  if (nowH > 0) ctx.fillText(nowLegend, startX + barW / 2, baseY + 6)
+  ctx.fillStyle = '#7ee1d0'
+  if (rapH > 0) ctx.fillText(rapidLegend, startX + barW + gap + barW / 2, baseY + 6)
 }
 
 function drawDonut(
@@ -472,10 +491,12 @@ function SimulatorInner() {
 
   // Animated DOM refs
   const annualRef    = useRef<HTMLSpanElement>(null)
+  const convRef      = useRef(0)
 
   // Parsed
   const leads    = Math.max(0, parseFloat(leadsStr) || 0)
   const conv     = Math.max(0, Math.min(100, parseFloat(convStr) || 0))
+  convRef.current = conv
   const revenue  = Math.max(0, parseFloat(revStr)   || 0)
   const timeLead = Math.max(0, parseFloat(timeStr)  || 0)
   const hourly   = Math.max(0, parseFloat(hourStr)  || 0)
@@ -626,7 +647,7 @@ function SimulatorInner() {
       if (annualRef.current)   annualRef.current.textContent   = '$' + fmt(a.annualGain) + '/yr'
 
       // Canvas
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current system', 'With L2R system')
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current system', 'With L2R system', convRef.current, a.impConv)
 
       rafId = requestAnimationFrame(loop)
     }
@@ -916,7 +937,7 @@ function SimulatorInner() {
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">2. Weak follow-up conversion</span>
                     <strong className="sim2-story-card__value">${fmt(personMonthlyImpact)}/mo</strong>
-                    <p className="sim2-story-card__copy">Lost because leads is not getting value quickly and turns to competitors.</p>
+                    <p className="sim2-story-card__copy">Lost because leads is not getting value quickly enough and turns to competitors for the service.</p>
                   </article>
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">3. Manual lead handling</span>
@@ -929,16 +950,10 @@ function SimulatorInner() {
                     <div className="sim2-chart-hdr">
                       <span className="sim2-chart-hdr__label">Monthly revenue: current system vs with L2R system</span>
                     </div>
-                    <p className="sim2-proof-card__copy">A direct month-by-month comparison of what your current setup produces versus the L2R system target.</p>
+                    <p className="sim2-proof-card__copy">Conversion rate is <strong className="sim2-proof-card__highlight">{fmtD(convDelta, 1)}pp</strong> behind: {fmtD(conv, 1)}% vs {fmtD(impConv, 1)}%. This directly translates in missing monthly revenue.</p>
                   </div>
                   <div className="sim2-proof-main">
                     <canvas ref={revenueCanvasRef} className="sim2-canvas sim2-canvas--proof" />
-                    <div className="sim2-proof-glass">
-                      <span className="sim2-proof-glass__label">Conversion rate increase</span>
-                      <strong className="sim2-proof-glass__value">{(convDelta >= 0 ? '+' : '') + fmtD(convDelta, 1)}pp</strong>
-                      <span className="sim2-proof-glass__sub">{fmtD(conv, 1)}% to {fmtD(impConv, 1)}%</span>
-                      <span className="sim2-proof-glass__meta">Improvement</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -991,11 +1006,10 @@ function SimulatorInner() {
                 <span><i className="sim2-avg-dot sim2-avg-dot--infra" />Conversion infrastructure</span>
               </div>
             </div>
+            <p className="sim2-disclaimer sim2-disclaimer--grid">
+              Results are indicative. Based on published industry benchmarks; individual outcomes may differ.
+            </p>
           </section>
-
-          <p className="sim2-disclaimer">
-            Results are indicative. Based on published industry benchmarks; individual outcomes may differ.
-          </p>
 
           {tourOpen && (
             <>
@@ -1024,7 +1038,7 @@ function SimulatorInner() {
                     </button>
                   ) : (
                     <button type="button" className="sim2-primary-cta" onClick={closeTour}>
-                      Start estimating
+                      Start
                     </button>
                   )}
                 </div>
