@@ -3798,6 +3798,10 @@ pre {
   color: var(--color-text-muted);
   padding-bottom: 0.1rem;
 }
+.sim2-section-hd--panel-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+}
 .sim2-section-hd--mt { margin-top: 0.5rem; }
 
 /* Input rows */
@@ -4124,6 +4128,10 @@ pre {
   color: var(--color-text-muted);
   margin-bottom: 0.125rem;
 }
+.sim2-reveal__eyebrow--hero {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+}
 .sim2-reveal__big {
   font-family: var(--font-heading);
   font-size: clamp(1.875rem, 3.5vw, 2.75rem);
@@ -4143,10 +4151,11 @@ pre {
 }
 .sim2-reveal__plain {
   margin: 0.6rem 0 0;
-  max-width: 34rem;
+  max-width: none;
   color: rgba(255,255,255,0.7);
   font-size: 0.875rem;
   line-height: 1.5;
+  white-space: nowrap;
 }
 .sim2-actions {
   display: flex;
@@ -4532,6 +4541,8 @@ pre {
   justify-content: flex-start;
 }
 .sim2-tour-launch {
+  width: 220px;
+  flex: 0 0 220px;
   min-height: 40px;
   padding: 0 1rem;
   border: 1px solid rgba(61,202,177,0.32);
@@ -4572,6 +4583,7 @@ pre {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.72rem 0.78rem;
+  margin-top: 0.35rem;
   margin-bottom: 0.18rem;
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-input);
@@ -5021,6 +5033,7 @@ pre {
   }
   .sim2-reveal__plain {
     margin-top: 0.45rem;
+    white-space: normal;
   }
   .sim2-actions {
     margin-top: 0.7rem;
@@ -5061,6 +5074,9 @@ pre {
   .sim2-workspace-prompt,
   .sim2-edit-baseline {
     flex: 1 1 100%;
+  }
+  .sim2-tour-launch {
+    width: 100%;
   }
   .sim2-baseline-summary .sim2-edit-baseline {
     flex: 0 0 auto;

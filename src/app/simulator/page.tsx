@@ -472,9 +472,9 @@ function SimulatorInner() {
   const [baselineAutoVal, setBaselineAutoVal] = useState(0)
 
   // Sliders
-  const [paceVal,   setPaceVal]   = useState(0)
-  const [personVal, setPersonVal] = useState(0)
-  const [autoVal,   setAutoVal]   = useState(0)
+  const [paceVal,   setPaceVal]   = useState(INFRA_TARGETS.pace)
+  const [personVal, setPersonVal] = useState(INFRA_TARGETS.personalisation)
+  const [autoVal,   setAutoVal]   = useState(INFRA_TARGETS.automation)
 
   // Canvas refs
   const clientsCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -484,8 +484,6 @@ function SimulatorInner() {
 
   // Animated DOM refs
   const annualRef    = useRef<HTMLSpanElement>(null)
-  const subMonthRef  = useRef<HTMLSpanElement>(null)
-  const subRoiRef    = useRef<HTMLSpanElement>(null)
   const convValRef   = useRef<HTMLSpanElement>(null)
   const convDeltRef  = useRef<HTMLSpanElement>(null)
   const cliValRef    = useRef<HTMLSpanElement>(null)
@@ -565,9 +563,9 @@ function SimulatorInner() {
   const goToSimulator = () => {
     setSetupMode('simulator')
     setBaselineDrawerOpen(false)
-    setPaceVal(baselinePaceVal)
-    setPersonVal(baselinePersonVal)
-    setAutoVal(baselineAutoVal)
+    setPaceVal(Math.max(baselinePaceVal, INFRA_TARGETS.pace))
+    setPersonVal(Math.max(baselinePersonVal, INFRA_TARGETS.personalisation))
+    setAutoVal(Math.max(baselineAutoVal, INFRA_TARGETS.automation))
     setTourStep(0)
     setTourDismissed(false)
     setTourOpen(true)
@@ -643,10 +641,7 @@ function SimulatorInner() {
       }
 
       // DOM updates
-      const yrSign = a.annualGain >= 0 ? '+' : ''
-      if (annualRef.current)   annualRef.current.textContent   = yrSign + '$' + fmt(a.annualGain) + '/yr'
-      if (subMonthRef.current) subMonthRef.current.textContent = '= ' + (a.monthlyGain >= 0 ? '+' : '') + '$' + fmt(a.monthlyGain) + '/mo additional'
-      if (subRoiRef.current)   subRoiRef.current.textContent   = a.roi > 0.05 ? ' · ' + fmtD(a.roi, 1) + 'x return on ad spend' : ''
+      if (annualRef.current)   annualRef.current.textContent   = '$' + fmt(a.annualGain) + '/yr'
       if (convValRef.current)  convValRef.current.textContent  = fmtD(a.impConv, 1) + '%'
       if (convDeltRef.current) convDeltRef.current.textContent = (a.convDelta >= 0 ? '+' : '') + fmtD(a.convDelta, 1) + 'pp'
       if (cliValRef.current)   cliValRef.current.textContent   = fmtD(a.rapClients, 1)
@@ -661,8 +656,8 @@ function SimulatorInner() {
       if (dBadgeRef.current) dBadgeRef.current.textContent = '$' + fmt(a.autoSave) + ' saved'
 
       // Canvas
-      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Current baseline', 'With target')
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current baseline', 'With target')
+      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Current baseline', 'With L2R system')
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current baseline', 'With L2R system')
       if (donutCanvasRef.current)   drawDonut(donutCanvasRef.current, a.remTimeCost, a.autoSave, a.adSpend, a.remCost)
 
       rafId = requestAnimationFrame(loop)
@@ -930,16 +925,12 @@ function SimulatorInner() {
             <div className={`sim2-reveal${tourTargetClass('upside')}`}>
               <div className="sim2-reveal__top">
                 <div className="sim2-reveal__left">
-                  <div className="sim2-reveal__eyebrow">Estimated annual upside</div>
-                  <span className="sim2-reveal__big" ref={annualRef}>+$0/yr</span>
-                  <div className="sim2-reveal__sub">
-                    <span ref={subMonthRef}>= +$0/mo additional</span>
-                    <span ref={subRoiRef} />
-                  </div>
-                  <p className="sim2-reveal__plain">This estimates the extra revenue you could unlock if these improvements were in place.</p>
+                  <div className="sim2-reveal__eyebrow sim2-reveal__eyebrow--hero">Estimated Annual Revenue Leak</div>
+                  <span className="sim2-reveal__big" ref={annualRef}>$0/yr</span>
+                  <p className="sim2-reveal__plain">This estimates the revenue your current system is leaving on the table based on your inputs.</p>
                 </div>
                 <div className={`sim2-actions${tourTargetClass('actions')}`}>
-                  <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Growth Strategy Call</BookCallButton>
+                  <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Call</BookCallButton>
                   <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get report by email</button>
                 </div>
               </div>
@@ -963,14 +954,14 @@ function SimulatorInner() {
               <div className={`sim2-reveal__charts${tourTargetClass('charts')}`}>
                 <div className="sim2-chart-panel">
                   <div className="sim2-chart-hdr">
-                    <span className="sim2-chart-hdr__label">Additional clients per month</span>
+                    <span className="sim2-chart-hdr__label">Clients lost per month to slow response</span>
                     <span className="sim2-badge sim2-badge--cyan" ref={cBadgeRef}>+0.0 clients</span>
                   </div>
                   <canvas ref={clientsCanvasRef} className="sim2-canvas" />
                 </div>
                 <div className="sim2-chart-panel">
                   <div className="sim2-chart-hdr">
-                    <span className="sim2-chart-hdr__label">Additional revenue per month</span>
+                    <span className="sim2-chart-hdr__label">Revenue lost per month to slow response</span>
                     <span className="sim2-badge sim2-badge--cyan" ref={rBadgeRef}>+$0/mo</span>
                   </div>
                   <canvas ref={revenueCanvasRef} className="sim2-canvas" />
@@ -986,7 +977,32 @@ function SimulatorInner() {
             </div>
 
             <div className={`sim2-levers-panel${tourTargetClass('levers')}`}>
-              <div className="sim2-section-hd">Growth improvements</div>
+              <div className="sim2-section-hd sim2-section-hd--panel-title">Conversion levers</div>
+              <p className="sim2-levers-help">Move the three levers to see what changes. Faster response and more relevant follow-up can increase conversion; automation reduces handling cost.</p>
+              <SimLever
+                label="Follow-up speed"
+                desc="How quickly leads are contacted after enquiring"
+                value={paceVal} onChange={setPaceTarget} avgPct={30} baselinePct={baselinePaceVal} infrastructurePct={INFRA_TARGETS.pace}
+                ticks={['Days', 'Same day', '1 hr', '<5 min']}
+                statusLabel={paceLabel(paceVal)}
+                impactLabel={`Recovers about $${fmt(paceMonthlyImpact)}/mo.`}
+              />
+              <SimLever
+                label="Personalisation"
+                desc="How relevant and specific each outreach message feels"
+                value={personVal} onChange={setPersonTarget} avgPct={25} baselinePct={baselinePersonVal} infrastructurePct={INFRA_TARGETS.personalisation}
+                ticks={['Generic', 'Some', 'Tailored', '1:1']}
+                statusLabel={personLabel(personVal)}
+                impactLabel={`Recovers about $${fmt(personMonthlyImpact)}/mo.`}
+              />
+              <SimLever
+                label="Process automation"
+                desc="How much lead handling and admin is automated"
+                value={autoVal} onChange={setAutoTarget} avgPct={20} baselinePct={baselineAutoVal} infrastructurePct={INFRA_TARGETS.automation}
+                ticks={['Manual', 'Partial', 'Mostly', 'Full']}
+                statusLabel={autoLabel(autoVal)}
+                impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
+              />
               <div className="sim2-baseline-summary">
                 <div>
                   <span>Current baseline</span>
@@ -1001,31 +1017,6 @@ function SimulatorInner() {
                   Edit
                 </button>
               </div>
-              <p className="sim2-levers-help">Move the three levers to see what changes. Faster response and more relevant follow-up can increase conversion; automation reduces handling cost.</p>
-              <SimLever
-                label="Follow-up speed"
-                desc="How quickly leads are contacted after enquiring"
-                value={paceVal} onChange={setPaceTarget} avgPct={30} baselinePct={baselinePaceVal} infrastructurePct={INFRA_TARGETS.pace}
-                ticks={['Days', 'Same day', '1 hr', '<5 min']}
-                statusLabel={paceLabel(paceVal)}
-                impactLabel={`Adds about +$${fmt(paceMonthlyImpact)}/mo.`}
-              />
-              <SimLever
-                label="Personalisation"
-                desc="How relevant and specific each outreach message feels"
-                value={personVal} onChange={setPersonTarget} avgPct={25} baselinePct={baselinePersonVal} infrastructurePct={INFRA_TARGETS.personalisation}
-                ticks={['Generic', 'Some', 'Tailored', '1:1']}
-                statusLabel={personLabel(personVal)}
-                impactLabel={`Adds about +$${fmt(personMonthlyImpact)}/mo.`}
-              />
-              <SimLever
-                label="Process automation"
-                desc="How much lead handling and admin is automated"
-                value={autoVal} onChange={setAutoTarget} avgPct={20} baselinePct={baselineAutoVal} infrastructurePct={INFRA_TARGETS.automation}
-                ticks={['Manual', 'Partial', 'Mostly', 'Full']}
-                statusLabel={autoLabel(autoVal)}
-                impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
-              />
               <div className="sim2-avg-legend">
                 <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>
                 <span><i className="sim2-avg-dot" />Industry average</span>
