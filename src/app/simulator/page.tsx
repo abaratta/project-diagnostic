@@ -45,8 +45,8 @@ const SETUP_STEPS = [
   { eyebrow: 'Step 1 of 5', title: 'Choose your profile', copy: 'Pick the profile that feels closest to how your business works. We will create starter numbers you can adjust next.' },
   { eyebrow: 'Step 2 of 5', title: 'Confirm your numbers', copy: 'These three numbers estimate what your leads are worth today.' },
   { eyebrow: 'Step 3 of 5', title: 'Add your current costs', copy: 'This helps the simulator show where time and ad spend are being used.' },
-  { eyebrow: 'Step 4 of 5', title: 'How does your lead handling work today?', copy: 'Set your current response, personalisation, and automation level so the simulator only shows upside beyond where you already are.' },
-  { eyebrow: 'Step 5 of 5', title: 'Now experiment with growth', copy: 'Move the three levers above your current baseline to model faster follow-up, better outreach, and less admin.' },
+  { eyebrow: 'Step 4 of 5', title: 'How does your lead handling work today?', copy: 'Set your current response speed, personalisation, and automation level so the simulator shows you the revenue leak relative to where you actually are — not a generic baseline.' },
+  { eyebrow: 'Step 5 of 5', title: 'Now see what the gaps are costing you.', copy: 'Move the three levers to see the revenue impact of slower response, generic follow-up, and manual admin.' },
 ] as const
 
 const MATURITY_OPTIONS = [
@@ -869,7 +869,7 @@ function SimulatorInner() {
                   <strong>{baselineSummary}</strong>
                   <small>{systemBaselineSummary}</small>
                 </div>
-                <p>The levers will start from this current setup, so the headline shows only the extra upside above your baseline.</p>
+                <p>The levers start from your current setup, so the number reflects only what your existing gaps are costing you — not a theoretical maximum.</p>
               </div>
             )}
 
@@ -892,7 +892,7 @@ function SimulatorInner() {
                 </button>
               ) : (
                 <button type="button" className="sim2-primary-cta" onClick={goToSimulator}>
-                  Start experimenting
+                  Start
                 </button>
               )}
             </div>
