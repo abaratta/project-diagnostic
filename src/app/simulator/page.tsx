@@ -161,7 +161,7 @@ function drawBarChart(
   const [ctx, W, H] = setup
   ctx.clearRect(0, 0, W, H)
 
-  function fv(v: number) { return isMoney ? '$' + fmt(v) : fmtD(v, 1) }
+  function fv(v: number) { return isMoney ? '$' + fmt(v) + '/mo' : fmtD(v, 1) }
 
   const maxVal  = Math.max(nowVal, rapidVal, 0.001)
   const barW    = W * 0.26
@@ -193,27 +193,17 @@ function drawBarChart(
   // Values above bars
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'bottom'
-  ctx.font         = '700 11px Inter, sans-serif'
-  ctx.fillStyle    = 'rgba(255,255,255,0.65)'
-  if (nowH > 0) ctx.fillText(fv(nowVal),   startX + barW / 2,                   baseY - nowH - 5)
-  ctx.fillStyle = '#3dcab1'
-  if (rapH > 0) ctx.fillText(fv(rapidVal), startX + barW + gap + barW / 2, baseY - rapH - 5)
+  ctx.font         = '700 9px Inter, sans-serif'
+  ctx.fillStyle    = 'rgba(255,255,255,0.45)'
+  if (nowH > 0) ctx.fillText(nowLegend, startX + barW / 2, baseY - nowH - 18)
+  ctx.fillStyle = '#7ee1d0'
+  if (rapH > 0) ctx.fillText(rapidLegend, startX + barW + gap + barW / 2, baseY - rapH - 18)
 
-  // Legend row
-  const legY = H - 22
-  const items = [
-    { color: 'rgba(255,255,255,0.22)', label: nowLegend,   x: startX + barW / 2 },
-    { color: '#3dcab1',                label: rapidLegend, x: startX + barW + gap + barW / 2 },
-  ]
-  for (const item of items) {
-    ctx.fillStyle = item.color
-    ctx.fillRect(item.x - 4, legY - 4, 7, 7)
-    ctx.fillStyle = item.color === '#3dcab1' ? '#3dcab1' : 'rgba(255,255,255,0.45)'
-    ctx.font = '500 9px Inter, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(item.label, item.x, legY + 9)
-  }
+  ctx.font      = isMoney ? '800 12px Inter, sans-serif' : '800 11px Inter, sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.78)'
+  if (nowH > 0) ctx.fillText(fv(nowVal),   startX + barW / 2,                   baseY - nowH - 4)
+  ctx.fillStyle = '#3dcab1'
+  if (rapH > 0) ctx.fillText(fv(rapidVal), startX + barW + gap + barW / 2, baseY - rapH - 4)
 }
 
 function drawDonut(
@@ -477,21 +467,11 @@ function SimulatorInner() {
   const [autoVal,   setAutoVal]   = useState<number>(INFRA_TARGETS.automation)
 
   // Canvas refs
-  const clientsCanvasRef = useRef<HTMLCanvasElement>(null)
   const revenueCanvasRef = useRef<HTMLCanvasElement>(null)
-  const donutCanvasRef   = useRef<HTMLCanvasElement>(null)
   const rightPanelRef    = useRef<HTMLElement>(null)
 
   // Animated DOM refs
   const annualRef    = useRef<HTMLSpanElement>(null)
-  const convValRef   = useRef<HTMLSpanElement>(null)
-  const convDeltRef  = useRef<HTMLSpanElement>(null)
-  const cliValRef    = useRef<HTMLSpanElement>(null)
-  const cliDeltRef   = useRef<HTMLSpanElement>(null)
-  const timeValRef   = useRef<HTMLSpanElement>(null)
-  const cBadgeRef    = useRef<HTMLSpanElement>(null)
-  const rBadgeRef    = useRef<HTMLSpanElement>(null)
-  const dBadgeRef    = useRef<HTMLSpanElement>(null)
 
   // Parsed
   const leads    = Math.max(0, parseFloat(leadsStr) || 0)
@@ -526,6 +506,8 @@ function SimulatorInner() {
   const annualGain  = monthlyGain * 12
   const roi         = adSpend > 0 ? annualGain / (adSpend * 12) : 0
 
+  const totalClientsLost = rapClients - nowClients
+  const conversionRevenueLeak = rapRevenue - nowRevenue
   const paceMonthlyImpact = leads * (pLift / 100) * revenue
   const personMonthlyImpact = leads * (perLift / 100) * revenue
 
@@ -642,23 +624,9 @@ function SimulatorInner() {
 
       // DOM updates
       if (annualRef.current)   annualRef.current.textContent   = '$' + fmt(a.annualGain) + '/yr'
-      if (convValRef.current)  convValRef.current.textContent  = fmtD(a.impConv, 1) + '%'
-      if (convDeltRef.current) convDeltRef.current.textContent = (a.convDelta >= 0 ? '+' : '') + fmtD(a.convDelta, 1) + 'pp'
-      if (cliValRef.current)   cliValRef.current.textContent   = fmtD(a.rapClients, 1)
-      if (cliDeltRef.current)  cliDeltRef.current.textContent  = (a.rapClients - a.nowClients >= 0 ? '+' : '') + fmtD(a.rapClients - a.nowClients, 1)
-      if (timeValRef.current)  timeValRef.current.textContent  = '$' + fmt(a.autoSave)
-
-      // Badges
-      const cd = a.rapClients - a.nowClients
-      const rd = a.rapRevenue - a.nowRevenue
-      if (cBadgeRef.current) cBadgeRef.current.textContent = (cd >= 0 ? '+' : '') + fmtD(cd, 1) + ' clients'
-      if (rBadgeRef.current) rBadgeRef.current.textContent = sign(rd, rd >= 0 ? '$' : '$') + (rd >= 0 ? '' : '') + '/mo'
-      if (dBadgeRef.current) dBadgeRef.current.textContent = '$' + fmt(a.autoSave) + ' saved'
 
       // Canvas
-      if (clientsCanvasRef.current) drawBarChart(clientsCanvasRef.current, a.nowClients, a.rapClients, false, 'Current baseline', 'With L2R system')
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current baseline', 'With L2R system')
-      if (donutCanvasRef.current)   drawDonut(donutCanvasRef.current, a.remTimeCost, a.autoSave, a.adSpend, a.remCost)
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current system', 'With L2R system')
 
       rafId = requestAnimationFrame(loop)
     }
@@ -929,49 +897,49 @@ function SimulatorInner() {
                   <span className="sim2-reveal__big" ref={annualRef}>$0/yr</span>
                   <p className="sim2-reveal__plain">This estimates the revenue your current system is leaving on the table based on your inputs.</p>
                 </div>
-                <div className={`sim2-actions${tourTargetClass('actions')}`}>
+                <div className={`sim2-actions sim2-actions--reveal${tourTargetClass('actions')}`}>
                   <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Call</BookCallButton>
                   <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get report by email</button>
                 </div>
               </div>
-              <div className="sim2-reveal__stats">
-                <div className="sim2-reveal__stat">
-                  <span className="sim2-reveal__stat-label">Conv. rate</span>
-                  <span className="sim2-reveal__stat-val" ref={convValRef}>0.0%</span>
-                  <span className="sim2-reveal__stat-delta" ref={convDeltRef}>+0.0pp</span>
-                </div>
-                <div className="sim2-reveal__stat">
-                  <span className="sim2-reveal__stat-label">Clients/mo</span>
-                  <span className="sim2-reveal__stat-val" ref={cliValRef}>0</span>
-                  <span className="sim2-reveal__stat-delta" ref={cliDeltRef}>+0.0</span>
-                </div>
-                <div className="sim2-reveal__stat">
-                  <span className="sim2-reveal__stat-label">Time saved</span>
-                  <span className="sim2-reveal__stat-val" ref={timeValRef}>$0</span>
-                  <span className="sim2-reveal__stat-delta">/mo</span>
-                </div>
-              </div>
               <div className={`sim2-reveal__charts${tourTargetClass('charts')}`}>
-                <div className="sim2-chart-panel">
-                  <div className="sim2-chart-hdr">
-                    <span className="sim2-chart-hdr__label">Clients lost per month to slow response</span>
-                    <span className="sim2-badge sim2-badge--cyan" ref={cBadgeRef}>+0.0 clients</span>
-                  </div>
-                  <canvas ref={clientsCanvasRef} className="sim2-canvas" />
+                <div className="sim2-story-intro">
+                  <span className="sim2-story-intro__eyebrow">Where the revenue leak comes from (conservative figures)</span>
+                  <p className="sim2-story-intro__copy">Three places your current process is likely leaking value before the monthly proof view below.</p>
                 </div>
-                <div className="sim2-chart-panel">
-                  <div className="sim2-chart-hdr">
-                    <span className="sim2-chart-hdr__label">Revenue lost per month to slow response</span>
-                    <span className="sim2-badge sim2-badge--cyan" ref={rBadgeRef}>+$0/mo</span>
-                  </div>
-                  <canvas ref={revenueCanvasRef} className="sim2-canvas" />
+                <div className="sim2-story-grid">
+                  <article className="sim2-story-card">
+                    <span className="sim2-story-card__eyebrow">1. Missed clients</span>
+                    <strong className="sim2-story-card__value">{fmtD(totalClientsLost, 1)} clients/mo</strong>
+                    <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
+                  </article>
+                  <article className="sim2-story-card">
+                    <span className="sim2-story-card__eyebrow">2. Weak follow-up conversion</span>
+                    <strong className="sim2-story-card__value">${fmt(personMonthlyImpact)}/mo</strong>
+                    <p className="sim2-story-card__copy">Lost because leads is not getting value quickly and turns to competitors.</p>
+                  </article>
+                  <article className="sim2-story-card">
+                    <span className="sim2-story-card__eyebrow">3. Manual lead handling</span>
+                    <strong className="sim2-story-card__value">${fmt(autoSave)}/mo</strong>
+                    <p className="sim2-story-card__copy">Time and cost lost doing admin work that could be automated once a lead comes in.</p>
+                  </article>
                 </div>
-                <div className="sim2-chart-panel">
-                  <div className="sim2-chart-hdr">
-                    <span className="sim2-chart-hdr__label">Cost saving per month</span>
-                    <span className="sim2-badge sim2-badge--pink" ref={dBadgeRef}>$0 saved</span>
+                <div className="sim2-proof-card">
+                  <div className="sim2-proof-card__intro">
+                    <div className="sim2-chart-hdr">
+                      <span className="sim2-chart-hdr__label">Monthly revenue: current system vs with L2R system</span>
+                    </div>
+                    <p className="sim2-proof-card__copy">A direct month-by-month comparison of what your current setup produces versus the L2R system target.</p>
                   </div>
-                  <canvas ref={donutCanvasRef} className="sim2-canvas" />
+                  <div className="sim2-proof-main">
+                    <canvas ref={revenueCanvasRef} className="sim2-canvas sim2-canvas--proof" />
+                    <div className="sim2-proof-glass">
+                      <span className="sim2-proof-glass__label">Conversion rate increase</span>
+                      <strong className="sim2-proof-glass__value">{(convDelta >= 0 ? '+' : '') + fmtD(convDelta, 1)}pp</strong>
+                      <span className="sim2-proof-glass__sub">{fmtD(conv, 1)}% to {fmtD(impConv, 1)}%</span>
+                      <span className="sim2-proof-glass__meta">Improvement</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
