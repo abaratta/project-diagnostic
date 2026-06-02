@@ -949,12 +949,12 @@ function SimulatorInner() {
                     <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
                   </article>
                   <article className="sim2-story-card">
-                    <span className="sim2-story-card__eyebrow">2. Weak speed to lead system</span>
+                    <span className="sim2-story-card__eyebrow">2. Revenue gap</span>
                     <strong className="sim2-story-card__value">${fmt(spvMonthlyImpact)}/mo</strong>
                     <p className="sim2-story-card__copy">Lost because leads is not getting value quickly enough and turns to competitors for the service.</p>
                   </article>
                   <article className="sim2-story-card">
-                    <span className="sim2-story-card__eyebrow">3. Manual lead handling</span>
+                    <span className="sim2-story-card__eyebrow">3. Manual process cost</span>
                     <strong className="sim2-story-card__value">${fmt(autoSave)}/mo</strong>
                     <p className="sim2-story-card__copy">Time and cost lost doing admin work that could be automated once a lead comes in.</p>
                   </article>
