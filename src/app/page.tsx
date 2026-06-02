@@ -21,7 +21,7 @@ function HomeContent() {
 
         <div className="landing-eyebrow"><a href="https://profitailab.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Profit AI Lab Diagnostic</a></div>
         <h1 className="landing-title">Calculate what<br />slow response is costing you</h1>
-        <p className="landing-sub">Move three levers. See the number. Decide if it&apos;s worth fixing.</p>
+        <p className="landing-sub">Respond to nine questions. See the number. Decide if it&apos;s worth fixing.</p>
 
         <div className="landing-choices">
           <button className="landing-glass-btn" onClick={openSimulator}>
