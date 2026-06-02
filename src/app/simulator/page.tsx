@@ -946,23 +946,26 @@ function SimulatorInner() {
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">1. Missed clients</span>
                     <strong className="sim2-story-card__value">{fmtD(totalClientsLost, 1)} clients/mo</strong>
+                    <span className="sim2-story-card__annual">{fmtD(totalClientsLost * 12, 1)} clients/yr</span>
                     <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
                   </article>
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">2. Revenue gap</span>
                     <strong className="sim2-story-card__value">${fmt(spvMonthlyImpact)}/mo</strong>
+                    <span className="sim2-story-card__annual">${fmt(spvMonthlyImpact * 12)}/yr</span>
                     <p className="sim2-story-card__copy">Lost because leads is not getting value quickly enough and turns to competitors for the service.</p>
                   </article>
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">3. Manual process cost</span>
                     <strong className="sim2-story-card__value">${fmt(autoSave)}/mo</strong>
+                    <span className="sim2-story-card__annual">${fmt(autoSave * 12)}/yr</span>
                     <p className="sim2-story-card__copy">Time and cost lost doing admin work that could be automated once a lead comes in.</p>
                   </article>
                 </div>
                 <div className="sim2-proof-card">
                   <div className="sim2-proof-card__intro">
                     <div className="sim2-chart-hdr">
-                      <span className="sim2-chart-hdr__label">Monthly revenue: current system vs with L2R system</span>
+                      <span className="sim2-chart-hdr__label">Monthly revenue: current system vs with speed to lead system</span>
                     </div>
                     <p className="sim2-proof-card__copy">Conversion rate is <strong className="sim2-proof-card__highlight">{fmtD(convDelta, 1)}pp</strong> behind: {fmtD(conv, 1)}% vs {fmtD(impConv, 1)}%. This directly translates in missing monthly revenue.</p>
                   </div>
