@@ -947,7 +947,7 @@ function SimulatorInner() {
                 </button>
               ) : (
                 <button type="button" className="sim2-primary-cta" onClick={goToSimulator}>
-                  Start
+                  Reveal Gap
                 </button>
               )}
             </div>
