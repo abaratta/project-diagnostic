@@ -4866,7 +4866,7 @@ pre {
   align-items: baseline;
 }
 .setup-slider__label {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: rgba(255,255,255,0.72);
 }
 .setup-slider__val {

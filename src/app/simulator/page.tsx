@@ -818,14 +818,14 @@ function SimulatorInner() {
             {setupStep === 1 && (
               <div className="sim2-setup-fields">
                 <SetupSlider
-                  label="Monthly leads"
+                  label="Average monthly leads"
                   value={parseFloat(leadsStr) || 0}
                   min={1} max={500} step={1}
                   onChange={v => { setLeadsStr(String(v)); setSelectedPreset('custom') }}
                   format={v => `${v} leads`}
                 />
                 <SetupSlider
-                  label="Conversion rate"
+                  label="Typical conversion rate"
                   value={parseFloat(convStr) || 0}
                   min={0.5} max={30} step={0.5}
                   onChange={v => { setConvStr(String(v)); setSelectedPreset('custom') }}
