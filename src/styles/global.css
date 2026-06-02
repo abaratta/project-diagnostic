@@ -4828,7 +4828,13 @@ pre {
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
-.sim2-preset-card:hover,
+@media (hover: hover) {
+  .sim2-preset-card:hover {
+    border-color: rgba(61,202,177,0.45);
+    background: rgba(61,202,177,0.09);
+    transform: translateY(-1px);
+  }
+}
 .sim2-preset-card--active {
   border-color: rgba(61,202,177,0.45);
   background: rgba(61,202,177,0.09);
