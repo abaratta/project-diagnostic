@@ -512,8 +512,7 @@ function SimulatorInner() {
   const [baselineAutoVal, setBaselineAutoVal] = useState(0)
 
   // Sliders
-  const [paceVal,   setPaceVal]   = useState<number>(INFRA_TARGETS.pace)
-  const [personVal, setPersonVal] = useState<number>(INFRA_TARGETS.personalisation)
+  const [spvVal,    setSpvVal]    = useState<number>(100)
   const [autoVal,   setAutoVal]   = useState<number>(INFRA_TARGETS.automation)
 
   // Canvas refs
@@ -534,12 +533,9 @@ function SimulatorInner() {
   const adSpendInput = Math.max(0, parseFloat(adSpendStr) || 0)
 
   // Calc
-  const paceDelta = Math.max(0, paceVal - baselinePaceVal)
-  const personDelta = Math.max(0, personVal - baselinePersonVal)
+  const spvLift = (spvVal / 100) * 1.5
   const autoDelta = Math.max(0, autoVal - baselineAutoVal)
-  const pLift  = Math.max(1, (paceDelta / 100) * PACE_MAX_PP)
-  const perLift = Math.max(0.5, (personDelta / 100) * PERSON_MAX_PP)
-  const impConv = Math.min(conv + pLift + perLift, 100)
+  const impConv = Math.min(conv + spvLift, 100)
   const convDelta = impConv - conv
 
   const nowClients  = leads * (conv    / 100)
@@ -560,8 +556,7 @@ function SimulatorInner() {
 
   const totalClientsLost = rapClients - nowClients
   const conversionRevenueLeak = rapRevenue - nowRevenue
-  const paceMonthlyImpact = leads * (pLift / 100) * revenue
-  const personMonthlyImpact = leads * (perLift / 100) * revenue
+  const spvMonthlyImpact = leads * (spvLift / 100) * revenue
 
   const applyPreset = (preset: typeof PRESETS[number]) => {
     setLeadsStr(preset.values.leads)
@@ -589,21 +584,15 @@ function SimulatorInner() {
   const goToSimulator = () => {
     setSetupMode('simulator')
     setBaselineDrawerOpen(false)
-    setPaceVal(Math.max(baselinePaceVal, INFRA_TARGETS.pace))
-    setPersonVal(Math.max(baselinePersonVal, INFRA_TARGETS.personalisation))
     setAutoVal(Math.max(baselineAutoVal, INFRA_TARGETS.automation))
   }
 
-  const setPaceTarget = (value: number) => setPaceVal(Math.max(baselinePaceVal, value))
-  const setPersonTarget = (value: number) => setPersonVal(Math.max(baselinePersonVal, value))
   const setAutoTarget = (value: number) => setAutoVal(Math.max(baselineAutoVal, value))
   const updateBaselinePace = (value: number) => {
     setBaselinePaceVal(value)
-    setPaceVal(current => Math.max(value, current))
   }
   const updateBaselinePerson = (value: number) => {
     setBaselinePersonVal(value)
-    setPersonVal(current => Math.max(value, current))
   }
   const updateBaselineAuto = (value: number) => {
     setBaselineAutoVal(value)
@@ -611,17 +600,11 @@ function SimulatorInner() {
   }
 
   // Lever labels
-  function paceLabel(v: number) {
-    if (v === 0) return 'Current follow-up'
-    if (v < 34) return 'Same day follow-up'
-    if (v < 67) return 'Within 1 hour'
-    return 'Under 5 minutes'
-  }
-  function personLabel(v: number) {
-    if (v === 0) return 'Generic outreach'
-    if (v < 34) return 'Lightly tailored'
-    if (v < 67) return 'Tailored outreach'
-    return 'One-to-one message'
+  function spvLabel(v: number) {
+    if (v === 0) return 'Not deployed'
+    if (v < 34) return 'Basic setup'
+    if (v < 67) return 'Active system'
+    return 'Fully deployed'
   }
   function autoLabel(v: number) {
     return v === 0 ? 'Manual admin' : `${v}% admin saved`
@@ -967,7 +950,7 @@ function SimulatorInner() {
                   </article>
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">2. Weak follow-up conversion</span>
-                    <strong className="sim2-story-card__value">${fmt(personMonthlyImpact)}/mo</strong>
+                    <strong className="sim2-story-card__value">${fmt(spvMonthlyImpact)}/mo</strong>
                     <p className="sim2-story-card__copy">Lost because leads is not getting value quickly enough and turns to competitors for the service.</p>
                   </article>
                   <article className="sim2-story-card">
@@ -992,25 +975,17 @@ function SimulatorInner() {
 
             <div className="sim2-levers-panel">
               <div className="sim2-section-hd sim2-section-hd--panel-title">Conversion levers</div>
-              <p className="sim2-levers-help">Move the three levers to see what changes. Faster response and more relevant follow-up can increase conversion; automation reduces handling cost.</p>
+              <p className="sim2-levers-help">Move the levers to see what changes. SPV improves conversion; automation reduces handling cost.</p>
               <SimLever
-                label="Follow-up speed"
-                desc="How quickly leads are contacted after enquiring"
-                value={paceVal} onChange={setPaceTarget} avgPct={30} baselinePct={baselinePaceVal} infrastructurePct={INFRA_TARGETS.pace}
-                ticks={['Days', 'Same day', '1 hr', '<5 min']}
-                statusLabel={paceLabel(paceVal)}
-                impactLabel={`Recovers about $${fmt(paceMonthlyImpact)}/mo.`}
+                label="SPV — speed, personalisation, value"
+                desc="Combined impact of faster response, relevant follow-up, and lead value delivery"
+                value={spvVal} onChange={setSpvVal} avgPct={25} baselinePct={Math.round((baselinePaceVal + baselinePersonVal) / 2)} infrastructurePct={100}
+                ticks={['None', 'Basic', 'Active', 'Full']}
+                statusLabel={spvLabel(spvVal)}
+                impactLabel={`Recovers about $${fmt(spvMonthlyImpact)}/mo.`}
               />
               <SimLever
-                label="Personalisation"
-                desc="How relevant and specific each outreach message feels"
-                value={personVal} onChange={setPersonTarget} avgPct={25} baselinePct={baselinePersonVal} infrastructurePct={INFRA_TARGETS.personalisation}
-                ticks={['Generic', 'Some', 'Tailored', '1:1']}
-                statusLabel={personLabel(personVal)}
-                impactLabel={`Recovers about $${fmt(personMonthlyImpact)}/mo.`}
-              />
-              <SimLever
-                label="Process automation"
+                label="Automation"
                 desc="How much lead handling and admin is automated"
                 value={autoVal} onChange={setAutoTarget} avgPct={20} baselinePct={baselineAutoVal} infrastructurePct={INFRA_TARGETS.automation}
                 ticks={['Manual', 'Partial', 'Mostly', 'Full']}
@@ -1023,13 +998,6 @@ function SimulatorInner() {
                   <strong>{baselineSummary}</strong>
                   <small>{systemBaselineSummary}</small>
                 </div>
-                <button
-                  type="button"
-                  className="sim2-edit-baseline"
-                  onClick={() => setBaselineDrawerOpen(true)}
-                >
-                  Edit
-                </button>
               </div>
               <div className="sim2-avg-legend">
                 <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>

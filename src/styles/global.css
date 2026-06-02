@@ -4005,13 +4005,17 @@ pre {
   box-shadow: 0 0 10px rgba(61,202,177,0.45);
 }
 .sl2__marker--avg {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: rgba(255,255,255,0.48);
 }
 .sl2__marker--infra {
-  width: 2px;
-  height: 16px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: var(--color-accent-amber);
-  box-shadow: 0 0 10px rgba(230,53,107,0.45);
+  box-shadow: 0 0 8px rgba(230,53,107,0.5);
 }
 .sl2__ticks {
   display: flex;
