@@ -843,40 +843,35 @@ function SimulatorInner() {
 
             {setupStep === 2 && (
               <div className="sim2-setup-fields">
-                <div className="si2-row">
-                  <SimInput
-                    label="Manual time spent on each lead"
-                    value={timeStr}
-                    onChange={setCustom(setTimeStr)}
-                    half
-                    suffix="hrs"
-                    helperText="How long your team spends replying, qualifying, and updating records for each lead."
-                  />
-                  <SimInput
-                    label="Average hourly cost for the business"
-                    value={hourStr}
-                    onChange={setCustom(setHourStr)}
-                    half
-                    prefix="$"
-                    suffix="/hr"
-                    helperText="Use the loaded hourly cost of the person handling leads."
-                  />
-                </div>
-                <div className="si2-row">
-                  <SimInput label="Monthly spend on lead generation (e.g. ads, SEO, etc.)" value={adSpendStr} onChange={setCustom(setAdSpendStr)} prefix="$" half />
-                  <div className="si2 si2--half si2--derived">
-                    <div className="si2__label-row">
-                      <span className="si2__label">Cost per lead</span>
-                      <span className="si2__info" title="Monthly lead generation spend divided by monthly leads." aria-label="Monthly lead generation spend divided by monthly leads.">i</span>
-                    </div>
-                    <span className="si2__derived-val">
-                      {leads > 0 && adSpendInput > 0
-                        ? `$${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()}`
-                        : '-'}
+                <SetupSlider
+                  label="Manual time spent on each lead"
+                  value={parseFloat(timeStr) || 0}
+                  min={0.1} max={4} step={0.05}
+                  onChange={v => { setTimeStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `${v.toFixed(2)}hrs`}
+                />
+                <SetupSlider
+                  label="Average hourly cost for the business"
+                  value={parseFloat(hourStr) || 0}
+                  min={10} max={250} step={5}
+                  onChange={v => { setHourStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `$${v}/hr`}
+                />
+                <SetupSlider
+                  label="Monthly spend on lead generation"
+                  value={parseFloat(adSpendStr) || 0}
+                  min={0} max={20000} step={100}
+                  onChange={v => { setAdSpendStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `$${v.toLocaleString()}`}
+                />
+                {leads > 0 && adSpendInput > 0 && (
+                  <div className="setup-derived">
+                    <span className="setup-derived__label">Cost per lead</span>
+                    <span className="setup-derived__val">
+                      ${derivedCpl < 10 ? derivedCpl.toFixed(2) : Math.round(derivedCpl).toLocaleString()}
                     </span>
-                    <p className="si2__helper">Lead generation spend divided by lead volume.</p>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
