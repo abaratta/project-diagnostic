@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, Suspense, type FormEvent } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { isVaultUnlocked } from '@/lib/vaultSession'
 import { toJpeg } from 'html-to-image'
@@ -794,8 +795,16 @@ function SimulatorInner() {
       {setupMode === 'setup' ? (
         <main className="sim2-setup">
           <section className="sim2-setup-card">
-            <div className="sim2-setup-progress" aria-label={setupMeta.eyebrow}>
-              <span style={{ width: `${setupProgress}%` }} />
+            <div className="sim2-setup-progress-row">
+              <Link href="/" className="sim2-setup-home" aria-label="Home">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </Link>
+              <div className="sim2-setup-progress" aria-label={setupMeta.eyebrow}>
+                <span style={{ width: `${setupProgress}%` }} />
+              </div>
             </div>
             <div className="sim2-setup__eyebrow">{setupMeta.eyebrow}</div>
             <h1 className="sim2-setup__title">{setupMeta.title}</h1>

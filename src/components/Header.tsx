@@ -13,7 +13,7 @@ export function Header() {
   const pathname = usePathname()
   const backHref = BACK_HREFS[pathname] ?? null
 
-  if (pathname === '/' || pathname === '/gate' || pathname === '/results' || pathname === '/special-offer') return null
+  if (pathname === '/' || pathname === '/gate' || pathname === '/results' || pathname === '/special-offer' || pathname === '/simulator') return null
 
   return (
     <header className="header">

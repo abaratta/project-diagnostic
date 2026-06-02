@@ -100,6 +100,9 @@ pre {
   padding-top: var(--header-height);
   padding-bottom: 0;
 }
+.page-wrapper:has(.sim2-shell) {
+  padding-top: 0;
+}
 /* Give the simulator page room so the sticky bar doesn't cover the footer */
 .page-wrapper--has-sticky-cta {
   padding-bottom: 72px;
@@ -3762,7 +3765,7 @@ pre {
    ============================================= */
 .sim2-shell {
   display: flex;
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -4769,12 +4772,31 @@ pre {
     rgba(12,18,28,0.94);
   box-shadow: 0 24px 80px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.06);
 }
+.sim2-setup-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+.sim2-setup-home {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: rgba(255,255,255,0.35);
+  transition: color 0.15s;
+}
+@media (hover: hover) {
+  .sim2-setup-home:hover {
+    color: rgba(255,255,255,0.8);
+  }
+}
 .sim2-setup-progress {
+  flex: 1;
   height: 5px;
   border-radius: 999px;
   background: rgba(255,255,255,0.08);
   overflow: hidden;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0;
 }
 .sim2-setup-progress span {
   display: block;
@@ -5649,7 +5671,7 @@ pre {
   .sim2-shell--setup {
     display: block;
     height: auto;
-    min-height: calc(100dvh - var(--header-height));
+    min-height: 100dvh;
     overflow: visible;
   }
   .sim2-setup-card {
