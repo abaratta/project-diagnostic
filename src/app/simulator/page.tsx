@@ -337,6 +337,37 @@ function drawDonut(
   }
 }
 
+/* ─── SetupSlider ────────────────────────────────────────────────── */
+function SetupSlider({ label, value, min, max, step, onChange, format }: {
+  label: string
+  value: number
+  min: number
+  max: number
+  step: number
+  onChange: (v: number) => void
+  format: (v: number) => string
+}) {
+  return (
+    <div className="setup-slider">
+      <div className="setup-slider__hdr">
+        <span className="setup-slider__label">{label}</span>
+        <span className="setup-slider__val">{format(value)}</span>
+      </div>
+      <input
+        type="range"
+        className="slider-input"
+        min={min} max={max} step={step}
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
+      />
+      <div className="setup-slider__ends">
+        <span>{format(min)}</span>
+        <span>{format(max)}</span>
+      </div>
+    </div>
+  )
+}
+
 /* ─── SimInput ───────────────────────────────────────────────────── */
 function SimInput({ label, value, onChange, prefix, suffix, half, helperText }: {
   label: string; value: string; onChange: (v: string) => void
@@ -786,17 +817,27 @@ function SimulatorInner() {
 
             {setupStep === 1 && (
               <div className="sim2-setup-fields">
-                <div className="si2-row">
-                  <SimInput label="How many leads do you get each month?" value={leadsStr} onChange={setCustom(setLeadsStr)} half />
-                  <SimInput
-                    label="The percentage of leads that turn into paying clients"
-                    value={convStr}
-                    onChange={setCustom(setConvStr)}
-                    half
-                    suffix="%"
-                  />
-                </div>
-                <SimInput label="Average client lifetime value" value={revStr} onChange={setCustom(setRevStr)} prefix="$" />
+                <SetupSlider
+                  label="Monthly leads"
+                  value={parseFloat(leadsStr) || 0}
+                  min={1} max={500} step={1}
+                  onChange={v => { setLeadsStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `${v} leads`}
+                />
+                <SetupSlider
+                  label="Conversion rate"
+                  value={parseFloat(convStr) || 0}
+                  min={0.5} max={30} step={0.5}
+                  onChange={v => { setConvStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `${v}%`}
+                />
+                <SetupSlider
+                  label="Average client value"
+                  value={parseFloat(revStr) || 0}
+                  min={500} max={50000} step={500}
+                  onChange={v => { setRevStr(String(v)); setSelectedPreset('custom') }}
+                  format={v => `$${v.toLocaleString()}`}
+                />
               </div>
             )}
 
