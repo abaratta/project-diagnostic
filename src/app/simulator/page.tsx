@@ -540,8 +540,8 @@ function SimulatorInner() {
   const paceDelta = Math.max(0, paceVal - baselinePaceVal)
   const personDelta = Math.max(0, personVal - baselinePersonVal)
   const autoDelta = Math.max(0, autoVal - baselineAutoVal)
-  const pLift  = (paceDelta / 100) * PACE_MAX_PP
-  const perLift = (personDelta / 100) * PERSON_MAX_PP
+  const pLift  = Math.max(1, (paceDelta / 100) * PACE_MAX_PP)
+  const perLift = Math.max(0.5, (personDelta / 100) * PERSON_MAX_PP)
   const impConv = Math.min(conv + pLift + perLift, 100)
   const convDelta = impConv - conv
 
@@ -986,7 +986,7 @@ function SimulatorInner() {
                 <div className="sim2-story-grid">
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">1. Missed clients</span>
-                    <strong className="sim2-story-card__value">{fmtD(totalClientsLost, 1)} clients/mo</strong>
+                    <strong className="sim2-story-card__value">${fmt(conversionRevenueLeak)}/mo <span className="sim2-story-card__sub">({fmtD(totalClientsLost, 1)} clients/mo)</span></strong>
                     <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
                   </article>
                   <article className="sim2-story-card">

@@ -4434,6 +4434,12 @@ pre {
   line-height: 0.94;
   letter-spacing: -0.03em;
 }
+.sim2-story-card__sub {
+  font-size: 0.7em;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0;
+}
 .sim2-story-card__copy {
   margin: 0;
   color: rgba(255,255,255,0.74);
