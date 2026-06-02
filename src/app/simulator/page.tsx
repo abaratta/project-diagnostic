@@ -945,7 +945,7 @@ function SimulatorInner() {
                 <div className="sim2-story-grid">
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">1. Missed clients</span>
-                    <strong className="sim2-story-card__value sim2-story-card__value--white">{fmtD(totalClientsLost, 1)} clients/mo</strong>
+                    <strong className="sim2-story-card__value">{fmtD(totalClientsLost, 1)} clients/mo</strong>
                     <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
                   </article>
                   <article className="sim2-story-card">
