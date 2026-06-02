@@ -4425,9 +4425,12 @@ pre {
   font-family: var(--font-heading);
   font-size: clamp(1.55rem, 2.4vw, 2rem);
   font-weight: 900;
-  color: #fff;
+  color: var(--color-accent-cyan);
   line-height: 0.94;
   letter-spacing: -0.03em;
+}
+.sim2-story-card__value--white {
+  color: #fff;
 }
 .sim2-story-card__sub {
   font-size: 0.7em;

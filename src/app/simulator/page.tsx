@@ -945,11 +945,11 @@ function SimulatorInner() {
                 <div className="sim2-story-grid">
                   <article className="sim2-story-card">
                     <span className="sim2-story-card__eyebrow">1. Missed clients</span>
-                    <strong className="sim2-story-card__value">${fmt(conversionRevenueLeak)}/mo <span className="sim2-story-card__sub">({fmtD(totalClientsLost, 1)} clients/mo)</span></strong>
+                    <strong className="sim2-story-card__value sim2-story-card__value--white">{fmtD(totalClientsLost, 1)} clients/mo</strong>
                     <p className="sim2-story-card__copy">Likely slipping away because slow response and weak follow-up reduce how many leads become paying clients.</p>
                   </article>
                   <article className="sim2-story-card">
-                    <span className="sim2-story-card__eyebrow">2. Weak follow-up conversion</span>
+                    <span className="sim2-story-card__eyebrow">2. Weak speed to lead system</span>
                     <strong className="sim2-story-card__value">${fmt(spvMonthlyImpact)}/mo</strong>
                     <p className="sim2-story-card__copy">Lost because leads is not getting value quickly enough and turns to competitors for the service.</p>
                   </article>
