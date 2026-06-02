@@ -493,9 +493,6 @@ function SimulatorInner() {
   const [setupMode, setSetupMode] = useState<SetupMode>('setup')
   const [setupStep, setSetupStep] = useState(0)
   const [baselineDrawerOpen, setBaselineDrawerOpen] = useState(false)
-  const [tourOpen, setTourOpen] = useState(false)
-  const [tourStep, setTourStep] = useState(0)
-  const [tourDismissed, setTourDismissed] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [reportName, setReportName] = useState('')
   const [reportEmail, setReportEmail] = useState('')
@@ -588,14 +585,6 @@ function SimulatorInner() {
   const businessType = selectedPreset === 'custom'
     ? 'Custom'
     : PRESETS.find(preset => preset.id === selectedPreset)?.label ?? 'Custom'
-  const activeTour = TOUR_STEPS[tourStep]
-  const activeTourTarget = tourOpen ? activeTour.target : null
-  const tourTargetClass = (target: TourTarget) => activeTourTarget === target ? ' sim2-tour-target--active' : ''
-
-  const closeTour = () => {
-    setTourOpen(false)
-    setTourDismissed(true)
-  }
 
   const goToSimulator = () => {
     setSetupMode('simulator')
@@ -603,9 +592,6 @@ function SimulatorInner() {
     setPaceVal(Math.max(baselinePaceVal, INFRA_TARGETS.pace))
     setPersonVal(Math.max(baselinePersonVal, INFRA_TARGETS.personalisation))
     setAutoVal(Math.max(baselineAutoVal, INFRA_TARGETS.automation))
-    setTourStep(0)
-    setTourDismissed(false)
-    setTourOpen(true)
   }
 
   const setPaceTarget = (value: number) => setPaceVal(Math.max(baselinePaceVal, value))
@@ -681,7 +667,7 @@ function SimulatorInner() {
       if (annualRef.current)   annualRef.current.textContent   = '$' + fmt(a.annualGain) + '/yr'
 
       // Canvas
-      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current system', 'With L2R system', convRef.current, a.impConv)
+      if (revenueCanvasRef.current) drawBarChart(revenueCanvasRef.current, a.nowRevenue, a.rapRevenue, true,  'Current system', 'With Speed to Lead System', convRef.current, a.impConv)
 
       rafId = requestAnimationFrame(loop)
     }
@@ -954,31 +940,22 @@ function SimulatorInner() {
           </section>
         </main>
       ) : (
-        <main className={`sim2-workspace${tourDismissed ? ' sim2-workspace--tour-dismissed' : ''}`} ref={rightPanelRef}>
-          <div className="sim2-topbar sim2-topbar--compact">
-            <button
-              type="button"
-              className={`sim2-tour-launch${tourTargetClass('guide')}`}
-              onClick={() => { setTourStep(0); setTourOpen(true); setTourDismissed(false) }}
-            >
-              Show me how it works
-            </button>
-          </div>
+        <main className="sim2-workspace sim2-workspace--tour-dismissed" ref={rightPanelRef}>
 
           <section className="sim2-main-grid">
-            <div className={`sim2-reveal${tourTargetClass('upside')}`}>
+            <div className="sim2-reveal">
               <div className="sim2-reveal__top">
                 <div className="sim2-reveal__left">
                   <div className="sim2-reveal__eyebrow sim2-reveal__eyebrow--hero">Estimated Annual Revenue Leak</div>
                   <span className="sim2-reveal__big" ref={annualRef}>$0/yr</span>
                   <p className="sim2-reveal__plain">This estimates the revenue your current system is leaving on the table based on your inputs.</p>
                 </div>
-                <div className={`sim2-actions sim2-actions--reveal${tourTargetClass('actions')}`}>
+                <div className="sim2-actions sim2-actions--reveal">
                   <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Call</BookCallButton>
                   <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get report by email</button>
                 </div>
               </div>
-              <div className={`sim2-reveal__charts${tourTargetClass('charts')}`}>
+              <div className="sim2-reveal__charts">
                 <div className="sim2-story-intro">
                   <span className="sim2-story-intro__eyebrow">Where the revenue leak comes from (conservative figures)</span>
                 </div>
@@ -1013,7 +990,7 @@ function SimulatorInner() {
               </div>
             </div>
 
-            <div className={`sim2-levers-panel${tourTargetClass('levers')}`}>
+            <div className="sim2-levers-panel">
               <div className="sim2-section-hd sim2-section-hd--panel-title">Conversion levers</div>
               <p className="sim2-levers-help">Move the three levers to see what changes. Faster response and more relevant follow-up can increase conversion; automation reduces handling cost.</p>
               <SimLever
@@ -1048,7 +1025,7 @@ function SimulatorInner() {
                 </div>
                 <button
                   type="button"
-                  className={`sim2-edit-baseline${tourTargetClass('baseline')}`}
+                  className="sim2-edit-baseline"
                   onClick={() => setBaselineDrawerOpen(true)}
                 >
                   Edit
@@ -1065,40 +1042,6 @@ function SimulatorInner() {
             </p>
           </section>
 
-          {tourOpen && (
-            <>
-              <div className="sim2-tour-scrim" />
-              <section className="sim2-tour-card" aria-live="polite" aria-label="Simulator tour">
-                <div className="sim2-tour-card__step">Step {tourStep + 1} of {TOUR_STEPS.length}</div>
-                <h2>{activeTour.title}</h2>
-                <p>{activeTour.copy}</p>
-                <div className="sim2-tour-card__actions">
-                  <button type="button" className="sim2-tour-skip" onClick={closeTour}>Skip</button>
-                  <button
-                    type="button"
-                    className="sim2-secondary-cta"
-                    onClick={() => setTourStep(step => Math.max(0, step - 1))}
-                    disabled={tourStep === 0}
-                  >
-                    Back
-                  </button>
-                  {tourStep < TOUR_STEPS.length - 1 ? (
-                    <button
-                      type="button"
-                      className="sim2-primary-cta"
-                      onClick={() => setTourStep(step => Math.min(TOUR_STEPS.length - 1, step + 1))}
-                    >
-                      Next
-                    </button>
-                  ) : (
-                    <button type="button" className="sim2-primary-cta" onClick={closeTour}>
-                      Start
-                    </button>
-                  )}
-                </div>
-              </section>
-            </>
-          )}
 
           {reportOpen && (
             <div className="sim2-report-overlay" onClick={closeReportModal}>
