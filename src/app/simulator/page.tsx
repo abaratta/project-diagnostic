@@ -338,7 +338,7 @@ function drawDonut(
 }
 
 /* ─── SetupSlider ────────────────────────────────────────────────── */
-function SetupSlider({ label, value, min, max, step, onChange, format }: {
+function SetupSlider({ label, value, min, max, step, onChange, format, helperText }: {
   label: string
   value: number
   min: number
@@ -346,6 +346,7 @@ function SetupSlider({ label, value, min, max, step, onChange, format }: {
   step: number
   onChange: (v: number) => void
   format: (v: number) => string
+  helperText?: string
 }) {
   return (
     <div className="setup-slider">
@@ -364,6 +365,7 @@ function SetupSlider({ label, value, min, max, step, onChange, format }: {
         <span>{format(min)}</span>
         <span>{format(max)}</span>
       </div>
+      {helperText && <p className="setup-slider__helper">{helperText}</p>}
     </div>
   )
 }
@@ -848,7 +850,7 @@ function SimulatorInner() {
                   value={parseFloat(timeStr) || 0}
                   min={0.1} max={4} step={0.05}
                   onChange={v => { setTimeStr(String(v)); setSelectedPreset('custom') }}
-                  format={v => `${v.toFixed(2)}hrs`}
+                  format={v => v < 1 ? `${Math.round(v * 60)} min` : `${v.toFixed(2)} hrs`}
                 />
                 <SetupSlider
                   label="Average hourly cost for the business"
@@ -856,6 +858,7 @@ function SimulatorInner() {
                   min={10} max={250} step={5}
                   onChange={v => { setHourStr(String(v)); setSelectedPreset('custom') }}
                   format={v => `$${v}/hr`}
+                  helperText="The loaded hourly rate of the person managing leads — salary, benefits, and overhead included."
                 />
                 <SetupSlider
                   label="Monthly spend on lead generation"
@@ -863,6 +866,7 @@ function SimulatorInner() {
                   min={0} max={20000} step={100}
                   onChange={v => { setAdSpendStr(String(v)); setSelectedPreset('custom') }}
                   format={v => `$${v.toLocaleString()}`}
+                  helperText="Total monthly spend across all channels — paid ads, SEO, content, referral programmes, etc."
                 />
                 {leads > 0 && adSpendInput > 0 && (
                   <div className="setup-derived">

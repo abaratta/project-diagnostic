@@ -4884,6 +4884,12 @@ pre {
   color: rgba(255,255,255,0.32);
   margin-top: 0.1rem;
 }
+.setup-slider__helper {
+  margin: 0.3rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.45;
+}
 .setup-derived {
   display: flex;
   justify-content: space-between;
@@ -4901,7 +4907,7 @@ pre {
   font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 800;
-  color: rgba(255,255,255,0.72);
+  color: #a78bfa;
 }
 .sim2-maturity-panel {
   display: flex;
