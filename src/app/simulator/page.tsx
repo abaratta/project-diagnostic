@@ -880,24 +880,30 @@ function SimulatorInner() {
             )}
 
             {setupStep === 3 && (
-              <div className="sim2-maturity-panel">
-                <MaturityChoiceGroup
+              <div className="sim2-setup-fields">
+                <SetupSlider
                   label="How quickly do you normally respond?"
-                  value={baselinePaceVal}
-                  options={MATURITY_OPTIONS}
-                  onChange={updateBaselinePace}
+                  value={MATURITY_OPTIONS.findIndex(o => o.value === baselinePaceVal)}
+                  min={0} max={3} step={1}
+                  onChange={i => updateBaselinePace(MATURITY_OPTIONS[i]?.value ?? 0)}
+                  format={i => MATURITY_OPTIONS[Math.round(i)]?.label ?? ''}
+                  helperText={MATURITY_OPTIONS[MATURITY_OPTIONS.findIndex(o => o.value === baselinePaceVal)]?.helper}
                 />
-                <MaturityChoiceGroup
+                <SetupSlider
                   label="How personalised is your first response?"
-                  value={baselinePersonVal}
-                  options={PERSONALISATION_OPTIONS}
-                  onChange={updateBaselinePerson}
+                  value={PERSONALISATION_OPTIONS.findIndex(o => o.value === baselinePersonVal)}
+                  min={0} max={3} step={1}
+                  onChange={i => updateBaselinePerson(PERSONALISATION_OPTIONS[i]?.value ?? 0)}
+                  format={i => PERSONALISATION_OPTIONS[Math.round(i)]?.label ?? ''}
+                  helperText={PERSONALISATION_OPTIONS[PERSONALISATION_OPTIONS.findIndex(o => o.value === baselinePersonVal)]?.helper}
                 />
-                <MaturityChoiceGroup
+                <SetupSlider
                   label="Is the process currently automated?"
-                  value={baselineAutoVal}
-                  options={AUTOMATION_OPTIONS}
-                  onChange={updateBaselineAuto}
+                  value={AUTOMATION_OPTIONS.findIndex(o => o.value === baselineAutoVal)}
+                  min={0} max={3} step={1}
+                  onChange={i => updateBaselineAuto(AUTOMATION_OPTIONS[i]?.value ?? 0)}
+                  format={i => AUTOMATION_OPTIONS[Math.round(i)]?.label ?? ''}
+                  helperText={AUTOMATION_OPTIONS[AUTOMATION_OPTIONS.findIndex(o => o.value === baselineAutoVal)]?.helper}
                 />
               </div>
             )}
