@@ -981,7 +981,6 @@ function SimulatorInner() {
               <div className={`sim2-reveal__charts${tourTargetClass('charts')}`}>
                 <div className="sim2-story-intro">
                   <span className="sim2-story-intro__eyebrow">Where the revenue leak comes from (conservative figures)</span>
-                  <p className="sim2-story-intro__copy">Three places your current process is likely leaking value before the monthly proof view below.</p>
                 </div>
                 <div className="sim2-story-grid">
                   <article className="sim2-story-card">
