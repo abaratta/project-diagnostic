@@ -4437,7 +4437,7 @@ pre {
 .sim2-story-card__sub {
   font-size: 0.7em;
   font-weight: 600;
-  color: rgba(255,255,255,0.45);
+  color: #e6356b;
   letter-spacing: 0;
 }
 .sim2-story-card__copy {
