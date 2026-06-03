@@ -8,8 +8,8 @@ import { toJpeg } from 'html-to-image'
 import { BookCallButton } from '@/components/BookCallButton'
 
 /* ─── Constants ──────────────────────────────────────────────────── */
-const PACE_MAX_PP   = 2.0
-const PERSON_MAX_PP = 1.5
+const SPV_CONV_MIN = 3   // conversion % at slider = 0
+const SPV_CONV_MAX = 25  // conversion % at slider = 100
 
 const PRESETS = [
   {
@@ -533,10 +533,16 @@ function SimulatorInner() {
   const adSpendInput = Math.max(0, parseFloat(adSpendStr) || 0)
 
   // Calc
-  const spvLift = (spvVal / 100) * 1.5
-  const autoDelta = Math.max(0, autoVal - baselineAutoVal)
-  const impConv = Math.min(conv + spvLift, 100)
+  const spvImpConv = SPV_CONV_MIN + (spvVal / 100) * (SPV_CONV_MAX - SPV_CONV_MIN)
+  const impConv = Math.min(Math.max(conv, spvImpConv), 100)
   const convDelta = impConv - conv
+  const autoDelta = Math.max(0, autoVal - baselineAutoVal)
+
+  // SPV lever marker positions (mapped onto the [SPV_CONV_MIN, SPV_CONV_MAX] scale)
+  const spvToPos = (c: number) => Math.max(0, Math.min(100, ((c - SPV_CONV_MIN) / (SPV_CONV_MAX - SPV_CONV_MIN)) * 100))
+  const spvAvgPct      = Math.round(spvToPos(5))
+  const spvBaselinePct = Math.round(spvToPos(conv))
+  const spvInfraPct    = Math.round(spvToPos(conv + 1.5))
 
   const nowClients  = leads * (conv    / 100)
   const rapClients  = leads * (impConv / 100)
@@ -556,7 +562,7 @@ function SimulatorInner() {
 
   const totalClientsLost = rapClients - nowClients
   const conversionRevenueLeak = rapRevenue - nowRevenue
-  const spvMonthlyImpact = leads * (spvLift / 100) * revenue
+  const spvMonthlyImpact = leads * (convDelta / 100) * revenue
 
   const applyPreset = (preset: typeof PRESETS[number]) => {
     setLeadsStr(preset.values.leads)
@@ -585,6 +591,11 @@ function SimulatorInner() {
     setSetupMode('simulator')
     setBaselineDrawerOpen(false)
     setAutoVal(Math.max(baselineAutoVal, INFRA_TARGETS.automation))
+    // Position SPV slider at conversion infrastructure (baseline + 1.5pp)
+    const infraPos = Math.round(Math.max(0, Math.min(100,
+      ((conv + 1.5 - SPV_CONV_MIN) / (SPV_CONV_MAX - SPV_CONV_MIN)) * 100
+    )))
+    setSpvVal(infraPos)
   }
 
   const setAutoTarget = (value: number) => setAutoVal(Math.max(baselineAutoVal, value))
@@ -982,7 +993,7 @@ function SimulatorInner() {
               <SimLever
                 label="SPV — speed, personalisation, value"
                 desc="Combined impact of faster response, relevant follow-up, and lead value delivery"
-                value={spvVal} onChange={setSpvVal} avgPct={25} baselinePct={Math.round((baselinePaceVal + baselinePersonVal) / 2)} infrastructurePct={100}
+                value={spvVal} onChange={setSpvVal} avgPct={spvAvgPct} baselinePct={spvBaselinePct} infrastructurePct={spvInfraPct}
                 ticks={['None', 'Basic', 'Active', 'Full']}
                 statusLabel={spvLabel(spvVal)}
                 impactLabel={`Recovers about $${fmt(spvMonthlyImpact)}/mo.`}
@@ -995,17 +1006,17 @@ function SimulatorInner() {
                 statusLabel={autoLabel(autoVal)}
                 impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
               />
+              <div className="sim2-avg-legend">
+                <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>
+                <span><i className="sim2-avg-dot" />Industry average</span>
+                <span><i className="sim2-avg-dot sim2-avg-dot--infra" />Conversion infrastructure</span>
+              </div>
               <div className="sim2-baseline-summary">
                 <div>
                   <span>Current baseline</span>
                   <strong>{baselineSummary}</strong>
                   <small>{systemBaselineSummary}</small>
                 </div>
-              </div>
-              <div className="sim2-avg-legend">
-                <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>
-                <span><i className="sim2-avg-dot" />Industry average</span>
-                <span><i className="sim2-avg-dot sim2-avg-dot--infra" />Conversion infrastructure</span>
               </div>
             </div>
             <p className="sim2-disclaimer sim2-disclaimer--grid">
