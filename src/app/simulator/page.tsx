@@ -946,7 +946,7 @@ function SimulatorInner() {
                 </div>
                 <div className="sim2-actions sim2-actions--reveal">
                   <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Call</BookCallButton>
-                  <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get report by email</button>
+                  <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get more info</button>
                 </div>
               </div>
               <div className="sim2-reveal__charts">
@@ -1030,8 +1030,8 @@ function SimulatorInner() {
               <form className="sim2-report-modal" onSubmit={handleReportSubmit} onClick={e => e.stopPropagation()}>
                 <div className="sim2-report-modal__head">
                   <div>
-                    <span className="sim2-section-hd">Email report</span>
-                    <h2>Get your diagnostic and next steps</h2>
+                    <span className="sim2-section-hd">Get your report and the next steps</span>
+                    <h2>We will send you more info on how you can reduce the revenue leak</h2>
                   </div>
                   <button
                     type="button"
@@ -1084,7 +1084,7 @@ function SimulatorInner() {
                       className="sim2-primary-cta sim2-primary-cta--pink sim2-report-submit"
                       disabled={reportStatus === 'submitting'}
                     >
-                      {reportStatus === 'submitting' ? 'Sending report...' : 'Send my report'}
+                      {reportStatus === 'submitting' ? 'Sending...' : 'Get more info'}
                     </button>
                   </>
                 )}
