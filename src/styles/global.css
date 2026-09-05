@@ -109,19 +109,19 @@
   --transition-slow: 400ms cubic-bezier(0.2,0,0,1);
 
   /* ── Compatibility aliases (old variable names → P&A values) ── */
-  --color-bg: var(--paper);
-  --color-bg-secondary: var(--paper-alt);
-  --color-bg-tertiary: var(--paper-mint);
+  --color-bg: var(--navy-deep);
+  --color-bg-secondary: var(--navy);
+  --color-bg-tertiary: var(--navy-raised);
   --color-accent-cyan: var(--mint);
   --color-accent-green: var(--mint);
   --color-accent-amber: var(--pink);
-  --color-text: var(--ink);
-  --color-text-muted: var(--ink-quiet);
-  --color-text-dim: var(--text-muted);
-  --color-border: var(--border-hairline);
+  --color-text: var(--text-on-dark);
+  --color-text-muted: var(--text-on-dark-secondary);
+  --color-text-dim: rgba(168,188,203,0.55);
+  --color-border: var(--navy-line);
   --color-border-active: rgba(61,202,177,0.4);
-  --color-card: var(--paper-raised);
-  --color-card-hover: var(--paper-alt);
+  --color-card: var(--navy-raised);
+  --color-card-hover: #0e445f;
   --color-success: var(--mint);
   --color-warning: var(--pink);
   --color-danger: var(--pink);
@@ -142,8 +142,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; }
 body {
-  background-color: var(--paper);
-  color: var(--ink);
+  background-color: var(--navy-deep);
+  color: var(--text-on-dark);
   font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.6;
@@ -203,17 +203,22 @@ pre {
   padding-bottom: 72px;
 }
 
-/* Header — Paper & Acid */
+/* Header — dark navy, consistent across all pages */
 .header {
   position: fixed;
   top: 0; left: 0; right: 0;
   height: var(--header-height);
-  background: var(--paper-raised);
-  border-bottom: var(--border);
-  box-shadow: 0 2px 0 var(--ink);
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-line);
   z-index: 100;
   display: flex;
   align-items: center;
+}
+
+/* On the landing page, make header fully transparent so it merges with the hero */
+body:has(.landing-page) .header {
+  background: transparent;
+  border-bottom-color: transparent;
 }
 .header__inner {
   position: relative;
@@ -3824,13 +3829,15 @@ pre {
   display: flex;
   height: 100dvh;
   overflow: hidden;
+  background-color: var(--navy-deep);
+  color: var(--text-on-dark);
 }
 
 /* ── Left panel ── */
 .sim2-left {
   width: 390px;
   min-width: 390px;
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--navy-line);
   overflow-y: auto;
   padding: 1.35rem 1.25rem 2rem;
   display: flex;
@@ -4790,7 +4797,7 @@ pre {
 
 @media (max-width: 1024px) {
   .sim2-shell { flex-direction: column; height: auto; overflow: visible; }
-  .sim2-left { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--color-border); }
+  .sim2-left { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--navy-line); }
   .sim2-charts-grid { grid-template-columns: 1fr 1fr; }
   .sim2-reveal { flex-wrap: wrap; }
   .sim2-reveal__stats { border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem; }
@@ -4818,7 +4825,8 @@ pre {
   padding: 1.25rem;
   background:
     radial-gradient(circle at 18% 12%, rgba(61,202,177,0.12), transparent 32%),
-    radial-gradient(circle at 84% 78%, rgba(232,62,140,0.07), transparent 28%);
+    radial-gradient(circle at 84% 78%, rgba(232,62,140,0.07), transparent 28%),
+    var(--navy-deep);
 }
 .sim2-setup {
   width: min(100%, 760px);
@@ -5098,7 +5106,8 @@ pre {
   display: block;
   background:
     radial-gradient(circle at 20% 0%, rgba(61,202,177,0.08), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,0.025), transparent 26%);
+    linear-gradient(180deg, rgba(255,255,255,0.025), transparent 26%),
+    var(--navy-deep);
 }
 .sim2-workspace {
   height: 100%;
