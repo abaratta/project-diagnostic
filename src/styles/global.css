@@ -2651,6 +2651,7 @@ pre {
   isolation: isolate;
   min-height: calc(100vh - var(--header-height));
   overflow: hidden;
+  background: var(--navy-deep);
 }
 
 .landing-wrapper {
@@ -2666,7 +2667,7 @@ pre {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--mint);
   margin-bottom: 1rem;
 }
 .landing-title {
@@ -2677,13 +2678,14 @@ pre {
   line-height: 0.96;
   letter-spacing: 0;
   margin-bottom: 4rem;
-  text-shadow: 0 18px 48px rgba(0,0,0,0.5);
+  color: var(--text-on-dark);
+  text-shadow: none;
 }
 .landing-sub {
   max-width: 660px;
   margin: 0 auto 6rem;
   font-size: 1.5rem;
-  color: rgba(224,230,240,0.76);
+  color: var(--text-on-dark-secondary);
   line-height: 1.55;
 }
 .landing-measures {
@@ -2751,19 +2753,19 @@ pre {
 .landing-glass-btn__label {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--text-on-dark);
   letter-spacing: 0.01em;
   padding: 0.65rem 0.9rem 0.65rem 1.1rem;
 }
 .landing-glass-btn__divider {
   width: 1px;
   align-self: stretch;
-  background: rgba(61,202,177,0.28);
+  background: rgba(61,202,177,0.35);
   flex-shrink: 0;
 }
 .landing-glass-btn__sub {
   font-size: 0.95rem;
-  color: rgba(224,230,240,0.68);
+  color: var(--text-on-dark-secondary);
   padding: 0.65rem 0.75rem 0.65rem 0.75rem;
 }
 .landing-glass-btn__arrow {
@@ -2917,8 +2919,8 @@ pre {
 
 .landing-dotted-surface {
   z-index: 0;
-  opacity: 0.28;
-  mix-blend-mode: screen;
+  opacity: 0.18;
+  mix-blend-mode: soft-light;
 }
 
 @media (max-width: 720px) {
