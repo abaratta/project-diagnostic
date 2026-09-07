@@ -47,9 +47,9 @@
   --text-on-mint: var(--ink);
 
   /* Semantic border — dark-theme defaults */
-  --border-strong: rgba(61,202,177,0.35);
-  --border-hairline: rgba(61,202,177,0.18);
-  --border-on-dark: rgba(61,202,177,0.35);
+  --border-strong: var(--navy-line);
+  --border-hairline: rgba(20,80,111,0.55);
+  --border-on-dark: rgba(20,80,111,0.55);
 
   /* CTA */
   --cta-bg: var(--mint);
@@ -318,17 +318,17 @@ body:has(.landing-page) .header {
   min-height: 40px;
 }
 
-/* Cards */
+/* Cards — P&A onDark: navy-line border, no shadow at rest */
 .card {
   background: var(--navy-raised);
-  border: var(--border);
+  border: 2px solid var(--navy-line);
   border-radius: var(--radius-md);
   padding: 1.5rem;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
   color: var(--text-on-dark);
-  transition: box-shadow var(--transition-base), background var(--transition-base);
+  transition: box-shadow var(--transition-base), background var(--transition-base), border-color var(--transition-base);
 }
-.card:hover { background: var(--color-card-hover); box-shadow: var(--shadow-panel); }
+.card:hover { background: var(--color-card-hover); border-color: rgba(61,202,177,0.4); }
 .card--active { border-color: var(--mint); box-shadow: var(--shadow-card); }
 .card--glow-cyan { border-color: rgba(61,202,177,0.45); }
 .card--glow-green { border-color: rgba(61,202,177,0.45); }
@@ -4852,12 +4852,12 @@ body:has(.landing-page) .header {
   position: relative;
   overflow: hidden;
   padding: clamp(1.4rem, 3vw, 2.1rem);
-  border: 1px solid rgba(61,202,177,0.4);
+  border: 2px solid var(--navy-line);
   border-radius: var(--radius-card);
   background:
-    linear-gradient(135deg, rgba(61,202,177,0.11), rgba(255,255,255,0.035) 42%, rgba(255,255,255,0.02)),
+    linear-gradient(135deg, rgba(61,202,177,0.07), rgba(255,255,255,0.02) 42%, rgba(255,255,255,0.01)),
     rgba(12,18,28,0.94);
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 }
 .sim2-setup-progress-row {
   display: flex;
@@ -4936,10 +4936,10 @@ body:has(.landing-page) .header {
   gap: 0.35rem;
   min-height: 5.2rem;
   padding: 1rem;
-  border: 1px solid rgba(61,202,177,0.35);
+  border: 2px solid var(--navy-line);
   border-radius: var(--radius-card);
-  background: rgba(255,255,255,0.035);
-  box-shadow: var(--shadow-pressed);
+  background: rgba(255,255,255,0.03);
+  box-shadow: none;
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
@@ -4947,16 +4947,15 @@ body:has(.landing-page) .header {
 }
 @media (hover: hover) {
   .sim2-preset-card:hover {
-    border-color: var(--mint);
-    background: rgba(61,202,177,0.09);
-    box-shadow: var(--shadow-card);
-    transform: translate(-2px, -2px);
+    border-color: rgba(61,202,177,0.5);
+    background: rgba(61,202,177,0.06);
+    transform: translate(-1px, -1px);
   }
 }
 .sim2-preset-card--active {
   border-color: var(--mint);
   background: rgba(61,202,177,0.09);
-  box-shadow: var(--shadow-card);
+  box-shadow: 5px 6px 0 var(--mint);
   transform: translate(-2px, -2px);
 }
 .sim2-preset-card span {
