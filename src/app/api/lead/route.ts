@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * Simulator lead → GoHighLevel.
- * 1. Upsert the contact (name, email, phone, Profile custom field) — no tags here,
- *    because upsert *replaces* a contact's tags.
- * 2. Add the "simulator" tag with the Add Tags endpoint, which keeps existing tags.
- * 3. Add the values they entered as a note.
+ * Simulator lead → Make scenario "PAL simulator to GHL" (same pattern as the sales demo).
+ * The scenario upserts the GHL contact with the Profile custom field, adds the "simulator" tag
+ * via Add Tags (so existing tags are kept) and adds the entered values as a note.
+ *
+ * Env: MAKE_WEBHOOK_URL (the scenario's custom webhook), MAKE_WEBHOOK_SECRET (checked by the
+ * scenario's first filter so only this site can trigger it).
  */
 
-const GHL_BASE = 'https://services.leadconnectorhq.com'
-const GHL_VERSION = process.env.GHL_API_VERSION ?? 'v3'
-const TAG = 'simulator'
-const PROFILES = ['Founder', 'Agency', 'Small Business', 'Professional Service'] as const
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const TIMEOUT_MS = 10000
+
+/** Site profile label → exact option value of the GHL "Profile" dropdown. */
+const PROFILE_TO_GHL: Record<string, string> = {
+  'Founder': 'Founder',
+  'Agency': 'Agency',
+  'Small Business': 'Small business',
+  'Professional Service': 'Professional Service',
+}
 
 type LeadBody = {
   name?: unknown
@@ -20,26 +26,6 @@ type LeadBody = {
   phone?: unknown
   profile?: unknown
   values?: unknown
-}
-
-function ghlHeaders(token: string) {
-  return {
-    Authorization: `Bearer ${token}`,
-    Version: GHL_VERSION,
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  }
-}
-
-async function ghl(path: string, token: string, body: unknown) {
-  const res = await fetch(`${GHL_BASE}${path}`, {
-    method: 'POST',
-    headers: ghlHeaders(token),
-    body: JSON.stringify(body),
-  })
-  const json = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(`GHL ${path} → ${res.status}: ${JSON.stringify(json).slice(0, 300)}`)
-  return json
 }
 
 function splitName(full: string) {
@@ -58,51 +44,59 @@ export async function POST(req: NextRequest) {
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 120) : ''
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase().slice(0, 200) : ''
   const phone = typeof body.phone === 'string' ? body.phone.trim().slice(0, 40) : ''
-  const profile = PROFILES.find(p => p === body.profile)
+  const profile = typeof body.profile === 'string' ? PROFILE_TO_GHL[body.profile] ?? '' : ''
   const values = body.values && typeof body.values === 'object' ? body.values as Record<string, unknown> : {}
 
   if (!name) return NextResponse.json({ ok: false, error: 'Enter your name.' }, { status: 400 })
   if (!EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: 'Enter a valid email address.' }, { status: 400 })
 
-  const token = process.env.GHL_API_KEY
-  const locationId = process.env.GHL_LOCATION_ID
-  const profileFieldId = process.env.GHL_PROFILE_FIELD_ID
-  if (!token || !locationId) {
-    console.error('[lead] GHL_API_KEY or GHL_LOCATION_ID is not set')
+  const url = process.env.MAKE_WEBHOOK_URL
+  if (!url) {
+    console.warn('[lead] MAKE_WEBHOOK_URL not set; lead not sent to GHL')
     return NextResponse.json({ ok: false, error: 'Lead capture is not configured' }, { status: 500 })
   }
 
-  try {
-    // 1. Upsert contact (no tags — see header comment)
-    const upsert = await ghl('/contacts/upsert', token, {
-      locationId,
-      ...splitName(name),
-      name,
-      email,
-      ...(phone ? { phone } : {}),
-      source: 'Revenue Simulator',
-      ...(profile && profileFieldId ? { customFields: [{ id: profileFieldId, fieldValue: profile }] } : {}),
-    })
-    const contactId: string | undefined = upsert?.contact?.id
-    if (!contactId) throw new Error('GHL upsert returned no contact id')
+  // Make drops these straight into the GHL request body, so send them pre-escaped as a JSON fragment.
+  const contactFields = JSON.stringify({
+    ...splitName(name),
+    name,
+    email,
+    ...(phone ? { phone } : {}),
+  }).slice(1, -1)
 
-    // 2. Add tag without touching existing ones
-    await ghl(`/contacts/${contactId}/tags`, token, { tags: [TAG] })
-
-    // 3. Note with the values they entered
-    const lines = Object.entries(values)
+  const note = [
+    'Revenue Simulator submission',
+    `Profile: ${profile || 'Not selected'}`,
+    ...Object.entries(values)
       .filter(([, v]) => typeof v === 'string' || typeof v === 'number')
-      .map(([k, v]) => `${k}: ${v}`)
-    const noteBody = [
-      'Revenue Simulator submission',
-      `Profile: ${profile ?? 'Not selected'}`,
-      ...lines,
-    ].join('\n')
-    await ghl(`/contacts/${contactId}/notes`, token, { body: noteBody })
+      .map(([k, v]) => `${k}: ${v}`),
+  ].join('\n')
 
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error('[lead]', err instanceof Error ? err.message : err)
-    return NextResponse.json({ ok: false, error: 'Could not save your details' }, { status: 502 })
+  const payload = JSON.stringify({
+    name,
+    email,
+    phone,
+    profile,
+    contactFields,
+    note,
+    secret: process.env.MAKE_WEBHOOK_SECRET ?? '',
+  })
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      })
+      if (res.ok) return NextResponse.json({ ok: true })
+      console.error(`[lead] Make responded ${res.status} (attempt ${attempt})`)
+      if (res.status < 500 && res.status !== 429) break
+    } catch (err) {
+      console.error(`[lead] Make request failed (attempt ${attempt})`, err)
+    }
+    if (attempt === 1) await new Promise(r => setTimeout(r, 600))
   }
+  return NextResponse.json({ ok: false, error: 'Could not save your details' }, { status: 502 })
 }
