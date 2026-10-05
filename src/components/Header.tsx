@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import clsx from 'clsx'
 import { setVaultUnlocked } from '@/lib/vaultSession'
 
 const BACK_HREFS: Record<string, string> = {
@@ -18,23 +16,12 @@ const HIDDEN_ON = ['/gate', '/results', '/special-offer', '/simulator']
 export function Header() {
   const pathname = usePathname()
   const backHref = BACK_HREFS[pathname] ?? null
-  const overHero = pathname === '/'
-  const [scrolledPastHero, setScrolledPastHero] = useState(false)
-  const solid = !overHero || scrolledPastHero
-
-  // Transparent over the landing photo, frosted light bar once the story starts.
-  useEffect(() => {
-    if (!overHero) return
-    const onScroll = () => setScrolledPastHero(window.scrollY > window.innerHeight * 0.75)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [overHero])
+  const isLanding = pathname === '/'
 
   if (HIDDEN_ON.includes(pathname)) return null
 
   return (
-    <header className={clsx('header', overHero && 'header--over-hero', solid && 'header--solid')}>
+    <header className="header">
       <div className="header__inner">
         <div className="header__left">
           {backHref && (
@@ -55,11 +42,10 @@ export function Header() {
             )
           )}
           <Link href="/" className="header__logo" aria-label="Profit AI Lab — home">
-            <Image src="/brand/logo-full.png" alt="Profit AI Lab" fill sizes="106px" priority className="header__logo-img header__logo-img--dark" />
-            <Image src="/brand/logo-white.png" alt="" fill sizes="106px" priority className="header__logo-img header__logo-img--light" />
+            <Image src="/brand/logo-full.png" alt="Profit AI Lab" fill sizes="106px" priority className="header__logo-img" />
           </Link>
         </div>
-        {overHero && (
+        {isLanding && (
           <Link href="/simulator" onClick={() => setVaultUnlocked()} className="header__pill">
             Calculate now
           </Link>
