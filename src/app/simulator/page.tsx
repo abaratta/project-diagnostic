@@ -149,6 +149,11 @@ function barPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: number,
   ctx.closePath()
 }
 
+/** Canvas can't read CSS variables, so borrow the body font that next/font resolved. */
+function canvasFont() {
+  return typeof document === 'undefined' ? 'sans-serif' : getComputedStyle(document.body).fontFamily
+}
+
 function drawBarChart(
   canvas: HTMLCanvasElement,
   nowVal: number,
@@ -178,10 +183,10 @@ function drawBarChart(
   const rapH  = (rapidVal / maxVal) * maxBarH
 
   // Without conversion system bar
-  ctx.fillStyle = '#1c2e3e'
+  ctx.fillStyle = 'rgba(0,43,67,0.14)'
   barPath(ctx, startX, baseY - nowH, barW, nowH, 4)
   ctx.fill()
-  ctx.fillStyle = 'rgba(255,255,255,0.15)'
+  ctx.fillStyle = 'rgba(0,43,67,0.15)'
   barPath(ctx, startX, baseY - nowH, barW, nowH, 4)
   ctx.fill()
 
@@ -197,13 +202,13 @@ function drawBarChart(
   if (nowConv != null || rapidConv != null) {
     ctx.textAlign    = 'center'
     ctx.textBaseline = 'middle'
-    ctx.font         = '700 10px Inter, sans-serif'
+    ctx.font         = `700 10px ${canvasFont()}`
     if (nowConv != null && nowH > 20) {
-      ctx.fillStyle = 'rgba(255,255,255,0.55)'
+      ctx.fillStyle = 'rgba(0,43,67,0.55)'
       ctx.fillText(fmtD(nowConv, 1) + '%', startX + barW / 2, baseY - nowH / 2)
     }
     if (rapidConv != null && rapH > 20) {
-      ctx.fillStyle = 'rgba(255,255,255,0.85)'
+      ctx.fillStyle = 'rgba(0,43,67,0.85)'
       ctx.fillText(fmtD(rapidConv, 1) + '%', startX + barW + gap + barW / 2, baseY - rapH / 2)
     }
   }
@@ -211,18 +216,18 @@ function drawBarChart(
   // Values above bars
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'bottom'
-  ctx.font      = isMoney ? '800 15px Inter, sans-serif' : '800 14px Inter, sans-serif'
-  ctx.fillStyle = 'rgba(255,255,255,0.78)'
+  ctx.font      = isMoney ? `800 15px ${canvasFont()}` : `800 14px ${canvasFont()}`
+  ctx.fillStyle = 'rgba(0,43,67,0.78)'
   if (nowH > 0) ctx.fillText(fv(nowVal),   startX + barW / 2,                   baseY - nowH - 4)
-  ctx.fillStyle = '#3dcab1'
+  ctx.fillStyle = '#127c6b'
   if (rapH > 0) ctx.fillText(fv(rapidVal), startX + barW + gap + barW / 2, baseY - rapH - 4)
 
   // Labels below bars
   ctx.textBaseline = 'top'
-  ctx.font         = '700 9px Inter, sans-serif'
-  ctx.fillStyle    = 'rgba(255,255,255,0.45)'
+  ctx.font         = `700 9px ${canvasFont()}`
+  ctx.fillStyle    = 'rgba(0,43,67,0.45)'
   if (nowH > 0) ctx.fillText(nowLegend, startX + barW / 2, baseY + 6)
-  ctx.fillStyle = '#7ee1d0'
+  ctx.fillStyle = '#127c6b'
   if (rapH > 0) ctx.fillText(rapidLegend, startX + barW + gap + barW / 2, baseY + 6)
 }
 
@@ -238,7 +243,7 @@ function drawDonut(
   const [ctx, W, H] = setup
   ctx.clearRect(0, 0, W, H)
 
-  const COLORS = { leadManagement: '#2a6f97', savings: '#e83e8c', leadGeneration: '#17364f' }
+  const COLORS = { leadManagement: '#2a6f97', savings: '#e6356b', leadGeneration: '#17364f' }
   const total = remainTimeCost + timeSaved + adSpend
 
   const cx = W * 0.38
@@ -250,12 +255,12 @@ function drawDonut(
   if (total <= 0) {
     ctx.beginPath()
     ctx.arc(cx, cy, (outerR + innerR) / 2, 0, Math.PI * 2)
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+    ctx.strokeStyle = 'rgba(0,43,67,0.06)'
     ctx.lineWidth   = lineW
     ctx.stroke()
     ctx.lineWidth = 1
-    ctx.fillStyle = 'rgba(255,255,255,0.2)'
-    ctx.font = '600 10px Inter, sans-serif'
+    ctx.fillStyle = 'rgba(0,43,67,0.2)'
+    ctx.font = `600 10px ${canvasFont()}`
     ctx.textAlign    = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('No cost data', cx, cy)
@@ -285,12 +290,12 @@ function drawDonut(
   // Center text
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillStyle    = '#ffffff'
+  ctx.fillStyle    = '#002b43'
   const fontSize = Math.round(Math.min(outerR * 0.38, 18))
-  ctx.font = `800 ${fontSize}px Inter, sans-serif`
+  ctx.font = `800 ${fontSize}px ${canvasFont()}`
   ctx.fillText('$' + fmt(centerCost), cx, cy - 8)
-  ctx.fillStyle = 'rgba(255,255,255,0.38)'
-  ctx.font      = '500 9px Inter, sans-serif'
+  ctx.fillStyle = 'rgba(0,43,67,0.38)'
+  ctx.font      = `500 9px ${canvasFont()}`
   ctx.fillText('spend/mo now', cx, cy + 9)
 
   // Right-side legend
@@ -308,13 +313,13 @@ function drawDonut(
     const y = legStartY + i * legH
     ctx.fillStyle = item.color
     ctx.fillRect(legX, y, 8, 8)
-    ctx.fillStyle    = 'rgba(255,255,255,0.6)'
-    ctx.font         = '600 9px Inter, sans-serif'
+    ctx.fillStyle    = 'rgba(0,43,67,0.6)'
+    ctx.font         = `600 9px ${canvasFont()}`
     ctx.textAlign    = 'left'
     ctx.textBaseline = 'top'
     ctx.fillText(item.name, legX + 12, y)
     ctx.fillStyle = item.color
-    ctx.font      = '700 10px Inter, sans-serif'
+    ctx.font      = `700 10px ${canvasFont()}`
     ctx.fillText(item.val,  legX + 12, y + 11)
   })
 
@@ -330,8 +335,8 @@ function drawDonut(
   for (const b of bots) {
     ctx.fillStyle = b.color
     ctx.beginPath(); ctx.arc(bx + 3, botY, 3, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
-    ctx.font      = '500 9px Inter, sans-serif'
+    ctx.fillStyle = 'rgba(0,43,67,0.4)'
+    ctx.font      = `500 9px ${canvasFont()}`
     ctx.textAlign = 'left'
     ctx.fillText(b.label, bx + 10, botY)
     bx += ctx.measureText(b.label).width + 24
@@ -674,7 +679,7 @@ function SimulatorInner() {
     if (!el) throw new Error('Report area is not available')
     return toJpeg(el, {
       quality: 0.93,
-      backgroundColor: '#0e1117',
+      backgroundColor: '#f3f6fa',
       cacheBust: true,
       filter: node => !(node instanceof HTMLElement && node.classList.contains('sim2-report-overlay')),
     })

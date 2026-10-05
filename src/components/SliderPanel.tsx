@@ -25,7 +25,7 @@ function RefTick({ pct, label }: { pct: number; label: string }) {
       <div style={{
         width: '1px',
         height: '5px',
-        background: 'rgba(255,255,255,0.18)',
+        background: 'rgba(0,43,67,0.18)',
         borderRadius: '1px',
       }} />
       <span style={{

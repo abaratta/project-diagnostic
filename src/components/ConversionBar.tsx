@@ -29,7 +29,7 @@ export function ConversionBar({ currentRate, improvedRate }: Props) {
           top: 0,
           bottom: 0,
           width: '2px',
-          background: 'rgba(255,255,255,0.25)',
+          background: 'rgba(0,43,67,0.25)',
           zIndex: 2,
         }} />
         {/* Animated fill */}
