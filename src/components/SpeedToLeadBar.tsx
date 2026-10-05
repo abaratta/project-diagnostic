@@ -4,11 +4,11 @@ import { motion } from 'framer-motion'
 import { useFivePStore } from '@/store/useFivePStore'
 
 const SEGMENTS = [
-  { label: 'Days',    mult: '1×',  color: '#FF4D6A' },
-  { label: 'Hours',   mult: '2×',  color: '#FF8C42' },
-  { label: '30 min',  mult: '4×',  color: '#e6356b' },
-  { label: '5 min',   mult: '7×',  color: '#7BFF6B' },
-  { label: '< 5 min', mult: '9×',  color: '#00FF88' },
+  { label: 'Days',    mult: '1×',  color: '#c22456' },
+  { label: 'Hours',   mult: '2×',  color: '#e6356b' },
+  { label: '30 min',  mult: '4×',  color: '#f08a5d' },
+  { label: '5 min',   mult: '7×',  color: '#3dcab1' },
+  { label: '< 5 min', mult: '9×',  color: '#1f9d88' },
 ]
 
 // Map pace slider (0–100) to segment index 0–4

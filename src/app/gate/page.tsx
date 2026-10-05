@@ -128,7 +128,7 @@ export default function GatePage() {
 
         {/* Headline */}
         <h1 style={{ fontSize: 'clamp(1.625rem, 4vw, 2.25rem)', marginBottom: '0.5rem' }}>
-          You're leaving <span style={{ color: '#3dcab1' }}>${Math.round(annualGain).toLocaleString()}/year</span> on the table.
+          You're leaving <span style={{ color: 'var(--mint-text)' }}>${Math.round(annualGain).toLocaleString()}/year</span> on the table.
         </h1>
         <p className="gate-sub-headline">
           We've analysed your business and found a significant untapped opportunity. Review full report below.
@@ -154,7 +154,7 @@ export default function GatePage() {
 
           <div style={{ position: 'relative' }}>
             {/* Axis line */}
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: '35%', width: '1px', background: 'rgba(243,246,250,0.1)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: '35%', width: '1px', background: 'rgba(0,43,67,0.1)', pointerEvents: 'none' }} />
 
             {/* REVENUE */}
             <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>Revenue</div>
@@ -162,11 +162,11 @@ export default function GatePage() {
             {/* Current → right (grey) */}
             <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
+                <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Current</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                <div style={{ height: '8px', width: `${currentRevPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <div style={{ height: '8px', width: `${currentRevPct * 0.55}%`, background: 'rgba(0,43,67,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(0,43,67,0.62)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                   {revenueSnapshot > 0 ? `$${revenueSnapshot.toLocaleString()}/mo` : '—'}
                 </span>
               </div>
@@ -175,11 +175,11 @@ export default function GatePage() {
             {/* Potential → right (grey) */}
             <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
+                <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Potential</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                <div style={{ height: '8px', width: '55%', background: 'rgba(243,246,250,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <div style={{ height: '8px', width: '55%', background: 'rgba(0,43,67,0.22)', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
+                <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'rgba(0,43,67,0.62)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                   {improvedRevenueSnapshot > 0 ? `$${improvedRevenueSnapshot.toLocaleString()}/mo` : '—'}
                 </span>
               </div>
@@ -189,11 +189,11 @@ export default function GatePage() {
             {monthlyGain > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Benefit</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Benefit</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                   <div style={{ height: '8px', width: `${Math.min(Math.round(monthlyGain / snapRef * 100) * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'var(--mint-text)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     +${Math.round(monthlyGain).toLocaleString()}/mo
                   </span>
                 </div>
@@ -209,13 +209,13 @@ export default function GatePage() {
             {totalCostSnapshot > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
-                  <div style={{ height: '8px', width: `${costBarPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <div style={{ height: '8px', width: `${costBarPct * 0.55}%`, background: 'rgba(0,43,67,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.875rem', color: 'rgba(0,43,67,0.62)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     −${totalCostSnapshot.toLocaleString()}/mo
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Current</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Current</span>
                 </div>
               </div>
             )}
@@ -224,13 +224,13 @@ export default function GatePage() {
             {autoSavings > 0 && potentialCostSnapshot > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '0.55rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', alignItems: 'center', paddingRight: '10px', gap: '8px' }}>
-                  <div style={{ height: '8px', width: `${potCostPct * 0.55}%`, background: 'rgba(243,246,250,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.875rem', color: 'rgba(243,246,250,0.45)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <div style={{ height: '8px', width: `${potCostPct * 0.55}%`, background: 'rgba(0,43,67,0.22)', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.875rem', color: 'rgba(0,43,67,0.62)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     −${potentialCostSnapshot.toLocaleString()}/mo
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Potential</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Potential</span>
                 </div>
               </div>
             )}
@@ -239,11 +239,11 @@ export default function GatePage() {
             {autoSavings > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'rgba(243,246,250,0.4)' }}>Recoverable</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'rgba(0,43,67,0.62)' }}>Recoverable</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                   <div style={{ height: '8px', width: `${Math.min(savingsBarPct * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
-                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: '#3dcab1', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <span style={{ marginLeft: '8px', fontSize: '0.875rem', color: 'var(--mint-text)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     +${Math.round(autoSavings).toLocaleString()}/mo
                   </span>
                 </div>
@@ -255,15 +255,15 @@ export default function GatePage() {
             {/* Opportunity → right (teal, at scale) */}
             <div style={{ display: 'grid', gridTemplateColumns: '35% 65%', alignItems: 'center', marginTop: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px' }}>
-                <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'rgba(243,246,250,0.6)' }}>Opportunity</span>
+                <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'rgba(0,43,67,0.78)' }}>Opportunity</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                 <div style={{ height: '8px', width: `${Math.min(Math.round(totalMonthly / snapRef * 100) * 1.025, 88)}%`, background: '#3dcab1', borderRadius: '0 4px 4px 0', flexShrink: 0 }} />
                 <div style={{ marginLeft: '8px', flexShrink: 0 }}>
                   {totalMonthly > 0 ? (
-                    <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#3dcab1', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--mint-text)', whiteSpace: 'nowrap' }}>
                       {`+$${Math.round(totalMonthly).toLocaleString()}/mo `}
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'rgba(243,246,250,0.5)' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'rgba(0,43,67,0.62)' }}>
                         {`($${Math.round(annualGain).toLocaleString()}/year)`}
                       </span>
                     </span>

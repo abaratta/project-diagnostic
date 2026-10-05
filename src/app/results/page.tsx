@@ -209,7 +209,7 @@ export default function ResultsPage() {
               </tr>
               {lmCost > 0 && (
                 <tr>
-                  <td style={{ color: '#3dcab1' }}>Time cost / month</td>
+                  <td style={{ color: 'var(--mint-text)' }}>Time cost / month</td>
                   <td>${Math.round(lmCost).toLocaleString()}</td>
                   <td className="rr-td-rapid">${Math.round(lmCost - autoSavings).toLocaleString()}</td>
                   <td className="rr-td-save">−${Math.round(autoSavings).toLocaleString()}</td>
