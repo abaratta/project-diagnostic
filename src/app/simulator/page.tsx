@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, Suspense, type FormEvent } fr
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { isVaultUnlocked } from '@/lib/vaultSession'
-import { toJpeg } from 'html-to-image'
 import { BookCallButton } from '@/components/BookCallButton'
 
 /* ─── Constants ──────────────────────────────────────────────────── */
@@ -47,7 +46,7 @@ const SETUP_STEPS = [
   { eyebrow: 'Step 2 of 5', title: 'Confirm your numbers', copy: 'These three numbers estimate what your leads are worth today.' },
   { eyebrow: 'Step 3 of 5', title: 'Add your current costs', copy: 'This helps the simulator show where time and ad spend are being used.' },
   { eyebrow: 'Step 4 of 5', title: 'How does your lead handling work today?', copy: 'Set your current response speed, personalisation, and automation level so the simulator shows you the revenue leak relative to where you actually are — not a generic baseline.' },
-  { eyebrow: 'Step 5 of 5', title: 'Now see what the gaps are costing you.', copy: 'Discover the revenue impact of slower response, generic follow-up, and manual admin.' },
+  { eyebrow: 'Step 5 of 5', title: 'Now see what the gaps are costing you.', copy: 'Tell us where to send your results, then reveal the revenue impact of slower response, generic follow-up, and manual admin.' },
 ] as const
 
 const MATURITY_OPTIONS = [
@@ -106,15 +105,17 @@ const TOUR_STEPS: { target: TourTarget; title: string; copy: string }[] = [
   {
     target: 'actions',
     title: 'Decide what to do next.',
-    copy: 'If the revenue leak feels worth fixing, save the report or book a call to work through what\'s causing it and whether the Lead-to-Revenue System™ is the right fit.',
+    copy: 'If the revenue leak feels worth fixing, watch the demo or book a call to work through what\'s causing it and whether the Lead-to-Revenue System™ is the right fit.',
   },
 ]
+
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL ?? 'https://demo.profitailab.com'
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 function fmt(n: number)                  { return Math.round(n).toLocaleString() }
 function fmtD(n: number, d = 1)          { return n.toFixed(d) }
 function sign(n: number, pfx = '')       { return (n >= 0 ? '+' : '') + pfx + fmt(Math.abs(Math.round(n))) }
-function dataUrlToBase64(dataUrl: string) { return dataUrl.split(',')[1] ?? dataUrl }
 function optionLabel(options: readonly { value: number; label: string }[], value: number) {
   return options.find(option => option.value === value)?.label ?? ''
 }
@@ -492,17 +493,15 @@ function SimulatorInner() {
     if (!isVaultUnlocked() && !hasUrlKey) { router.replace('/'); return }
   }, [router, searchParams])
 
-  // Meta
-  const date = new Date().toISOString().slice(0, 10)
   const [toast,    setToast]    = useState('')
   const [setupMode, setSetupMode] = useState<SetupMode>('setup')
   const [setupStep, setSetupStep] = useState(0)
   const [baselineDrawerOpen, setBaselineDrawerOpen] = useState(false)
-  const [reportOpen, setReportOpen] = useState(false)
-  const [reportName, setReportName] = useState('')
-  const [reportEmail, setReportEmail] = useState('')
-  const [reportStatus, setReportStatus] = useState<'idle' | 'submitting' | 'sent'>('idle')
-  const [reportError, setReportError] = useState('')
+  const [leadName, setLeadName] = useState('')
+  const [leadEmail, setLeadEmail] = useState('')
+  const [leadPhone, setLeadPhone] = useState('')
+  const [leadStatus, setLeadStatus] = useState<'idle' | 'submitting' | 'saved'>('idle')
+  const [leadError, setLeadError] = useState('')
 
   // Inputs
   const [leadsStr, setLeadsStr] = useState('30')
@@ -512,6 +511,7 @@ function SimulatorInner() {
   const [hourStr,  setHourStr]  = useState('40')
   const [adSpendStr, setAdSpendStr] = useState('700')
   const [selectedPreset, setSelectedPreset] = useState<PresetId>('founder')
+  const [profile, setProfile] = useState<string>(PRESETS[0].label)
   const [baselinePaceVal, setBaselinePaceVal] = useState(0)
   const [baselinePersonVal, setBaselinePersonVal] = useState(0)
   const [baselineAutoVal, setBaselineAutoVal] = useState(0)
@@ -522,7 +522,6 @@ function SimulatorInner() {
 
   // Canvas refs
   const revenueCanvasRef = useRef<HTMLCanvasElement>(null)
-  const rightPanelRef    = useRef<HTMLElement>(null)
 
   // Animated DOM refs
   const annualRef    = useRef<HTMLSpanElement>(null)
@@ -577,6 +576,7 @@ function SimulatorInner() {
     setHourStr(preset.values.hourly)
     setAdSpendStr(preset.values.adSpend)
     setSelectedPreset(preset.id)
+    setProfile(preset.label)
   }
 
   const setCustom = (setter: (v: string) => void) => (value: string) => {
@@ -588,9 +588,6 @@ function SimulatorInner() {
   const setupProgress = ((setupStep + 1) / SETUP_STEPS.length) * 100
   const baselineSummary = `${fmt(leads)} leads/mo · ${fmtD(conv, conv % 1 === 0 ? 0 : 1)}% convert · $${fmt(revenue)} value`
   const systemBaselineSummary = `${optionLabel(MATURITY_OPTIONS, baselinePaceVal)} · ${optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal)} · ${optionLabel(AUTOMATION_OPTIONS, baselineAutoVal)}`
-  const businessType = selectedPreset === 'custom'
-    ? 'Custom'
-    : PRESETS.find(preset => preset.id === selectedPreset)?.label ?? 'Custom'
 
   const goToSimulator = () => {
     setSetupMode('simulator')
@@ -674,102 +671,56 @@ function SimulatorInner() {
     return () => cancelAnimationFrame(rafId)
   }, [])
 
-  const captureReportImage = useCallback(async () => {
-    const el = rightPanelRef.current
-    if (!el) throw new Error('Report area is not available')
-    return toJpeg(el, {
-      quality: 0.93,
-      backgroundColor: '#f3f6fa',
-      cacheBust: true,
-      filter: node => !(node instanceof HTMLElement && node.classList.contains('sim2-report-overlay')),
-    })
-  }, [])
-
-  const openReportModal = () => {
-    setReportOpen(true)
-    setReportStatus('idle')
-    setReportError('')
-  }
-
-  const closeReportModal = () => {
-    if (reportStatus === 'submitting') return
-    setReportOpen(false)
-  }
-
-  const handleReportSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+  const handleRevealSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const name = reportName.trim()
-    const email = reportEmail.trim()
-    if (!name) {
-      setReportError('Enter your name.')
-      return
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setReportError('Enter a valid email address.')
-      return
-    }
+    if (leadStatus === 'saved') { goToSimulator(); return }
+    const name = leadName.trim()
+    const email = leadEmail.trim()
+    if (!name) { setLeadError('Enter your name.'); return }
+    if (!EMAIL_RE.test(email)) { setLeadError('Enter a valid email address.'); return }
 
-    setReportStatus('submitting')
-    setReportError('')
-
+    setLeadStatus('submitting')
+    setLeadError('')
     try {
-      const image = dataUrlToBase64(await captureReportImage())
-      const payload = {
-        name,
-        email,
-        date,
-        image,
-        businessType,
-        baseline: {
-          summary: baselineSummary,
-          leads,
-          conversionRate: conv,
-          revenuePerClient: revenue,
-          timePerLeadHours: timeLead,
-          hourlyCost: hourly,
-          monthlyLeadGenerationSpend: adSpend,
-          costPerLead: derivedCpl,
-          followUpSpeed: optionLabel(MATURITY_OPTIONS, baselinePaceVal),
-          followUpSpeedValue: baselinePaceVal,
-          personalisation: optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal),
-          personalisationValue: baselinePersonVal,
-          automation: optionLabel(AUTOMATION_OPTIONS, baselineAutoVal),
-          automationValue: baselineAutoVal,
-        },
-      }
-
-      const res = await fetch('/api/simulator-report', {
+      const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name,
+          email,
+          phone: leadPhone.trim(),
+          profile,
+          values: {
+            'Monthly leads': fmt(leads),
+            'Conversion rate': `${fmtD(conv, conv % 1 === 0 ? 0 : 1)}%`,
+            'Average client value': `$${fmt(revenue)}`,
+            'Manual time per lead': timeLead < 1 ? `${Math.round(timeLead * 60)} min` : `${timeLead.toFixed(2)} hrs`,
+            'Hourly cost': `$${fmt(hourly)}/hr`,
+            'Monthly lead generation spend': `$${fmt(adSpend)}`,
+            'Response speed': optionLabel(MATURITY_OPTIONS, baselinePaceVal),
+            'Personalisation': optionLabel(PERSONALISATION_OPTIONS, baselinePersonVal),
+            'Automation': optionLabel(AUTOMATION_OPTIONS, baselineAutoVal),
+          },
+        }),
       })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(typeof json.error === 'string' ? json.error : 'Report delivery failed')
-
-      setReportStatus('sent')
-      setToast('Report sent')
+      if (res.status === 400) {
+        setLeadStatus('idle')
+        setLeadError(typeof json.error === 'string' ? json.error : 'Check your details and try again.')
+        return
+      }
+      // A CRM hiccup shouldn't hold their result hostage; the server logs the failure.
+      if (!res.ok) console.error('Lead capture failed', json)
+      setLeadStatus('saved')
+      goToSimulator()
     } catch (err) {
-      setReportStatus('idle')
-      setReportError(err instanceof Error ? err.message : 'Report delivery failed. Try again.')
+      console.error('Lead capture failed', err)
+      setLeadStatus('saved')
+      goToSimulator()
     }
-  }, [
-    adSpend,
-    baselineAutoVal,
-    baselinePaceVal,
-    baselinePersonVal,
-    baselineSummary,
-    businessType,
-    captureReportImage,
-    conv,
-    date,
-    derivedCpl,
-    hourly,
-    leads,
-    reportEmail,
-    reportName,
-    revenue,
-    timeLead,
-  ])
+  // goToSimulator is recreated each render; the values it reads are listed here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leadStatus, leadName, leadEmail, leadPhone, profile, leads, conv, revenue, timeLead, hourly, adSpend, baselinePaceVal, baselinePersonVal, baselineAutoVal])
 
   return (
     <div
@@ -913,6 +864,25 @@ function SimulatorInner() {
               </div>
             )}
 
+            {setupStep === 4 && (
+              <form id="sim2-lead-form" className="sim2-lead-form" onSubmit={handleRevealSubmit} noValidate>
+                <label className="sim2-lead-field">
+                  <span>Name</span>
+                  <input type="text" value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="Your name" autoComplete="name" required />
+                </label>
+                <label className="sim2-lead-field">
+                  <span>Email</span>
+                  <input type="email" value={leadEmail} onChange={e => setLeadEmail(e.target.value)} placeholder="you@company.com" autoComplete="email" required />
+                </label>
+                <label className="sim2-lead-field sim2-lead-field--wide">
+                  <span>Phone <em>(optional)</em></span>
+                  <input type="tel" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="+1 555 000 0000" autoComplete="tel" />
+                </label>
+                {leadError && <p className="sim2-lead-error" role="alert">{leadError}</p>}
+                <p className="sim2-lead-consent">We&apos;ll use these details to send your results and follow up about them. No spam.</p>
+              </form>
+            )}
+
             <div className="sim2-setup-actions">
               <button
                 type="button"
@@ -931,15 +901,15 @@ function SimulatorInner() {
                   Continue
                 </button>
               ) : (
-                <button type="button" className="sim2-primary-cta" onClick={goToSimulator}>
-                  Reveal Gap
+                <button type="submit" form="sim2-lead-form" className="sim2-primary-cta" disabled={leadStatus === 'submitting'}>
+                  {leadStatus === 'submitting' ? 'Saving…' : 'Reveal Gap'}
                 </button>
               )}
             </div>
           </section>
         </main>
       ) : (
-        <main className="sim2-workspace sim2-workspace--tour-dismissed" ref={rightPanelRef}>
+        <main className="sim2-workspace sim2-workspace--tour-dismissed">
 
           <section className="sim2-main-grid">
             <div className="sim2-reveal">
@@ -951,7 +921,7 @@ function SimulatorInner() {
                 </div>
                 <div className="sim2-actions sim2-actions--reveal">
                   <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink">Book a Call</BookCallButton>
-                  <button type="button" className="sim2-secondary-cta" onClick={openReportModal}>Get more info</button>
+                  <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="sim2-secondary-cta sim2-secondary-cta--link">Watch demo</a>
                 </div>
               </div>
               <div className="sim2-reveal__charts">
@@ -1029,73 +999,6 @@ function SimulatorInner() {
             </p>
           </section>
 
-
-          {reportOpen && (
-            <div className="sim2-report-overlay" onClick={closeReportModal}>
-              <form className="sim2-report-modal" onSubmit={handleReportSubmit} onClick={e => e.stopPropagation()}>
-                <div className="sim2-report-modal__head">
-                  <div>
-                    <span className="sim2-section-hd">Get your report and the next steps</span>
-                    <h2>We will send you more info on how you can reduce the revenue leak</h2>
-                  </div>
-                  <button
-                    type="button"
-                    className="sim2-drawer-close"
-                    onClick={closeReportModal}
-                    aria-label="Close report form"
-                    disabled={reportStatus === 'submitting'}
-                  >
-                    Close
-                  </button>
-                </div>
-                {reportStatus === 'sent' ? (
-                  <div className="sim2-report-success">
-                    <strong>Report sent.</strong>
-                    <p>Check your inbox for the diagnostic and recommended next steps.</p>
-                    <button type="button" className="sim2-primary-cta sim2-primary-cta--pink" onClick={closeReportModal}>
-                      Done
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <p className="sim2-report-copy">
-                      We will send your diagnostic image and baseline values to your inbox.
-                    </p>
-                    <label className="sim2-report-field">
-                      <span>Name</span>
-                      <input
-                        type="text"
-                        value={reportName}
-                        onChange={e => setReportName(e.target.value)}
-                        placeholder="Your name"
-                        autoComplete="name"
-                        required
-                      />
-                    </label>
-                    <label className="sim2-report-field">
-                      <span>Email address</span>
-                      <input
-                        type="email"
-                        value={reportEmail}
-                        onChange={e => setReportEmail(e.target.value)}
-                        placeholder="you@company.com"
-                        autoComplete="email"
-                        required
-                      />
-                    </label>
-                    {reportError && <p className="sim2-report-error">{reportError}</p>}
-                    <button
-                      type="submit"
-                      className="sim2-primary-cta sim2-primary-cta--pink sim2-report-submit"
-                      disabled={reportStatus === 'submitting'}
-                    >
-                      {reportStatus === 'submitting' ? 'Sending...' : 'Get more info'}
-                    </button>
-                  </>
-                )}
-              </form>
-            </div>
-          )}
 
           {baselineDrawerOpen && (
             <div className="sim2-drawer-backdrop" onClick={() => setBaselineDrawerOpen(false)}>
