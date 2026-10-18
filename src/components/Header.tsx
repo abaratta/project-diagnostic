@@ -41,7 +41,7 @@ export function Header() {
               </Link>
             )
           )}
-          <Link href="/" className="header__logo" aria-label="Profit AI Lab — home">
+          <Link href="/" className="header__logo" aria-label="Profit AI LAB — home">
             <Image src="/brand/logo-full.png" alt="Profit AI Lab" fill sizes="106px" priority className="header__logo-img" />
           </Link>
         </div>

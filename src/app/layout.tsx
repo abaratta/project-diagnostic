@@ -4,14 +4,20 @@ import '@/styles/global.css'
 import { Header } from '@/components/Header'
 import { SmoothScroll } from '@/components/SmoothScroll'
 import { ThemeProvider } from '@/components/theme-provider'
+import { SITE_URL } from '@/lib/seo'
 
 const exo = Exo_2({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-exo' })
 const outfit = Outfit({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], variable: '--font-outfit' })
 
 export const metadata: Metadata = {
-  title: 'Revenue Conversion Diagnostic - Profit AI Lab',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Revenue Conversion Diagnostic | Profit AI LAB',
+    template: '%s | Profit AI LAB',
+  },
   description: 'Estimate annual revenue growth from improving lead response, personalisation, and automation.',
   icons: { icon: '/favicon.png' },
+  openGraph: { siteName: 'Profit AI LAB', type: 'website', locale: 'en_AU' },
 }
 
 export const viewport: Viewport = {
