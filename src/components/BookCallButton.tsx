@@ -1,4 +1,4 @@
-const CAL_URL = 'https://tidycal.com/andrea-baratta/lead-conversion-review'
+const CAL_URL = 'https://links.profitailab.com/widget/booking/Ee4rrLM6m7WERplmNmWh'
 
 export function BookCallButton({ className, children }: {
   className?: string
