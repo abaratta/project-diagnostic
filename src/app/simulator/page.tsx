@@ -743,7 +743,7 @@ function SimulatorInner() {
               </div>
             </div>
             <div className="sim2-setup__eyebrow">{setupMeta.eyebrow}</div>
-            <h1 className="sim2-setup__title">{setupMeta.title}</h1>
+            <h2 className="sim2-setup__title">{setupMeta.title}</h2>
             <p className="sim2-setup__copy">{setupMeta.copy}</p>
 
             {setupStep === 0 && (
