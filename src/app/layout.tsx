@@ -12,10 +12,10 @@ const outfit = Outfit({ subsets: ['latin'], weight: ['300', '400', '500', '600',
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Revenue Conversion Diagnostic | Profit AI LAB',
+    default: 'Lead Response Calculator | Profit AI LAB',
     template: '%s | Profit AI LAB',
   },
-  description: 'Estimate annual revenue growth from improving lead response, personalisation, and automation.',
+  description: 'See what slow replies to new enquiries cost your service business each year, and what faster follow-up could recover.',
   icons: { icon: '/favicon.png' },
   openGraph: { siteName: 'Profit AI LAB', type: 'website', locale: 'en_AU' },
 }

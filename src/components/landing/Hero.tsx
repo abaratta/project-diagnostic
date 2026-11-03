@@ -48,7 +48,7 @@ export function Hero() {
     <section ref={root} className="cin-hero">
       <div className="cin-hero__grid">
         <div className="cin-hero__text">
-          <p data-hero-sub className="text-eyebrow">Revenue Conversion Diagnostic</p>
+          <p data-hero-sub className="text-eyebrow">Lead response calculator</p>
           <h1 className="text-hero cin-hero__title">
             <span className="cin-mask"><span data-hero-line className="cin-mask__line">Every slow reply</span></span>
             <span className="cin-mask"><span data-hero-line className="cin-mask__line">has a <span className="cin-hero__accent">price.</span></span></span>
