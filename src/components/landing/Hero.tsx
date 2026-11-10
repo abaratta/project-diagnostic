@@ -51,6 +51,7 @@ export function Hero() {
           <p data-hero-sub className="text-eyebrow">Lead response calculator</p>
           <h1 className="text-hero cin-hero__title">
             <span className="cin-mask"><span data-hero-line className="cin-mask__line">Every slow reply</span></span>
+            {' '}
             <span className="cin-mask"><span data-hero-line className="cin-mask__line">has a <span className="cin-hero__accent">price.</span></span></span>
           </h1>
           <p data-hero-sub className="cin-hero__sub">
