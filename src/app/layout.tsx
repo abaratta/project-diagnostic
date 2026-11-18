@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: '%s | Profit AI LAB',
   },
   description: 'See what slow replies to new enquiries cost your service business each year, and what faster follow-up could recover.',
-  icons: { icon: '/favicon2.png' },
+  icons: { icon: '/faviconPR.png' },
   openGraph: { siteName: 'Profit AI LAB', type: 'website', locale: 'en_AU' },
 }
 
