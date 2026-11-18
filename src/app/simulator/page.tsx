@@ -172,16 +172,23 @@ function drawBarChart(
 
   function fv(v: number) { return isMoney ? '$' + fmt(v) + '/mo' : fmtD(v, 1) }
 
+  const narrow  = W < 480
   const maxVal  = Math.max(nowVal, rapidVal, 0.001)
-  const barW    = W * 0.21
-  const gap     = W * 0.12
+  const barW    = W * 0.2
+  const gap     = W * 0.2
   const totalBW = barW * 2 + gap
   const startX  = (W - totalBW) / 2
-  const maxBarH = H * 0.74
+  const maxBarH = H * 0.7
   const baseY   = H * 0.90
 
-  const nowH  = (nowVal  / maxVal) * maxBarH
-  const rapH  = (rapidVal / maxVal) * maxBarH
+  // Cut axis: the lower bar never rises above CUT_RATIO of the taller one, so the gap reads clearly.
+  // When that kicks in, both bars get a break mark at the bottom to show the axis doesn't start at zero.
+  const CUT_RATIO = 0.4
+  const ratio     = Math.min(nowVal, rapidVal) / maxVal
+  const axisCut   = ratio > CUT_RATIO && nowVal !== rapidVal
+  const lowH      = (axisCut ? CUT_RATIO : ratio) * maxBarH
+  const nowH  = nowVal  < rapidVal ? lowH : (nowVal  / maxVal) * maxBarH
+  const rapH  = rapidVal < nowVal  ? lowH : (rapidVal / maxVal) * maxBarH
 
   // Without conversion system bar
   ctx.fillStyle = 'rgba(0,43,67,0.14)'
@@ -198,6 +205,59 @@ function drawBarChart(
   ctx.fillStyle = grd
   barPath(ctx, startX + barW + gap, baseY - rapH, barW, rapH, 4)
   ctx.fill()
+
+  // Axis break marks (two short diagonal slashes across each bar's foot)
+  if (axisCut) {
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth   = 2.5
+    for (const x of [startX, startX + barW + gap]) {
+      for (const dy of [0, 5]) {
+        const y = baseY - 8 - dy
+        ctx.beginPath()
+        ctx.moveTo(x - 3, y + 4)
+        ctx.lineTo(x + barW + 3, y - 4)
+        ctx.stroke()
+      }
+    }
+  }
+
+  // Arrow from the lower bar up to the higher bar, labelled with the gap
+  if (rapidVal > nowVal && nowH > 0) {
+    const x1 = startX + barW + 6
+    const y1 = baseY - nowH * 0.55
+    const x2 = startX + barW + gap - 8
+    const y2 = baseY - rapH * 0.8
+    const cx = x1 + (x2 - x1) * 0.25
+    const cy = y2 + 4
+    ctx.strokeStyle = '#e6356b'
+    ctx.lineWidth   = 2.5
+    ctx.lineCap     = 'round'
+    ctx.beginPath()
+    ctx.moveTo(x1, y1)
+    ctx.quadraticCurveTo(cx, cy, x2, y2)
+    ctx.stroke()
+    // Arrowhead along the curve's end tangent
+    const ang = Math.atan2(y2 - cy, x2 - cx)
+    const head = 9
+    ctx.fillStyle = '#e6356b'
+    ctx.beginPath()
+    ctx.moveTo(x2 + 3 * Math.cos(ang), y2 + 3 * Math.sin(ang))
+    ctx.lineTo(x2 - head * Math.cos(ang - 0.45), y2 - head * Math.sin(ang - 0.45))
+    ctx.lineTo(x2 - head * Math.cos(ang + 0.45), y2 - head * Math.sin(ang + 0.45))
+    ctx.closePath()
+    ctx.fill()
+    // Gap label: beside the middle of the arrow, or tucked under it on narrow screens
+    const diff = isMoney ? '+$' + fmt(rapidVal - nowVal) : '+' + fmtD(rapidVal - nowVal, 1)
+    ctx.textAlign    = 'center'
+    ctx.textBaseline = 'middle'
+    if (narrow) {
+      ctx.font = `800 11px ${canvasFont()}`
+      ctx.fillText(diff, (x1 + x2) / 2, baseY - nowH * 0.22)
+    } else {
+      ctx.font = `800 14px ${canvasFont()}`
+      ctx.fillText(isMoney ? diff + '/mo' : diff, (x1 + x2) / 2 + 14, (y1 + y2) / 2 + 10)
+    }
+  }
 
   // Conversion rates inside bars
   if (nowConv != null || rapidConv != null) {
@@ -217,7 +277,7 @@ function drawBarChart(
   // Values above bars
   ctx.textAlign    = 'center'
   ctx.textBaseline = 'bottom'
-  ctx.font      = isMoney ? `800 15px ${canvasFont()}` : `800 14px ${canvasFont()}`
+  ctx.font      = narrow ? `800 11px ${canvasFont()}` : isMoney ? `800 15px ${canvasFont()}` : `800 14px ${canvasFont()}`
   ctx.fillStyle = 'rgba(0,43,67,0.78)'
   if (nowH > 0) ctx.fillText(fv(nowVal),   startX + barW / 2,                   baseY - nowH - 4)
   ctx.fillStyle = '#127c6b'
@@ -962,37 +1022,32 @@ function SimulatorInner() {
               </div>
             </div>
 
-            <div className="sim2-levers-panel">
-              <div className="sim2-section-hd sim2-section-hd--panel-title">Conversion levers</div>
-              <p className="sim2-levers-help">Move the levers to see what changes. SPV improves conversion; automation reduces handling cost.</p>
-              <SimLever
-                label="SPV — speed, personalisation, value"
-                desc="Combined impact of faster response, relevant follow-up, and lead value delivery"
-                value={spvVal} onChange={setSpvVal} avgPct={spvAvgPct} baselinePct={spvBaselinePct} infrastructurePct={spvInfraPct}
-                ticks={['None', 'Basic', 'Active', 'Full']}
-                statusLabel={spvLabel(spvVal)}
-                impactLabel={`Recovers about $${fmt(spvMonthlyImpact)}/mo.`}
-              />
-              <SimLever
-                label="Automation"
-                desc="How much lead handling and admin is automated"
-                value={autoVal} onChange={setAutoTarget} avgPct={20} baselinePct={baselineAutoVal} infrastructurePct={INFRA_TARGETS.automation}
-                ticks={['Manual', 'Partial', 'Mostly', 'Full']}
-                statusLabel={autoLabel(autoVal)}
-                impactLabel={`Saves about $${fmt(autoSave)}/mo.`}
-              />
-              <div className="sim2-avg-legend">
-                <span><i className="sim2-avg-dot sim2-avg-dot--baseline" />Your baseline</span>
-                <span><i className="sim2-avg-dot" />Industry average</span>
-                <span><i className="sim2-avg-dot sim2-avg-dot--infra" />Conversion infrastructure</span>
+            <div className="sim2-levers-panel sim2-next-panel">
+              <div className="sim2-section-hd sim2-section-hd--panel-title">How to close the gap</div>
+              <p className="sim2-next-intro">Most of the leak comes from three fixable habits. Start here:</p>
+              <ol className="sim2-next-steps">
+                <li>
+                  <strong>Reply in minutes, not hours</strong>
+                  <span>Every new enquiry gets a fast, personal first response, even after hours. The first business to reply usually wins the client.</span>
+                </li>
+                <li>
+                  <strong>Follow up with something useful</strong>
+                  <span>Answer their question, show proof and suggest the next step, tailored to what they asked, instead of a generic &ldquo;just checking in&rdquo;.</span>
+                </li>
+                <li>
+                  <strong>Automate the admin</strong>
+                  <span>Capturing details, updating your CRM and sending reminders happen on their own, so your time goes to clients, not copy-paste.</span>
+                </li>
+              </ol>
+              <div className="sim2-next-call">
+                <span className="sim2-next-call__label">What you get on the call</span>
+                <ul>
+                  <li>A walk-through of your numbers and where your leads drop off</li>
+                  <li>The two or three fixes that would recover the most revenue first</li>
+                  <li>A straight answer on whether the Lead-to-Revenue System&trade; is a fit, with no pressure</li>
+                </ul>
               </div>
-              <div className="sim2-baseline-summary">
-                <div>
-                  <span>Current baseline</span>
-                  <strong>{baselineSummary}</strong>
-                  <small>{systemBaselineSummary}</small>
-                </div>
-              </div>
+              <BookCallButton className="sim2-primary-cta sim2-primary-cta--pink sim2-next-cta">Book a Call</BookCallButton>
             </div>
             <p className="sim2-disclaimer sim2-disclaimer--grid">
               Results are indicative. Based on published industry benchmarks; individual outcomes may differ.

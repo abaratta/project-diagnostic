@@ -6243,3 +6243,84 @@ body:has(.rr-shell) { background: #e4eaf1; }
 .cin-faq .cin-steps__name { font-size: 1.25rem; }
 .cin-faq__more { margin-top: 3rem; }
 .cin-faq__more a { color: var(--mint-deep); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Simulator: "How to close the gap" panel (replaces the levers) ── */
+.sim2-next-intro {
+  margin: 0;
+  color: rgba(0,43,67,0.72);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.sim2-next-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: sim2-next;
+}
+.sim2-next-steps li {
+  position: relative;
+  padding: 0.9rem 1rem 0.9rem 3rem;
+  border: 1px solid rgba(0,43,67,0.06);
+  border-radius: calc(var(--radius-input) + 2px);
+  background: rgba(0,43,67,0.02);
+  counter-increment: sim2-next;
+}
+.sim2-next-steps li::before {
+  content: counter(sim2-next);
+  position: absolute;
+  top: 0.9rem;
+  left: 1rem;
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.sim2-next-steps strong {
+  display: block;
+  color: rgba(0,43,67,0.9);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.sim2-next-steps span {
+  display: block;
+  margin-top: 0.25rem;
+  color: rgba(0,43,67,0.66);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.sim2-next-call {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(0,43,67,0.1);
+  border-radius: var(--radius-input);
+  background: rgba(0,43,67,0.035);
+}
+.sim2-next-call__label {
+  display: block;
+  color: var(--mint-text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sim2-next-call ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  list-style: disc;
+  color: rgba(0,43,67,0.78);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.sim2-next-call li + li { margin-top: 0.3rem; }
+.sim2-next-cta {
+  align-self: stretch;
+  min-height: 3rem;
+}
